@@ -10,6 +10,9 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * An item that can be bought or sold in a shop
+ */
 public class ShopItem {
     private String itemName;
     private String itemMaterial;

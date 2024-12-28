@@ -16,6 +16,9 @@ import java.util.LinkedList;
 public class GUIShop implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger("gui-shop");
 
+	/**
+	 * Holds the shops that are currently loaded
+	 */
 	public static final LinkedList<Shop> shops = new LinkedList<>();
 	//public static final EconomyTransactionHandler transactionHandler = new EconomyTransactionHandler();
 

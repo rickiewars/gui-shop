@@ -3,6 +3,9 @@ package unsafedodo.guishop.shop;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * A shop which holds a list of items
+ */
 public class Shop {
     private String name;
     private List<ShopItem> items;

@@ -34,7 +34,7 @@ public class GUIShopOpenCommand {
         Shop selectedShop = CommonMethods.getShopByName(shopName);
 
         if(selectedShop != null){
-            if(selectedShop.getItems().size() > 0){
+            if(!selectedShop.getItems().isEmpty()){
                 if(selectedShop.getItems().size() <= PagedShopGUI.MAX_PAGE_ITEMS){
                     try{
                         ShopGUI shopGUI = new ShopGUI(EntityArgumentType.getPlayer(context, "playerName"), selectedShop);

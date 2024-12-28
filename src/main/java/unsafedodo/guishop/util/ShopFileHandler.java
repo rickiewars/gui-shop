@@ -12,6 +12,12 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Runnable command to save shops to guishop.json
+ * - Once initialized, it will be scheduled to run every 30 minutes
+ * - The command can be triggered using the `guishop forcesave` command
+ * - The command will be triggered on server shutdown
+ */
 public class ShopFileHandler implements Runnable{
 
     private static ScheduledExecutorService executorService = new ScheduledThreadPoolExecutor(1);

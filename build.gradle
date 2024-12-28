@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.3-SNAPSHOT'
+	id 'fabric-loom' version '1.9-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -21,17 +21,12 @@ repositories {
 	maven { url 'https://maven.nucleoid.xyz' }
 
 	maven {
-		name "reposiliteRepositoryReleases"
-		url "https://maven.epherical.com/releases"
-	}
-
-	maven {
 		url "https://cursemaven.com"
 	}
 
 	maven{
 		name 'Impactor Economy'
-		url  "https://maven.impactdev.net/repository/development/"
+		url  "https://maven.impactdev.net/repository/development"
 	}
 
 	mavenCentral()
@@ -60,7 +55,8 @@ dependencies {
 
 	include(modImplementation('me.lucko:fabric-permissions-api:0.2-SNAPSHOT'))
 
-	implementation("net.impactdev.impactor.api:economy:5.1.1+1.20.1")
+	// If not desired result, try compileOnly or modCompileOnly
+	modImplementation("net.impactdev.impactor.api:economy:5.1.1+1.20.1")
 
 	modImplementation include("eu.pb4:sgui:1.2.2+1.20")
 

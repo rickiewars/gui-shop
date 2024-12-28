@@ -29,7 +29,7 @@ public class CommonMethods {
     /**
      * Gets shop data by name.
      * @param name The name of the shop to look for
-     * @return An object of class Shop from the list {@link unsafedodo.guishop.GUIShop#shops} with the same case-sensitive name as the one
+     * @return An object of class Shop from the list {@link GUIShop#shops} with the same case-sensitive name as the one
      * passed by argument, or null if none is found.
      */
     public static Shop getShopByName(String name) {
