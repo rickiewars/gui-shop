@@ -18,6 +18,8 @@ import unsafedodo.guishop.shop.Shop;
 import unsafedodo.guishop.shop.ShopItem;
 import unsafedodo.guishop.util.CommonMethods;
 
+import java.util.Objects;
+
 public class GUIShopAddHeldItemCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
         dispatcher.register(CommandManager.literal("guishop")
@@ -45,7 +47,13 @@ public class GUIShopAddHeldItemCommand {
             return -1;
         }
 
-        ItemStack heldItem = context.getSource().getPlayer().getMainHandStack();
+        ItemStack heldItem;
+        try {
+            heldItem = Objects.requireNonNull(context.getSource().getPlayer()).getMainHandStack();
+        } catch (NullPointerException npe) {
+            context.getSource().sendFeedback(() -> Text.literal("You must can only run this command as a player").formatted(Formatting.RED), false);
+            return -1;
+        }
         if (heldItem.isEmpty()) {
             context.getSource().sendFeedback(() -> Text.literal("You must be holding an item to add it to the shop").formatted(Formatting.RED), false);
             return -1;
