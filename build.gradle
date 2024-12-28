@@ -55,8 +55,7 @@ dependencies {
 
 	include(modImplementation("me.lucko:fabric-permissions-api:${project.fabric_permissions_api_version}"))
 
-	// If not desired result, try compileOnly or modCompileOnly
-	modImplementation("net.impactdev.impactor.api:economy:${project.impactor_economy_api_version}")
+	implementation("net.impactdev.impactor.api:economy:${project.impactor_economy_api_version}")
 
 	modImplementation include("eu.pb4:sgui:${project.sgui_version}")
 
