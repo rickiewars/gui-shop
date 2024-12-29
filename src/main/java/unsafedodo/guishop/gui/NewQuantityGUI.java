@@ -4,8 +4,6 @@ import eu.pb4.placeholders.api.TextParserUtils;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import eu.pb4.sgui.api.gui.SlotGuiInterface;
-import net.impactdev.impactor.api.ImpactorServiceProvider;
-import net.impactdev.impactor.api.economy.accounts.Account;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -18,8 +16,6 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import unsafedodo.guishop.GUIShop;
 import unsafedodo.guishop.shop.ShopItem;
-import unsafedodo.guishop.util.CommonMethods;
-import unsafedodo.guishop.util.EconomyHandler;
 
 import java.util.concurrent.ExecutionException;
 
@@ -41,13 +37,10 @@ public class NewQuantityGUI extends SimpleGui {
                     .setName(Text.empty()));
         }
 
-        Account playerAccount = EconomyHandler.getAccount(player.getUuid());
-
-        assert playerAccount != null;
         this.setSlot(45, new GuiElementBuilder()
                 .setItem(Items.PLAYER_HEAD)
                 .setName(Text.literal("Your balance: ").setStyle(Style.EMPTY.withItalic(true)).formatted(Formatting.GREEN)
-                        .append(Text.literal(String.format("%.2f $", EconomyHandler.getBalance(playerAccount))).setStyle(Style.EMPTY.withItalic(true)).formatted(Formatting.YELLOW)))
+                        .append(Text.literal(String.format("%.2f $", GUIShop.economyService.getBalance(player.getUuid()))).setStyle(Style.EMPTY.withItalic(true)).formatted(Formatting.YELLOW)))
                 .setSkullOwner(HeadTextures.MONEY_SYMBOL, null, null));
 
         ItemStack guiItem = new ItemStack(Registries.ITEM.get(new Identifier(item.getItemMaterial())));
@@ -73,7 +66,7 @@ public class NewQuantityGUI extends SimpleGui {
                         .setCallback(((index, type1, action) -> {
                             if (item.getBuyItemPrice() == -1.0) {
                                 player.sendMessage(Text.literal("This item is not for sale").formatted(Formatting.RED));
-                            } else if (EconomyHandler.remove(playerAccount, item.getBuyItemPrice()*quantity)){
+                            } else if (GUIShop.economyService.remove(player.getUuid(), item.getBuyItemPrice()*quantity)){
                                 ItemStack givenItem = new ItemStack(Registries.ITEM.get(new Identifier(item.getItemMaterial())), quantity);
                                 if((item.getNbt() != null) && !(item.getNbt().toString().equals("{}")))
                                     givenItem.setNbt(item.getNbt());
@@ -83,7 +76,7 @@ public class NewQuantityGUI extends SimpleGui {
                                     this.setSlot(45, new GuiElementBuilder()
                                             .setItem(Items.PLAYER_HEAD)
                                             .setName(Text.literal("Your balance: ").setStyle(Style.EMPTY.withItalic(true)).formatted(Formatting.GREEN)
-                                                    .append(Text.literal(String.format("%.2f $", EconomyHandler.getBalance(playerAccount))).setStyle(Style.EMPTY.withItalic(true)).formatted(Formatting.YELLOW)))
+                                                    .append(Text.literal(String.format("%.2f $", GUIShop.economyService.getBalance(player.getUuid()))).setStyle(Style.EMPTY.withItalic(true)).formatted(Formatting.YELLOW)))
                                             .setSkullOwner(HeadTextures.MONEY_SYMBOL, null, null));
                                 } catch (ExecutionException | InterruptedException ignored) {
 
@@ -107,12 +100,12 @@ public class NewQuantityGUI extends SimpleGui {
                             if (item.getSellItemPrice() == -1.0) {
                                 player.sendMessage(Text.literal("You can't sell this item!").formatted(Formatting.RED));
                             } else if (removeItemFromInventory(player, Registries.ITEM.get(new Identifier(item.getItemMaterial())), quantity)){
-                                EconomyHandler.add(playerAccount, item.getSellItemPrice()*quantity);
+                                GUIShop.economyService.add(player.getUuid(), item.getSellItemPrice()*quantity);
                                 try {
                                     this.setSlot(45, new GuiElementBuilder()
                                             .setItem(Items.PLAYER_HEAD)
                                             .setName(Text.literal("Your balance: ").setStyle(Style.EMPTY.withItalic(true)).formatted(Formatting.GREEN)
-                                                    .append(Text.literal(String.format("%.2f $", EconomyHandler.getBalance(playerAccount))).setStyle(Style.EMPTY.withItalic(true)).formatted(Formatting.YELLOW)))
+                                                    .append(Text.literal(String.format("%.2f $", GUIShop.economyService.getBalance(player.getUuid()))).setStyle(Style.EMPTY.withItalic(true)).formatted(Formatting.YELLOW)))
                                             .setSkullOwner(HeadTextures.MONEY_SYMBOL, null, null));
                                 } catch (ExecutionException | InterruptedException ignored) {
 
@@ -135,7 +128,7 @@ public class NewQuantityGUI extends SimpleGui {
                         parentGUI.setSlot(45, new GuiElementBuilder()
                                 .setItem(Items.PLAYER_HEAD)
                                 .setName(Text.literal("Your balance: ").setStyle(Style.EMPTY.withItalic(true)).formatted(Formatting.GREEN)
-                                        .append(Text.literal(String.format("%.2f $", EconomyHandler.getBalance(playerAccount))).setStyle(Style.EMPTY.withItalic(true)).formatted(Formatting.YELLOW)))
+                                        .append(Text.literal(String.format("%.2f $", GUIShop.economyService.getBalance(player.getUuid()))).setStyle(Style.EMPTY.withItalic(true)).formatted(Formatting.YELLOW)))
                                 .setSkullOwner(HeadTextures.MONEY_SYMBOL, null, null));
                     } catch (ExecutionException | InterruptedException ignored) {
 

@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import unsafedodo.guishop.config.ConfigManager;
+import unsafedodo.guishop.economy.IEconomyService;
 import unsafedodo.guishop.shop.Shop;
 import unsafedodo.guishop.util.Register;
 import unsafedodo.guishop.util.ShopFileHandler;
@@ -20,8 +21,7 @@ public class GUIShop implements ModInitializer {
 	 * Holds the shops that are currently loaded
 	 */
 	public static final LinkedList<Shop> shops = new LinkedList<>();
-	//public static final EconomyTransactionHandler transactionHandler = new EconomyTransactionHandler();
-
+	public static IEconomyService economyService = null;
 
 	static {
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {

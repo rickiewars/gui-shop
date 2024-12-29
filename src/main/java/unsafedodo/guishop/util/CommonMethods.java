@@ -57,13 +57,4 @@ public class CommonMethods {
             return builder.buildFuture();
         }
     }
-
-//    public static double getBalance(ServerPlayerEntity player){
-//        Economy currentEconomy = GUIShop.transactionHandler.currentEconomy;
-//        UniqueUser playerAccount = currentEconomy.getOrCreatePlayerAccount(player.getUuid());
-//        if(playerAccount != null){
-//            return playerAccount.getBalance(currentEconomy.getDefaultCurrency());
-//        }
-//        return -1;
-//    }
 }

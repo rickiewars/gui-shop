@@ -3,7 +3,6 @@ package unsafedodo.guishop.command.sell;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.impactdev.impactor.api.economy.accounts.Account;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
@@ -14,10 +13,10 @@ import net.minecraft.text.HoverEvent;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import unsafedodo.guishop.GUIShop;
 import unsafedodo.guishop.shop.Shop;
 import unsafedodo.guishop.shop.ShopItem;
 import unsafedodo.guishop.util.CommonMethods;
-import unsafedodo.guishop.util.EconomyHandler;
 
 public class SellCommand {
 	public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
@@ -89,8 +88,7 @@ public class SellCommand {
 					int count = player.getInventory().count(itemStack.getItem());
 					double totalPrice = shopItem.getSellItemPrice() * count;
 					player.getInventory().remove(stack -> isItemEqual(stack, shopItem), count, player.getInventory());
-					Account account = EconomyHandler.getAccount(player.getUuid());
-					EconomyHandler.add(account, totalPrice);
+					GUIShop.economyService.add(player.getUuid(), totalPrice);
 					MutableText message = Text.literal("Sold " + count + " " + shopItem.getItemName() + " for $" + String.format("%.2f", totalPrice)).styled(style -> style.withColor(Formatting.GREEN));
 					context.getSource().sendFeedback(() -> message, false);
 					return 1;
@@ -128,8 +126,7 @@ public class SellCommand {
 		}
 
 		if (totalCount > 0) {
-			Account account = EconomyHandler.getAccount(player.getUuid());
-			EconomyHandler.add(account, totalPrice);
+			GUIShop.economyService.add(player.getUuid(), totalPrice);
 			MutableText message = Text.literal("Sold " + totalCount + " items for $" + String.format("%.2f", totalPrice))
 					.styled(style -> style.withColor(Formatting.GREEN).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hoverText)));
 			context.getSource().sendFeedback(() -> message, false);

@@ -62,6 +62,16 @@ public class ConfigManager {
 
             ConfigData configData = getConfigData(configFile);
 
+            if (!configData.economyType.modIsLoaded()) {
+                GUIShop.LOGGER.error(
+                    "Configured economy type " +
+                    configData.economyType.pretty() +
+                    " is not loaded. Please make sure the mod you configured is installed."
+                );
+                return false;
+            }
+            GUIShop.economyService = configData.economyType.getEconomyService();
+
             GUIShop.shops.clear();
             if(configData.shops != null){
                 for(Shop shop: configData.shops)
