@@ -71,7 +71,7 @@ public class ConfigManager {
                 GUIShop.LOGGER.error("None of the supported economy mods are found. Please install at least one.");
                 return false;
             }
-            if (!configData.economyType.modIsLoaded()) {
+            if (configData.economyType != EconomyType.MOCK && !configData.economyType.modIsLoaded()) {
                 GUIShop.LOGGER.error(
                     "Configured economy type " +
                     configData.economyType.pretty() +
