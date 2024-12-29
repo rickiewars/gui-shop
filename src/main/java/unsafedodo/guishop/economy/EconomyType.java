@@ -19,7 +19,7 @@ public enum EconomyType {
     }
 
     public boolean modIsLoaded() {
-        return this.equals(MOCK) || FabricLoader.getInstance().isModLoaded(modId);
+        return FabricLoader.getInstance().isModLoaded(modId);
     }
 
     public String pretty() {
@@ -33,7 +33,7 @@ public enum EconomyType {
                 return economyType;
             }
         }
-        return MOCK;
+        return null;
     }
 
     public IEconomyService getEconomyService() {

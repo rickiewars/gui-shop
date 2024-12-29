@@ -3,6 +3,7 @@ package unsafedodo.guishop.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import unsafedodo.guishop.GUIShop;
+import unsafedodo.guishop.economy.EconomyType;
 import unsafedodo.guishop.shop.Shop;
 import unsafedodo.guishop.shop.ShopItem;
 import unsafedodo.guishop.util.ShopItemSerializer;
@@ -62,14 +63,23 @@ public class ConfigManager {
 
             ConfigData configData = getConfigData(configFile);
 
+            if (configData.economyType == null) {
+                GUIShop.LOGGER.warn("Unknown economy type. Falling back to next supported economy.");
+                configData.economyType = EconomyType.firstLoaded();
+            }
+            if (configData.economyType == null) {
+                GUIShop.LOGGER.error("None of the supported economy mods are found. Please install at least one.");
+                return false;
+            }
             if (!configData.economyType.modIsLoaded()) {
                 GUIShop.LOGGER.error(
                     "Configured economy type " +
                     configData.economyType.pretty() +
-                    " is not loaded. Please make sure the mod you configured is installed."
+                    " is not loaded. Make sure the mod you configured is installed."
                 );
                 return false;
             }
+            GUIShop.LOGGER.info("Configured economy: " + configData.economyType.pretty());
             GUIShop.economyService = configData.economyType.getEconomyService();
 
             GUIShop.shops.clear();
