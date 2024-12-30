@@ -1,3 +1,9 @@
+# About this fork
+
+This is a fork of the original [GUI Shop](https://github.com/UnsafeDodo/gui-shop) mod by [UnsafeDodo](https://github.com/UnsafeDodo).
+I adapted it to my requirements and added some features.
+I'm not planning to provide support _(at this time)_, but feel free to use or fork it if you want.
+
 # GUI Shop
 
 A fabric server-side mod to create and manage GUI shops.
@@ -47,6 +53,7 @@ You can even add items from the JSON file (check [JSON Example](#json-example)).
 ### JSON example
 ```json5
 {
+  "economy": "impactor",
   "shops": [
     {
       "shopName": "Shop number one",
@@ -104,14 +111,11 @@ You can even add items from the JSON file (check [JSON Example](#json-example)).
 ```
 
 ## Supported Economies:
- - [EightsEconomyP](https://legacy.curseforge.com/minecraft/mc-mods/eightseconomyp)
+ - ~~[EightsEconomyP](https://legacy.curseforge.com/minecraft/mc-mods/eightseconomyp)~~ *(not explicitly implemented)*
+ - [Impactor](https://modrinth.com/mod/impactor)
 
 ### Discord
 Join my [discord server](https://discord.gg/tExFemXyJS) if you need support for one of my mods!
 
 ## Showcase
-![Screenshot1](https://i.imgur.com/st7C4aP.png)
-
-![Screenshot2](https://i.imgur.com/VPSXq6O.png)
-
-![Screenshot3](https://i.imgur.com/Nce7NzC.png)
+![img.png](resources/img.png)
