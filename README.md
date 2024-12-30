@@ -14,23 +14,23 @@ Put the .jar file in the "mods" folder
 All commands can be used by admins (permission level 3) or by users/groups with the specific permission
 
 
-| Description                | Command                                                                                              | Permission               | 
-|----------------------------|------------------------------------------------------------------------------------------------------|--------------------------|
-| Main command               | `/guishop`                                                                                           | `automessage.main`       |
-| Create a shop              | `/guishop create <shopName>`                                                                         | `automessage.create`     |
-| Delete a shop              | `/guishop delete <shopName> `                                                                        | `automessage.delete`     |
-| Add an item in a shop      | `/guishop additem <shopName> <itemMaterial> <buyPrice> <sellPrice> <description> <nbt> <quantities>` | `automessage.additem`    |
-| Remove an item from a shop | `/guishop removeitem <shopName> <itemName>`                                                          | `automessage.removeitem` |
-| Open a shop for a player   | `/guishop open <shopName> <playerName>`                                                              | `automessage.open`       |
-| List all shops             | `/guishop list`                                                                                      | `automessage.list`       |
-| List all items in a shop   | `/guishop list <shopName>`                                                                           | `automessage.list`       |
-| Force save config          | `/guishop forcesave`                                                                                 | `automessage.forcesave`  |
-| Reload config file         | `/automessage reload`                                                                                | `automessage.reload`     |
+| Description                | Command                                                                                 | Permission               | 
+|----------------------------|-----------------------------------------------------------------------------------------|--------------------------|
+| Main command               | `/guishop`                                                                              | `automessage.main`       |
+| Create a shop              | `/guishop create <shopName>`                                                            | `automessage.create`     |
+| Delete a shop              | `/guishop delete <shopName> `                                                           | `automessage.delete`     |
+| Add an item in a shop      | `/guishop additem <shopName> <itemMaterial> <buyPrice> <sellPrice> <description> <nbt>` | `automessage.additem`    |
+| Remove an item from a shop | `/guishop removeitem <shopName> <itemName>`                                             | `automessage.removeitem` |
+| Open a shop for a player   | `/guishop open <shopName> <playerName>`                                                 | `automessage.open`       |
+| List all shops             | `/guishop list`                                                                         | `automessage.list`       |
+| List all items in a shop   | `/guishop list <shopName>`                                                              | `automessage.list`       |
+| Force save config          | `/guishop forcesave`                                                                    | `automessage.forcesave`  |
+| Reload config file         | `/automessage reload`                                                                   | `automessage.reload`     |
 
 ### Commands examples
 Create a shop: `/guishop create "Test shop"`"
 
-Add item in a shop: `/guishop additem "Diamond" "minecraft:diamond" 250.00 100.00 "This is a Diamond\\An expensive diamond\\Shiny" "{}" "1:10:32:64"` *(you can split each description line by using "\\\\", and you can input up to 4 quantities splitted by ":")*
+Add item in a shop: `/guishop additem "Diamond" "minecraft:diamond" 250.00 100.00 "This is a Diamond\\An expensive diamond\\Shiny" "{}"` *(you can split each description line by using "\\\\")*
 
 Remove item from shop: `/guishop removeitem "Test shop" "Diamond"`
 

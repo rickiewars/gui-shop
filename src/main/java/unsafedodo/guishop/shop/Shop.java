@@ -18,6 +18,15 @@ public class Shop {
         return items;
     }
 
+    public ShopItem findItem(String material) {
+        for (ShopItem item : items) {
+            if (item.getItemMaterial().equals(material)) {
+                return item;
+            }
+        }
+        return null;
+    }
+
     public Shop(String name) {
         this(name, new LinkedList<>());
     }

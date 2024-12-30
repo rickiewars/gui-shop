@@ -20,16 +20,14 @@ public class ShopItem {
     private float sellItemPrice;
     private String[] description;
     private NbtCompound nbt;
-    private int[] quantities;
 
-    public ShopItem(String itemName, String itemMaterial, float buyItemPrice, float sellItemPrice, String[] description, NbtCompound nbt, int[] quantities) {
+    public ShopItem(String itemName, String itemMaterial, float buyItemPrice, float sellItemPrice, String[] description, NbtCompound nbt) {
         this.itemName = itemName;
         this.itemMaterial = itemMaterial;
         this.buyItemPrice = buyItemPrice;
         this.sellItemPrice = sellItemPrice;
         this.description = description;
         this.nbt = nbt;
-        this.quantities = quantities;
     }
 
     public String getItemName() {
@@ -56,8 +54,9 @@ public class ShopItem {
         return nbt;
     }
 
-    public int[] getQuantities() {
-        return quantities;
+    public boolean hasNbt(){
+        // TODO: Check if nbt.isEmpty() is equivalent to this.
+        return (nbt != null) && !(nbt.toString().equals("{}"));
     }
 
     @Override
@@ -80,8 +79,7 @@ public class ShopItem {
             }
         }
 
-        if (!nbt.toString().equals(shopItem.nbt.toString())) return false;
-        return Arrays.equals(quantities, shopItem.quantities);
+        return nbt.toString().equals(shopItem.nbt.toString());
     }
 
     @Override
@@ -92,7 +90,6 @@ public class ShopItem {
         result = 31 * result + (sellItemPrice != 0.0f ? Float.floatToIntBits(sellItemPrice) : 0);
         result = 31 * result + Arrays.hashCode(description);
         result = 31 * result + nbt.hashCode();
-        result = 31 * result + Arrays.hashCode(quantities);
         return result;
     }
 
@@ -106,28 +103,31 @@ public class ShopItem {
         return resultDescription;
     }
 
-    public Text getLoreBuyPrice(int quantity){
+    public Text getLoreBuyPrice(){
         MutableText priceText = Text.literal("");
 
         if(buyItemPrice > 0){
-            priceText.append(Text.literal("Buy Price: ").formatted(Formatting.GREEN)
-                    .append(Text.literal(String.format("%.2f $", buyItemPrice*quantity)).formatted(Formatting.YELLOW)));
+            priceText.append(Text.literal("Left click to buy for ").formatted(Formatting.GREEN)
+                    .append(Text.literal(String.format("%.2f $", buyItemPrice)).formatted(Formatting.YELLOW)));
         }
 
         return priceText;
     }
 
-    public Text getLoreSellPrice(int quantity){
+    public Text getLoreSellPrice(){
         MutableText priceText = Text.literal("");
 
         if(sellItemPrice > 0){
-            priceText.append(Text.literal("Sell Price: ").formatted(Formatting.RED)
-                    .append(Text.literal(String.format("%.2f $", sellItemPrice*quantity)).formatted(Formatting.YELLOW)));
+            priceText.append(Text.literal("Right click to sell for ").formatted(Formatting.RED)
+                    .append(Text.literal(String.format("%.2f $", sellItemPrice)).formatted(Formatting.YELLOW)));
         }
 
         return priceText;
     }
 
+    public Text getLoreTradeStackInstruction(){
+        return Text.literal("Hold shift to trade up to a stack of items").formatted(Formatting.AQUA);
+    }
 
 }
 

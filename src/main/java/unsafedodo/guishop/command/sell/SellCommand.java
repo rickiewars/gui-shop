@@ -104,7 +104,7 @@ public class SellCommand {
 		ServerPlayerEntity player = context.getSource().getPlayer();
 		double totalPrice = 0;
 		int totalCount = 0;
-		MutableText hoverText = Text.literal("Breakdown:\n").formatted(Formatting.YELLOW);
+		MutableText hoverText = Text.literal("Breakdown:\n").formatted(Formatting.AQUA);
 
 		for (int i = 0; i < player.getInventory().size(); i++) {
 			ItemStack itemStack = player.getInventory().getStack(i);

@@ -34,15 +34,7 @@ public class ShopItemSerializer implements JsonSerializer<ShopItem>, JsonDeseria
             throw new RuntimeException(e);
         }
 
-        JsonArray jsonQuantities = jsonShop.getAsJsonArray("quantityList");
-        int[] quantities = new int[jsonQuantities.size()];
-        for(int i = 0; i < jsonQuantities.size(); i++){
-            quantities[i] = jsonQuantities.get(i).getAsInt();
-        }
-
-        ShopItem finalResult = new ShopItem(itemName, itemMaterial, buyItemPrice, sellItemPrice, description, nbt, quantities);
-
-        return finalResult;
+        return new ShopItem(itemName, itemMaterial, buyItemPrice, sellItemPrice, description, nbt);
     }
 
     @Override
@@ -53,28 +45,20 @@ public class ShopItemSerializer implements JsonSerializer<ShopItem>, JsonDeseria
         float sellItemPrice = shopItem.getSellItemPrice();
         String[] description = shopItem.getDescription();
         NbtCompound nbt = shopItem.getNbt();
-        int[] quantities = shopItem.getQuantities();
 
         JsonObject finalResult = new JsonObject();
         finalResult.add("name", new JsonPrimitive(itemName));
         finalResult.add("material", new JsonPrimitive(itemMaterial));
 
         JsonArray jsonDescription = new JsonArray(description.length);
-        JsonArray jsonQuantities = new JsonArray(quantities.length);
-        int count = Math.max(description.length, quantities.length);
-
-        for(int i = 0; i < count; i++){
-            if(i < description.length)
-                jsonDescription.add(description[i]);
-            if(i < quantities.length)
-                jsonQuantities.add(quantities[i]);
+        for (String s : description) {
+            jsonDescription.add(s);
         }
 
         finalResult.add("description", jsonDescription);
         finalResult.add("buyPrice", new JsonPrimitive(buyItemPrice));
         finalResult.add("sellPrice", new JsonPrimitive(sellItemPrice));
         finalResult.add("nbt", new JsonPrimitive(nbt.toString()));
-        finalResult.add("quantityList", jsonQuantities);
 
         return finalResult;
     }
