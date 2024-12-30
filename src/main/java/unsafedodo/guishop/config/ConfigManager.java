@@ -63,24 +63,24 @@ public class ConfigManager {
 
             ConfigData configData = getConfigData(configFile);
 
-            if (configData.economyType == null) {
+            if (configData.economy == null) {
                 GUIShop.LOGGER.warn("Unknown economy type. Falling back to next supported economy.");
-                configData.economyType = EconomyType.firstLoaded();
+                configData.economy = EconomyType.firstLoaded();
             }
-            if (configData.economyType == null) {
+            if (configData.economy == null) {
                 GUIShop.LOGGER.error("None of the supported economy mods are found. Please install at least one.");
                 return false;
             }
-            if (configData.economyType != EconomyType.MOCK && !configData.economyType.modIsLoaded()) {
+            if (configData.economy != EconomyType.MOCK && !configData.economy.modIsLoaded()) {
                 GUIShop.LOGGER.error(
                     "Configured economy type " +
-                    configData.economyType.pretty() +
+                    configData.economy.pretty() +
                     " is not loaded. Make sure the mod you configured is installed."
                 );
                 return false;
             }
-            GUIShop.LOGGER.info("Configured economy: " + configData.economyType.pretty());
-            GUIShop.economyService = configData.economyType.getEconomyService();
+            GUIShop.LOGGER.info("Configured economy: " + configData.economy.pretty());
+            GUIShop.economyService = configData.economy.getEconomyService();
 
             GUIShop.shops.clear();
             if(configData.shops != null){

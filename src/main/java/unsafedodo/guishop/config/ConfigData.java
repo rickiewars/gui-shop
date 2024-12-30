@@ -7,12 +7,12 @@ import unsafedodo.guishop.shop.Shop;
  * An interface representing the configuration structure
  */
 public class ConfigData {
-    EconomyType economyType;
+    EconomyType economy;
     Shop[] shops;
 
     public ConfigData(Shop[] shops, EconomyType economyType) {
         this.shops = shops;
-        this.economyType = economyType;
+        this.economy = economyType;
     }
     public ConfigData(Shop[] shops){
         this(shops, EconomyType.firstLoaded());
