@@ -3,6 +3,7 @@ package unsafedodo.guishop.util;
 import unsafedodo.guishop.GUIShop;
 import unsafedodo.guishop.config.ConfigData;
 import unsafedodo.guishop.config.ConfigManager;
+import unsafedodo.guishop.economy.EconomyType;
 import unsafedodo.guishop.shop.Shop;
 
 import java.io.*;
@@ -35,7 +36,10 @@ public class ShopFileHandler implements Runnable{
 
     public void saveToFile() throws IOException {
         Shop[] shops = new Shop[GUIShop.shops.size()];
-        String jsonString = ConfigManager.GSON.toJson(new ConfigData(GUIShop.shops.toArray(shops)));
+        String jsonString = ConfigManager.GSON.toJson(new ConfigData(
+                GUIShop.shops.toArray(shops),
+                EconomyType.getTypeFromService(GUIShop.economyService)
+        ));
 
         File configDir = Paths.get("", "config").toFile();
         File configFile = new File(configDir, "guishop.json");

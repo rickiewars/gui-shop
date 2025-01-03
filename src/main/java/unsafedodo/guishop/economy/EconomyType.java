@@ -47,4 +47,14 @@ public enum EconomyType {
             return null;
         }
     }
+
+    public static EconomyType getTypeFromService(IEconomyService service) {
+        if (service instanceof ImpactorEconomyService) {
+            return IMPACTOR;
+        } else if (service instanceof MockEconomyService) {
+            return MOCK;
+        } else {
+            return null;
+        }
+    }
 }
