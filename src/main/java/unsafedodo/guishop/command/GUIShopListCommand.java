@@ -29,7 +29,7 @@ public class GUIShopListCommand {
     }
 
     public static int runAllShops(CommandContext<ServerCommandSource> context){
-        if(GUIShop.shops.size() > 0){
+        if(!GUIShop.shops.isEmpty()){
             StringBuilder msgBldr = new StringBuilder();
 
             for(Shop shop: GUIShop.shops){

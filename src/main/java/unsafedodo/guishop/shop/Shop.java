@@ -18,9 +18,9 @@ public class Shop {
         return items;
     }
 
-    public ShopItem findItem(String material) {
+    public ShopItem findItem(String itemId) {
         for (ShopItem item : items) {
-            if (item.getItemMaterial().equals(material)) {
+            if (item.getitemId().equals(itemId)) {
                 return item;
             }
         }

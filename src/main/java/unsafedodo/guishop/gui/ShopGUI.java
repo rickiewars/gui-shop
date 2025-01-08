@@ -70,8 +70,8 @@ public class ShopGUI extends SimpleGui{
     }
     protected void renderItemSlot(int slotIndex, int shopItemIndex) {
         ShopItem item = shop.getItems().get(shopItemIndex);
-        ItemStack guiItem = new ItemStack(Registries.ITEM.get(new Identifier(item.getItemMaterial())));
-        guiItem.setNbt(item.getNbt());
+        ItemStack guiItem = new ItemStack(Registries.ITEM.get(new Identifier(item.getitemId())));
+        guiItem.applyChanges(item.getComponentChanges());
         Text name = TextParserUtils.formatText(item.getItemName());
         this.setSlot(slotIndex, GuiElementBuilder.from(guiItem)
                 .setName(name)
@@ -108,7 +108,7 @@ public class ShopGUI extends SimpleGui{
 
     private void buyItem(ShopItem item, boolean tradeMany) {
         int amount = 1;
-        ItemStack givenItems = new ItemStack(Registries.ITEM.get(new Identifier(item.getItemMaterial())), amount);
+        ItemStack givenItems = new ItemStack(Registries.ITEM.get(new Identifier(item.getitemId())), amount);
         if (tradeMany) {
             try {
                 double balance = GUIShop.economyService.getBalance(player.getUuid());
@@ -123,8 +123,8 @@ public class ShopGUI extends SimpleGui{
             return;
         }
 
-        if (item.hasNbt()) {
-            givenItems.setNbt(item.getNbt());
+        if (item.hasComponentChanges()) {
+            givenItems.applyChanges(item.getComponentChanges());
         }
 
         player.getInventory().offerOrDrop(givenItems);
@@ -141,14 +141,14 @@ public class ShopGUI extends SimpleGui{
     private void sellItem(ShopItem item, boolean tradeMany) {
         int amount = 1;
         if (tradeMany) {
-            Item sellItem = Registries.ITEM.get(new Identifier(item.getItemMaterial()));
+            Item sellItem = Registries.ITEM.get(new Identifier(item.getitemId()));
             int stackSize = sellItem.getMaxCount();
             amount = player.getInventory().count(sellItem);
             if (amount > stackSize) {
                 amount = stackSize;
             }
         }
-        if (!removeItemsFromInventory(Registries.ITEM.get(new Identifier(item.getItemMaterial())), amount)){
+        if (!removeItemsFromInventory(Registries.ITEM.get(new Identifier(item.getitemId())), amount)){
             player.sendMessage(Text.literal("You don't have this item").formatted(Formatting.RED));
             return;
         }

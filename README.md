@@ -20,18 +20,18 @@ Put the .jar file in the "mods" folder
 All commands can be used by admins (permission level 3) or by users/groups with the specific permission
 
 
-| Description                | Command                                                                                 | Permission               | 
-|----------------------------|-----------------------------------------------------------------------------------------|--------------------------|
-| Main command               | `/guishop`                                                                              | `automessage.main`       |
-| Create a shop              | `/guishop create <shopName>`                                                            | `automessage.create`     |
-| Delete a shop              | `/guishop delete <shopName> `                                                           | `automessage.delete`     |
-| Add an item in a shop      | `/guishop additem <shopName> <itemMaterial> <buyPrice> <sellPrice> <description> <nbt>` | `automessage.additem`    |
-| Remove an item from a shop | `/guishop removeitem <shopName> <itemName>`                                             | `automessage.removeitem` |
-| Open a shop for a player   | `/guishop open <shopName> <playerName>`                                                 | `automessage.open`       |
-| List all shops             | `/guishop list`                                                                         | `automessage.list`       |
-| List all items in a shop   | `/guishop list <shopName>`                                                              | `automessage.list`       |
-| Force save config          | `/guishop forcesave`                                                                    | `automessage.forcesave`  |
-| Reload config file         | `/automessage reload`                                                                   | `automessage.reload`     |
+| Description                | Command                                                                                        | Permission               | 
+|----------------------------|------------------------------------------------------------------------------------------------|--------------------------|
+| Main command               | `/guishop`                                                                                     | `automessage.main`       |
+| Create a shop              | `/guishop create <shopName>`                                                                   | `automessage.create`     |
+| Delete a shop              | `/guishop delete <shopName> `                                                                  | `automessage.delete`     |
+| Add an item in a shop      | `/guishop additem <shopName> <itemId> <buyPrice> <sellPrice> <description> <componentChanges>` | `automessage.additem`    |
+| Remove an item from a shop | `/guishop removeitem <shopName> <itemName>`                                                    | `automessage.removeitem` |
+| Open a shop for a player   | `/guishop open <shopName> <playerName>`                                                        | `automessage.open`       |
+| List all shops             | `/guishop list`                                                                                | `automessage.list`       |
+| List all items in a shop   | `/guishop list <shopName>`                                                                     | `automessage.list`       |
+| Force save config          | `/guishop forcesave`                                                                           | `automessage.forcesave`  |
+| Reload config file         | `/automessage reload`                                                                          | `automessage.reload`     |
 
 ### Commands examples
 Create a shop: `/guishop create "Test shop"`"
@@ -47,7 +47,7 @@ Open a shop and show it to a specific player: `/guishop open "Test shop" "Steve"
 You can find the config file in `./config/guishop.json`
 <br>Both items' names and descriptions support [Simplified Text Format](https://placeholders.pb4.eu/user/text-format/).
 
-You can even add items from the JSON file (check [JSON Example](#json-example)). This can be useful when your `additem` command would be very long, or to easily set a NBT *(remember to reload the mod using `/guishop reload` after editing the config file)*
+You can even add items from the JSON file (check [JSON Example](#json-example)). This can be useful when your `additem` command would be very long, or to easily set component data *(remember to reload the mod using `/guishop reload` after editing the config file)*
 
 
 ### JSON example
@@ -60,32 +60,32 @@ You can even add items from the JSON file (check [JSON Example](#json-example)).
       "items": [
         {
           "name": "The boat",
-          "material": "minecraft:acacia_chest_boat",
+          "itemId": "minecraft:acacia_chest_boat",
           "description": [
             "This is a nice boat",
             "Very beautiful"
           ],
           "buyPrice": 50.0,
           "sellPrice": 25.0,
-          "nbt": "{}",
+          "componentChanges": "{}",
           "quantityList": [
             1
           ]
         },
         {
           "name": "BBQ Sword",
-          "material": "minecraft:diamond_sword",
+          "itemId": "minecraft:diamond_sword",
           "description": [],
           "buyPrice": 0.0,
           "sellPrice": 0.0,
-          "nbt": "{Damage:0,Enchantments:[{id:\"fire_aspect\",lvl:2},{id:\"sweeping\",lvl:2}],display:{Lore:['[{\"text\":\"Crispy and tasty\",\"italic\":false}]'],Name:'[{\"text\":\"The BBQ\",\"italic\":false}]'}}",
+          "componentChanges": "{Damage:0,Enchantments:[{id:\"fire_aspect\",lvl:2},{id:\"sweeping\",lvl:2}],display:{Lore:['[{\"text\":\"Crispy and tasty\",\"italic\":false}]'],Name:'[{\"text\":\"The BBQ\",\"italic\":false}]'}}",
           "quantityList": [
             1
           ]
         },
         {
           "name": "Amethyst",
-          "material": "minecraft:large_amethyst_bud",
+          "itemId": "minecraft:large_amethyst_bud",
           "description": [
             "<red>Such a spectacular</red>",
             "<purple>amethyst</purple>",
@@ -93,7 +93,7 @@ You can even add items from the JSON file (check [JSON Example](#json-example)).
           ],
           "buyPrice": 200.0,
           "sellPrice": 100.0,
-          "nbt": "{}",
+          "componentChanges": "{}",
           "quantityList": [
             1,
             40,

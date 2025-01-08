@@ -5,7 +5,6 @@ import com.mojang.brigadier.context.CommandContext;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -30,48 +29,69 @@ public class SellCommand {
 	}
 
 	private static boolean isItemEqual(ItemStack itemStack, ShopItem shopItem) {
-		if (!itemStack.getItem().getRegistryEntry().registryKey().getValue().toString().equals(shopItem.getItemMaterial())) {
+		if (!itemStack.getItem().getRegistryEntry().registryKey().getValue().toString().equals(shopItem.getitemId())) {
 			return false;
 		}
 
-		NbtCompound shopItemNbt = shopItem.getNbt();
-		NbtCompound itemStackNbt = itemStack.getNbt();
+		return shopItem.getComponentChanges().equals(itemStack.getComponentChanges());
 
-		if ((shopItemNbt == null || shopItemNbt.isEmpty()) && itemStackNbt == null) {
-			return true;
-		}
-
-//		if (shopItemNbt == null || itemStackNbt == null) {
-//			return false;
+//		NbtCompound shopItemNbt = shopItem.getNbt();
+//		NbtCompound itemStackNbt = itemStack.getNbt();
+//
+//		if ((shopItemNbt == null || shopItemNbt.isEmpty()) && itemStackNbt == null) {
+//			return true;
 //		}
-
-		// Compare only the relevant NBT tags
-		NbtCompound strippedShopItemNbt = stripIrrelevantTags(shopItemNbt);
-		NbtCompound strippedItemStackNbt = stripIrrelevantTags(itemStackNbt);
-
-		return strippedShopItemNbt.equals(strippedItemStackNbt);
+//
+////		if (shopItemNbt == null || itemStackNbt == null) {
+////			return false;
+////		}
+//
+//		// Compare only the relevant NBT tags
+//		NbtCompound strippedShopItemNbt = stripIrrelevantTags(shopItemNbt);
+//		NbtCompound strippedItemStackNbt = stripIrrelevantTags(itemStackNbt);
+//
+//		return strippedShopItemNbt.equals(strippedItemStackNbt);
 	}
 
-	private static NbtCompound stripIrrelevantTags(NbtCompound nbt) {
-		if (nbt == null) {
-			return new NbtCompound();
-		}
-		NbtCompound strippedNbt = new NbtCompound();
-
-		// Add only the relevant tags to the stripped NBT
-		if (nbt.contains("Enchantments")) {
-			strippedNbt.put("Enchantments", nbt.get("Enchantments"));
-		}
-		if (nbt.contains("CustomModelData")) {
-			strippedNbt.putInt("CustomModelData", nbt.getInt("CustomModelData"));
-		}
-		if (nbt.contains("display")) {
-			strippedNbt.put("display", nbt.getCompound("display"));
-		}
-		// Add more relevant tags as needed
-
-		return strippedNbt;
-	}
+	// e.g. custom_name can be set by an anvil, so it's not relevant for comparison
+//	private static NbtCompound stripIrrelevantTags(NbtCompound nbt) {
+//		if (nbt == null) {
+//			return new NbtCompound();
+//		}
+//		NbtCompound strippedNbt = new NbtCompound();
+//
+//		// Add only the relevant tags to the stripped NBT
+//		if (nbt.contains("Enchantments")) {
+//			strippedNbt.put("Enchantments", nbt.get("Enchantments"));
+//		}
+//		if (nbt.contains("CustomModelData")) {
+//			strippedNbt.putInt("CustomModelData", nbt.getInt("CustomModelData"));
+//		}
+//		if (nbt.contains("display")) {
+//			strippedNbt.put("display", nbt.getCompound("display"));
+//		}
+//		// Add more relevant tags as needed
+//
+//		// Damage
+//		// Enchantments
+//		// Display (Name and Lore)
+//		// CustomModelData
+//
+////		ItemStack itemStack = new ItemStack(Items.GRAY_STAINED_GLASS_PANE);
+////
+////		itemStack.getComponents().forEach((dataComponentType, dataComponent) -> {
+////			if (dataComponentTypes.contains(dataComponentType)) {
+////				strippedNbt.put(dataComponentType.getId(), dataComponent.toTag());
+////			}
+////		});
+//
+//		// Bugfix for empty lore: HIDE_TOOLTIP
+//
+//
+//
+//
+//		return strippedNbt;
+//	}
 
 	private static int sellHand(CommandContext<ServerCommandSource> context) {
 		ServerPlayerEntity player = context.getSource().getPlayer();

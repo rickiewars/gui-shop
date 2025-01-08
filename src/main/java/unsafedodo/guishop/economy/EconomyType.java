@@ -7,8 +7,8 @@ import unsafedodo.guishop.economy.services.ImpactorEconomyService;
 import unsafedodo.guishop.economy.services.MockEconomyService;
 
 public enum EconomyType {
-    @SerializedName(value = "impactor", alternate = {"impactor-economy", "impactorEconomy"})
-    IMPACTOR("impactor"),
+//    @SerializedName(value = "impactor", alternate = {"impactor-economy", "impactorEconomy"})
+//    IMPACTOR("impactor"),
     @SerializedName(value = "mock", alternate = {"test", "debug"})
     MOCK("mock");
 
@@ -39,7 +39,7 @@ public enum EconomyType {
     public IEconomyService getEconomyService() {
         try {
             return switch (this) {
-                case IMPACTOR -> new ImpactorEconomyService();
+//                case IMPACTOR -> new ImpactorEconomyService();
                 case MOCK -> new MockEconomyService();
             };
         } catch (ExceptionInInitializerError e) {
@@ -49,9 +49,9 @@ public enum EconomyType {
     }
 
     public static EconomyType getTypeFromService(IEconomyService service) {
-        if (service instanceof ImpactorEconomyService) {
+        /*if (service instanceof ImpactorEconomyService) {
             return IMPACTOR;
-        } else if (service instanceof MockEconomyService) {
+        } else*/ if (service instanceof MockEconomyService) {
             return MOCK;
         } else {
             return null;

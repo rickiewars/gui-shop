@@ -57,4 +57,12 @@ public class CommonMethods {
             return builder.buildFuture();
         }
     }
+
+    public static Throwable findRootCause(Throwable e) {
+        Throwable cause = e;
+        while (cause.getCause() != null) {
+            cause = cause.getCause();
+        }
+        return cause;
+    }
 }

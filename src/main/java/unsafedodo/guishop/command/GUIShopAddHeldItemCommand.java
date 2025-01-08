@@ -7,9 +7,9 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.command.CommandRegistryAccess;
+import net.minecraft.component.ComponentChanges;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.StringNbtReader;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
@@ -30,7 +30,7 @@ public class GUIShopAddHeldItemCommand {
                             .then(CommandManager.argument("buyItemPrice", FloatArgumentType.floatArg(-1.0f))
                                 .then(CommandManager.argument("sellItemPrice", FloatArgumentType.floatArg(-1.0f))
                                     .requires(Permissions.require("guishop.additem", 2))
-                                        .executes(GUIShopAddHeldItemCommand::run)))))));
+                                    .executes(GUIShopAddHeldItemCommand::run)))))));
     }
 
     public static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
@@ -57,16 +57,17 @@ public class GUIShopAddHeldItemCommand {
             return -1;
         }
 
-        String itemMaterial = heldItem.getItem().getRegistryEntry().registryKey().getValue().toString();
+        String itemId = Registries.ITEM.getId(heldItem.getItem()).toString();
 
-        NbtCompound heldItemNbt = heldItem.getNbt() != null ? heldItem.getNbt() : StringNbtReader.parse("{}");
+        ComponentChanges heldItemComponentChanges = heldItem.getComponentChanges();
+
         foundShop.getItems().add(new ShopItem(
                 itemName,
-                itemMaterial,
+                itemId,
                 buyItemPrice,
                 sellItemPrice,
                 new String[]{},
-                heldItemNbt
+                heldItemComponentChanges
         ));
         context.getSource().sendFeedback(() -> Text.literal("Item successfully added").formatted(Formatting.GREEN), false);
 

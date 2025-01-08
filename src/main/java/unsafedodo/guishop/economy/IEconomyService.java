@@ -1,7 +1,5 @@
 package unsafedodo.guishop.economy;
 
-import net.impactdev.impactor.api.economy.accounts.Account;
-
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 

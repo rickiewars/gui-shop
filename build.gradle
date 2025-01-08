@@ -55,7 +55,8 @@ dependencies {
 
 	include(modImplementation("me.lucko:fabric-permissions-api:${project.fabric_permissions_api_version}"))
 
-	modImplementation("net.impactdev.impactor.api:economy:${project.impactor_economy_api_version}")
+	// For now commented out as its not available for this version and it breaks the genSources task for some reason
+//	modImplementation("net.impactdev.impactor.api:economy:${project.impactor_economy_api_version}")
 
 	modImplementation include("eu.pb4:sgui:${project.sgui_version}")
 
@@ -74,7 +75,7 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 17
+	it.options.release = 21
 }
 
 java {
@@ -83,8 +84,8 @@ java {
 	// If you remove this line, sources will not be generated.
 	withSourcesJar()
 
-	sourceCompatibility = JavaVersion.VERSION_17
-	targetCompatibility = JavaVersion.VERSION_17
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
 }
 
 jar {

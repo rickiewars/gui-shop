@@ -1,9 +1,8 @@
 package unsafedodo.guishop.util;
 
 import com.google.gson.*;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.StringNbtReader;
+import com.mojang.serialization.JsonOps;
+import net.minecraft.component.ComponentChanges;
 import unsafedodo.guishop.shop.ShopItem;
 
 import java.lang.reflect.Type;
@@ -14,7 +13,7 @@ public class ShopItemSerializer implements JsonSerializer<ShopItem>, JsonDeseria
         JsonObject jsonShop = jsonElement.getAsJsonObject();
 
         String itemName = jsonShop.get("name").getAsString();
-        String itemMaterial = jsonShop.get("material").getAsString();
+        String itemId = jsonShop.get("itemId").getAsString();
 
         JsonArray jsonDescription = jsonShop.getAsJsonArray("description");
         String[] description = new String[jsonDescription.size()];
@@ -25,30 +24,33 @@ public class ShopItemSerializer implements JsonSerializer<ShopItem>, JsonDeseria
         float buyItemPrice = jsonShop.get("buyPrice").getAsFloat();
         float sellItemPrice = jsonShop.get("sellPrice").getAsFloat();
 
-        NbtCompound nbt;
+        ComponentChanges componentChanges = ComponentChanges.CODEC.parse(
+                JsonOps.INSTANCE, jsonShop.get("components")
+        ).resultOrPartial().orElse(null);
 
-        try {
-            String nbtString = jsonShop.get("nbt").getAsString();
-            nbt = StringNbtReader.parse(nbtString);
-        } catch (CommandSyntaxException e) {
-            throw new RuntimeException(e);
-        }
-
-        return new ShopItem(itemName, itemMaterial, buyItemPrice, sellItemPrice, description, nbt);
+        return new ShopItem(itemName, itemId, buyItemPrice, sellItemPrice, description, componentChanges);
     }
 
     @Override
     public JsonElement serialize(ShopItem shopItem, Type type, JsonSerializationContext jsonSerializationContext) {
         String itemName = shopItem.getItemName();
-        String itemMaterial = shopItem.getItemMaterial();
+        String itemId = shopItem.getitemId();
         float buyItemPrice = shopItem.getBuyItemPrice();
         float sellItemPrice = shopItem.getSellItemPrice();
         String[] description = shopItem.getDescription();
-        NbtCompound nbt = shopItem.getNbt();
+
+        JsonElement jsonComponentChanges;
+        if (shopItem.hasComponentChanges()) {
+            jsonComponentChanges = ComponentChanges.CODEC.encodeStart(
+                    JsonOps.INSTANCE, shopItem.getComponentChanges()
+            ).resultOrPartial().orElse(null);
+        } else {
+            jsonComponentChanges = new JsonObject();
+        }
 
         JsonObject finalResult = new JsonObject();
         finalResult.add("name", new JsonPrimitive(itemName));
-        finalResult.add("material", new JsonPrimitive(itemMaterial));
+        finalResult.add("itemId", new JsonPrimitive(itemId));
 
         JsonArray jsonDescription = new JsonArray(description.length);
         for (String s : description) {
@@ -58,7 +60,7 @@ public class ShopItemSerializer implements JsonSerializer<ShopItem>, JsonDeseria
         finalResult.add("description", jsonDescription);
         finalResult.add("buyPrice", new JsonPrimitive(buyItemPrice));
         finalResult.add("sellPrice", new JsonPrimitive(sellItemPrice));
-        finalResult.add("nbt", new JsonPrimitive(nbt.toString()));
+        finalResult.add("components", jsonComponentChanges);
 
         return finalResult;
     }

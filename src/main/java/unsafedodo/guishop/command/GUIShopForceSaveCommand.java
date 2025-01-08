@@ -8,6 +8,7 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import unsafedodo.guishop.GUIShop;
 import unsafedodo.guishop.util.ShopFileHandler;
 
 import java.io.IOException;
@@ -26,6 +27,12 @@ public class GUIShopForceSaveCommand {
             fileHandler.saveToFile();
             context.getSource().sendFeedback(()-> Text.literal("Shops successfully saved to config file!").formatted(Formatting.GREEN), false);
         } catch (IOException e){
+            context.getSource().sendFeedback(()-> Text.literal("Error saving shops to file").formatted(Formatting.RED), false);
+            GUIShop.LOGGER.error("Error saving shops to file, IOException: ", e);
+            throw new RuntimeException(e);
+        } catch (Exception e){
+            context.getSource().sendFeedback(()-> Text.literal("Error parsing data!").formatted(Formatting.RED), false);
+            GUIShop.LOGGER.error("Error saving shops to file, Exception: ", e);
             throw new RuntimeException(e);
         }
 

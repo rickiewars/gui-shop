@@ -23,7 +23,7 @@ public class GUIShopMainCommand {
 
     private static int runHelp(CommandContext<ServerCommandSource> context) {
         String msg = """
-                /shop additem <shopName> <itemName> <itemId> <buyPrice> <sellPrice> [Description] [NBT] [qty1:qt2:...:qt5]
+                /shop additem <shopName> <itemName> <itemId> <buyPrice> <sellPrice> [Description] [componentData] [qty1:qt2:...:qt5]
                 /shop removeitem <shopName> <itemName>
                 /shop create <shopName>
                 /shop delete <shopName>
