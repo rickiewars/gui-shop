@@ -1,5 +1,8 @@
 package unsafedodo.guishop.shop;
 
+import net.minecraft.item.ItemStack;
+import net.minecraft.registry.Registries;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -18,10 +21,11 @@ public class Shop {
         return items;
     }
 
-    public ShopItem findItem(String itemId) {
-        for (ShopItem item : items) {
-            if (item.getitemId().equals(itemId)) {
-                return item;
+    public ShopItem findItem(ItemStack items) {
+        String itemId = Registries.ITEM.getId(items.getItem()).toString();
+        for (ShopItem shopItem : this.items) {
+            if (shopItem.getitemId().equals(itemId) && shopItem.matches(items)) {
+                return shopItem;
             }
         }
         return null;

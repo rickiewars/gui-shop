@@ -2,6 +2,11 @@ package unsafedodo.guishop.shop;
 
 import eu.pb4.placeholders.api.TextParserUtils;
 import net.minecraft.component.ComponentChanges;
+import net.minecraft.component.DataComponentType;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.registry.Registries;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -78,9 +83,51 @@ public class ShopItem {
                 return false;
             }
         }
+        return true;
+    }
+
+    public boolean matches(ItemStack other) {
+        if (!matches(other.getItem())) return false;
+
+        ComponentChanges otherComponentChanges = other.getComponentChanges();
+        if (componentChanges == null && otherComponentChanges == null) return true;
+        if (componentChanges == null || otherComponentChanges == null) return false;
+
+        var damage = componentChanges.get(DataComponentTypes.DAMAGE);
+        if (damage != null && damage.isPresent()) {
+            if (other.getDamage() < damage.get()) return false;
+        }
+        var maxDamage = componentChanges.get(DataComponentTypes.DAMAGE);
+        if (maxDamage != null && maxDamage.isPresent()) {
+            if (other.getMaxDamage() < maxDamage.get()) return false;
+        }
+
+        // Only compare the relevant components
+        DataComponentType<?>[] relevantComponentTypes = new DataComponentType[]{
+                DataComponentTypes.CUSTOM_MODEL_DATA,
+                DataComponentTypes.ENCHANTMENTS,
+                DataComponentTypes.STORED_ENCHANTMENTS,
+                DataComponentTypes.ATTRIBUTE_MODIFIERS,
+                DataComponentTypes.UNBREAKABLE,
+                DataComponentTypes.RARITY,
+                DataComponentTypes.FOOD,
+                DataComponentTypes.FIRE_RESISTANT,
+                DataComponentTypes.TOOL,
+                DataComponentTypes.DYED_COLOR,
+                DataComponentTypes.TRIM,
+        };
+        for (DataComponentType<?> type : relevantComponentTypes) {
+            if (!Objects.equals(componentChanges.get(type), otherComponentChanges.get(type))) {
+                return false;
+            }
+        }
 
         return true;
     }
+    public boolean matches(Item other) {
+        return Registries.ITEM.getId(other).toString().equals(itemId);
+    }
+
 
     @Override
     public int hashCode() {

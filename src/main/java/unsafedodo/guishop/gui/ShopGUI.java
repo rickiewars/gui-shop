@@ -5,8 +5,6 @@ import eu.pb4.sgui.api.ClickType;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.SimpleGui;
 import eu.pb4.sgui.api.gui.SlotGuiInterface;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
@@ -18,6 +16,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import unsafedodo.guishop.GUIShop;
+import unsafedodo.guishop.economy.Transaction;
 import unsafedodo.guishop.shop.Shop;
 import unsafedodo.guishop.shop.ShopItem;
 
@@ -84,7 +83,7 @@ public class ShopGUI extends SimpleGui{
                     boolean tradeMany = clickType.shift;
 
                     if (!cursorStack.isEmpty()) {
-                        sellHandItem(cursorStack, tradeMany);
+                        sellCursorStack(cursorStack, tradeMany);
                     } else if (clickType.isLeft) {
                         buyItem(item, tradeMany);
                     } else if (clickType.isRight) {
@@ -101,92 +100,9 @@ public class ShopGUI extends SimpleGui{
                     boolean tradeMany = clickType.shift;
 
                     if (!cursorStack.isEmpty()) {
-                        sellHandItem(cursorStack, tradeMany);
+                        sellCursorStack(cursorStack, tradeMany);
                     }
                 }));
-    }
-
-    private void buyItem(ShopItem item, boolean tradeMany) {
-        int amount = 1;
-        ItemStack givenItems = new ItemStack(Registries.ITEM.get(new Identifier(item.getitemId())), amount);
-        if (tradeMany) {
-            try {
-                double balance = GUIShop.economyService.getBalance(player.getUuid());
-                int canAfford = (int) (balance / item.getBuyItemPrice());
-                givenItems.setCount(Math.min(canAfford, givenItems.getMaxCount()));
-                amount = givenItems.getCount();
-            } catch (ExecutionException | InterruptedException ignored) {}
-        }
-
-        if (amount == 0 || !GUIShop.economyService.remove(player.getUuid(), item.getBuyItemPrice() * amount)){
-            player.sendMessage(Text.literal("You don't have enough money").formatted(Formatting.RED));
-            return;
-        }
-
-        if (item.hasComponentChanges()) {
-            givenItems.applyChanges(item.getComponentChanges());
-        }
-
-        player.getInventory().offerOrDrop(givenItems);
-        this.renderPlayerBalanceSlot();
-
-        player.sendMessage(Text.literal(String.format(
-            "You have bought %d %s for %.2f $",
-            amount,
-            item.getItemName(),
-            item.getBuyItemPrice() * amount
-        )).formatted(Formatting.GREEN));
-    }
-
-    private void sellItem(ShopItem item, boolean tradeMany) {
-        int amount = 1;
-        if (tradeMany) {
-            Item sellItem = Registries.ITEM.get(new Identifier(item.getitemId()));
-            int stackSize = sellItem.getMaxCount();
-            amount = player.getInventory().count(sellItem);
-            if (amount > stackSize) {
-                amount = stackSize;
-            }
-        }
-        if (!removeItemsFromInventory(Registries.ITEM.get(new Identifier(item.getitemId())), amount)){
-            player.sendMessage(Text.literal("You don't have this item").formatted(Formatting.RED));
-            return;
-        }
-        GUIShop.economyService.add(player.getUuid(), item.getSellItemPrice()*amount);
-        this.renderPlayerBalanceSlot();
-
-        player.sendMessage(Text.literal(String.format(
-                "You have sold %d %s for %.2f $",
-                amount,
-                item.getItemName(),
-                item.getBuyItemPrice() * amount
-        )).formatted(Formatting.GREEN));
-    }
-
-    private void sellHandItem(ItemStack items, boolean tradeMany) {
-        int amount = 1;
-        int amountInHand = items.getCount();
-        if (tradeMany) {
-            amount = amountInHand;
-        }
-        ShopItem sellItem = this.shop.findItem(
-                Registries.ITEM.getId(items.getItem()).toString()
-        );
-        if (sellItem == null) {
-            player.sendMessage(Text.literal("This item cannot be sold in this shop").formatted(Formatting.RED));
-            return;
-        }
-
-        items.setCount(amountInHand - amount);
-        GUIShop.economyService.add(player.getUuid(), sellItem.getSellItemPrice() * amount);
-        this.renderPlayerBalanceSlot();
-
-        player.sendMessage(Text.literal(String.format(
-                "You have sold %d %s for %.2f $",
-                amount,
-                sellItem.getItemName(),
-                sellItem.getBuyItemPrice() * amount
-        )).formatted(Formatting.GREEN));
     }
 
     private void renderPlayerBalanceSlot() {
@@ -202,35 +118,25 @@ public class ShopGUI extends SimpleGui{
         } catch (ExecutionException | InterruptedException ignored) {}
     }
 
-    private boolean removeItemsFromInventory (Item itemToRemove, int amount){
-        if(player.getInventory().count(itemToRemove) < amount) {
-            return false;
+    private void buyItem(ShopItem item, boolean tradeMany) {
+        Transaction transaction = new Transaction(player, shop);
+        if (transaction.buyItem(item, tradeMany)) {
+            this.renderPlayerBalanceSlot();
         }
+    }
 
-        //loop to remove items from player's inventory
-        int i = 0;
-        while(amount > 0){
-            PlayerInventory inventory = player.getInventory();
-            ItemStack stack = inventory.getStack(i);
-            final int stackCount = stack.getCount();
-
-            if(stack.getItem().equals(itemToRemove)){
-                if (stackCount < amount) {
-                    amount -= stackCount;
-                    inventory.removeStack(i, stackCount);
-                } else if (stackCount > amount) {
-                    ItemStack newItem = new ItemStack(itemToRemove, stackCount - amount);
-                    inventory.removeStack(i);
-                    inventory.setStack(i, newItem);
-                    amount = 0;
-                } else {
-                    inventory.removeStack(i);
-                    amount = 0;
-                }
-            }
-            i++;
+    private void sellItem(ShopItem item, boolean tradeMany) {
+        Transaction transaction = new Transaction(player, shop);
+        if (transaction.sellItem(item, tradeMany)) {
+            this.renderPlayerBalanceSlot();
         }
-        return true;
+    }
+
+    private void sellCursorStack(ItemStack items, boolean tradeMany) {
+        Transaction transaction = new Transaction(player, shop);
+        if (transaction.sellStack(items, tradeMany)) {
+            this.renderPlayerBalanceSlot();
+        }
     }
 }
 
