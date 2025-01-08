@@ -39,7 +39,7 @@ public class SellCommand {
 
 		for (Shop shop : CommonMethods.getAllShops()) {
 			for (ShopItem shopItem : shop.getItems()) {
-				if (shopItem.matches(itemStack) && shopItem.getSellItemPrice() > 0) {
+				if (shopItem.matches(itemStack) && shopItem.sellItemPrice() > 0) {
 					Transaction transaction = new Transaction(player, shop);
 					return transaction.sellStack(itemStack, true) ? 1 : 0;
 				}

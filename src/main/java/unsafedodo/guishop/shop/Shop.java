@@ -10,8 +10,8 @@ import java.util.List;
  * A shop which holds a list of items
  */
 public class Shop {
-    private String name;
-    private List<ShopItem> items;
+    private final String name;
+    private final List<ShopItem> items;
 
     public String getName() {
         return name;
@@ -24,7 +24,7 @@ public class Shop {
     public ShopItem findItem(ItemStack items) {
         String itemId = Registries.ITEM.getId(items.getItem()).toString();
         for (ShopItem shopItem : this.items) {
-            if (shopItem.getitemId().equals(itemId) && shopItem.matches(items)) {
+            if (shopItem.itemId().equals(itemId) && shopItem.matches(items)) {
                 return shopItem;
             }
         }

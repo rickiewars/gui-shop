@@ -30,21 +30,21 @@ public class Transaction {
 
     public boolean buyItem(ShopItem item, boolean tradeMany) {
         int amount = 1;
-        ItemStack givenItems = new ItemStack(Registries.ITEM.get(new Identifier(item.getitemId())), amount);
+        ItemStack givenItems = new ItemStack(Registries.ITEM.get(new Identifier(item.itemId())), amount);
         if (tradeMany) {
             try {
                 double balance = GUIShop.economyService.getBalance(player.getUuid());
-                int canAfford = (int) (balance / item.getBuyItemPrice());
+                int canAfford = (int) (balance / item.buyItemPrice());
                 givenItems.setCount(Math.min(canAfford, givenItems.getMaxCount()));
                 amount = givenItems.getCount();
             } catch (ExecutionException | InterruptedException ignored) {}
         }
 
         if (item.hasComponentChanges()) {
-            givenItems.applyChanges(item.getComponentChanges());
+            givenItems.applyChanges(item.componentChanges());
         }
 
-        if (amount == 0 || !GUIShop.economyService.remove(player.getUuid(), item.getBuyItemPrice() * amount)){
+        if (amount == 0 || !GUIShop.economyService.remove(player.getUuid(), item.buyItemPrice() * amount)){
             if (!suppressMessages) {
                 player.sendMessage(Text.literal(
                         "You don't have enough money"
@@ -59,7 +59,7 @@ public class Transaction {
     }
 
     public boolean sellItem(ShopItem item, boolean tradeMany) {
-        Item itemToSell = Registries.ITEM.get(new Identifier(item.getitemId()));
+        Item itemToSell = Registries.ITEM.get(new Identifier(item.itemId()));
         int amount = tradeMany ? Math.min(
                 player.getInventory().count(itemToSell),
                 itemToSell.getMaxCount()
@@ -75,9 +75,9 @@ public class Transaction {
             return false;
         }
 
-        if (!GUIShop.economyService.add(player.getUuid(), item.getSellItemPrice() * amountRemovedFromInventory)) {
+        if (!GUIShop.economyService.add(player.getUuid(), item.sellItemPrice() * amountRemovedFromInventory)) {
             ItemStack refund = new ItemStack(itemToSell, amountRemovedFromInventory);
-            refund.applyChanges(item.getComponentChanges());
+            refund.applyChanges(item.componentChanges());
             player.getInventory().offerOrDrop(refund);
             if (!suppressMessages) {
                 player.sendMessage(Text.literal(
@@ -105,7 +105,7 @@ public class Transaction {
             return false;
         }
 
-        if (!GUIShop.economyService.add(player.getUuid(), sellItem.getSellItemPrice() * amount)) {
+        if (!GUIShop.economyService.add(player.getUuid(), sellItem.sellItemPrice() * amount)) {
             if (!suppressMessages) {
                 player.sendMessage(Text.literal(
                         "Something went wrong, canceling transaction"
@@ -123,13 +123,13 @@ public class Transaction {
         if (suppressMessages) return;
 
         String tradeType = isSellTransaction ? "sold" : "bought";
-        double price = isSellTransaction ? item.getSellItemPrice() : item.getBuyItemPrice();
+        double price = isSellTransaction ? item.sellItemPrice() : item.buyItemPrice();
         double totalPrice = price * amount;
         MutableText message = Text.literal(String.format(
                 "You have %s %d %s for %.2f $",
                 tradeType,
                 amount,
-                item.getItemName(),
+                item.itemName(),
                 totalPrice
         )).formatted(Formatting.GREEN);
         player.sendMessage(message);

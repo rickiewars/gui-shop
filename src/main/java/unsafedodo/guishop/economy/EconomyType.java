@@ -3,7 +3,6 @@ package unsafedodo.guishop.economy;
 import com.google.gson.annotations.SerializedName;
 import net.fabricmc.loader.api.FabricLoader;
 import unsafedodo.guishop.GUIShop;
-import unsafedodo.guishop.economy.services.ImpactorEconomyService;
 import unsafedodo.guishop.economy.services.MockEconomyService;
 
 public enum EconomyType {

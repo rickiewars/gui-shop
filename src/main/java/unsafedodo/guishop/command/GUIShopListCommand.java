@@ -15,8 +15,6 @@ import unsafedodo.guishop.shop.Shop;
 import unsafedodo.guishop.shop.ShopItem;
 import unsafedodo.guishop.util.CommonMethods;
 
-import static unsafedodo.guishop.util.CommonMethods.arrayImplode;
-
 public class GUIShopListCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment){
         dispatcher.register(CommandManager.literal("guishop")
@@ -55,9 +53,9 @@ public class GUIShopListCommand {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append("\n").append(foundShop.getName()).append(" items list:\n\n");
             for(ShopItem item: foundShop.getItems()){
-                stringBuilder.append("Item name: ").append(item.getItemName()).append(", ")
-                    .append("Buy price: ").append(String.format("%.2f", item.getBuyItemPrice())).append(", ")
-                        .append("Sell price: ").append(String.format("%.2f", item.getSellItemPrice())).append("\n\n");
+                stringBuilder.append("Item name: ").append(item.itemName()).append(", ")
+                    .append("Buy price: ").append(String.format("%.2f", item.buyItemPrice())).append(", ")
+                        .append("Sell price: ").append(String.format("%.2f", item.sellItemPrice())).append("\n\n");
             }
 
             String msg = StringUtils.chomp(stringBuilder.toString());

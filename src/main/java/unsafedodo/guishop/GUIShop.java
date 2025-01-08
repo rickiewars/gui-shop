@@ -48,10 +48,6 @@ public class GUIShop implements ModInitializer {
 			System.out.println(msg);
 			LOGGER.info(msg);
 		}
-
-//		ECONOMY_CHANGE_EVENT.register(currentEconomy -> {
-//			transactionHandler.onEconomyChanged(currentEconomy);
-//		});
 	}
 
 

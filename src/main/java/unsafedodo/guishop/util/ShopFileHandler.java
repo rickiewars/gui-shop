@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class ShopFileHandler implements Runnable{
 
-    private static ScheduledExecutorService executorService = new ScheduledThreadPoolExecutor(1);
+    private static final ScheduledExecutorService executorService = new ScheduledThreadPoolExecutor(1);
 
     private static final long TIME = 30;
 

@@ -33,7 +33,7 @@ public class GUIShopRemoveItemCommand {
 
         if(foundShop != null){
             for(ShopItem item: foundShop.getItems()){
-                if(item.getItemName().equals(itemName)){
+                if(item.itemName().equals(itemName)){
                     foundItem = item;
                     break;
                 }

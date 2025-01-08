@@ -33,16 +33,16 @@ public class ShopItemSerializer implements JsonSerializer<ShopItem>, JsonDeseria
 
     @Override
     public JsonElement serialize(ShopItem shopItem, Type type, JsonSerializationContext jsonSerializationContext) {
-        String itemName = shopItem.getItemName();
-        String itemId = shopItem.getitemId();
-        float buyItemPrice = shopItem.getBuyItemPrice();
-        float sellItemPrice = shopItem.getSellItemPrice();
-        String[] description = shopItem.getDescription();
+        String itemName = shopItem.itemName();
+        String itemId = shopItem.itemId();
+        float buyItemPrice = shopItem.buyItemPrice();
+        float sellItemPrice = shopItem.sellItemPrice();
+        String[] description = shopItem.description();
 
         JsonElement jsonComponentChanges;
         if (shopItem.hasComponentChanges()) {
             jsonComponentChanges = ComponentChanges.CODEC.encodeStart(
-                    JsonOps.INSTANCE, shopItem.getComponentChanges()
+                    JsonOps.INSTANCE, shopItem.componentChanges()
             ).resultOrPartial().orElse(null);
         } else {
             jsonComponentChanges = new JsonObject();

@@ -1,6 +1,5 @@
 package unsafedodo.guishop.gui;
 
-import eu.pb4.placeholders.api.TextParserUtils;
 import eu.pb4.sgui.api.ClickType;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.SimpleGui;
@@ -69,9 +68,9 @@ public class ShopGUI extends SimpleGui{
     }
     protected void renderItemSlot(int slotIndex, int shopItemIndex) {
         ShopItem item = shop.getItems().get(shopItemIndex);
-        ItemStack guiItem = new ItemStack(Registries.ITEM.get(new Identifier(item.getitemId())));
-        guiItem.applyChanges(item.getComponentChanges());
-        Text name = TextParserUtils.formatText(item.getItemName());
+        ItemStack guiItem = new ItemStack(Registries.ITEM.get(new Identifier(item.itemId())));
+        guiItem.applyChanges(item.componentChanges());
+        Text name = Text.literal(item.itemName());
         this.setSlot(slotIndex, GuiElementBuilder.from(guiItem)
                 .setName(name)
                 .setLore(item.getDescriptionAsText())
