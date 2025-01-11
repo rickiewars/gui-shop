@@ -136,15 +136,10 @@ public class Transaction {
     }
 
     private int removeItemsFromInventory (Item itemToRemove, int amount, ShopItem shopItem) {
-        if(player.getInventory().count(itemToRemove) < amount) {
-            return 0;
-        }
-
         //loop to remove items from player's inventory
+        PlayerInventory inventory = player.getInventory();
         int amountToSell = amount;
-        int i = 0;
-        while(amount > 0){
-            PlayerInventory inventory = player.getInventory();
+        for (int i = 0; i < inventory.size(); i++) {
             ItemStack stack = inventory.getStack(i);
             final int stackCount = stack.getCount();
 
@@ -158,12 +153,13 @@ public class Transaction {
                     inventory.removeStack(i);
                     inventory.setStack(i, newItem);
                     amount = 0;
+                    break;
                 } else {
                     inventory.removeStack(i);
                     amount = 0;
+                    break;
                 }
             }
-            i++;
         }
         return amountToSell - amount;
     }
