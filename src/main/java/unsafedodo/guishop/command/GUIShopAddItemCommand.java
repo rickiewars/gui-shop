@@ -17,6 +17,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import unsafedodo.guishop.GUIShop;
 import unsafedodo.guishop.shop.Shop;
 import unsafedodo.guishop.shop.ShopItem;
 import unsafedodo.guishop.util.CommonMethods;
@@ -54,7 +55,7 @@ public class GUIShopAddItemCommand {
             return -1;
         }
 
-        Optional<Item> item = Registries.ITEM.getOrEmpty(new Identifier(itemId));
+        Optional<Item> item = Registries.ITEM.getOrEmpty(Identifier.of(itemId));
         if (item.isEmpty()) {
             context.getSource().sendFeedback(() -> Text.literal(
                     "Unknown item id \"" + itemId + "\""
@@ -71,7 +72,7 @@ public class GUIShopAddItemCommand {
                     componentChangesString.isEmpty() ? "{}" : componentChangesString
             );
             componentChanges = ComponentChanges.CODEC.parse(
-                    JsonOps.INSTANCE, jsonInput
+                    GUIShop.registryManager.getOps(JsonOps.INSTANCE), jsonInput
             ).getOrThrow();
         } catch (JsonSyntaxException e) {
             context.getSource().sendFeedback(() -> Text.literal("Error parsing json component").formatted(Formatting.RED), false);

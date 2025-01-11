@@ -3,6 +3,7 @@ package unsafedodo.guishop.util;
 import com.google.gson.*;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.component.ComponentChanges;
+import unsafedodo.guishop.GUIShop;
 import unsafedodo.guishop.shop.ShopItem;
 
 import java.lang.reflect.Type;
@@ -25,7 +26,7 @@ public class ShopItemSerializer implements JsonSerializer<ShopItem>, JsonDeseria
         float sellItemPrice = jsonShop.get("sellPrice").getAsFloat();
 
         ComponentChanges componentChanges = ComponentChanges.CODEC.parse(
-                JsonOps.INSTANCE, jsonShop.get("components")
+                GUIShop.registryManager.getOps(JsonOps.INSTANCE), jsonShop.get("components")
         ).resultOrPartial().orElse(null);
 
         return new ShopItem(itemName, itemId, buyItemPrice, sellItemPrice, description, componentChanges);
@@ -42,8 +43,8 @@ public class ShopItemSerializer implements JsonSerializer<ShopItem>, JsonDeseria
         JsonElement jsonComponentChanges;
         if (shopItem.hasComponentChanges()) {
             jsonComponentChanges = ComponentChanges.CODEC.encodeStart(
-                    JsonOps.INSTANCE, shopItem.componentChanges()
-            ).resultOrPartial().orElse(null);
+                    GUIShop.registryManager.getOps(JsonOps.INSTANCE), shopItem.componentChanges()
+            ).resultOrPartial().orElseThrow();
         } else {
             jsonComponentChanges = new JsonObject();
         }

@@ -3,6 +3,7 @@ package unsafedodo.guishop;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.minecraft.registry.DynamicRegistryManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import unsafedodo.guishop.config.ConfigManager;
@@ -22,6 +23,7 @@ public class GUIShop implements ModInitializer {
 	 */
 	public static final LinkedList<Shop> shops = new LinkedList<>();
 	public static IEconomyService economyService = null;
+	public static DynamicRegistryManager registryManager = null;
 
 	static {
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
@@ -31,14 +33,20 @@ public class GUIShop implements ModInitializer {
 				throw new RuntimeException(e);
 			}
 		});
+		ServerLifecycleEvents.SERVER_STARTING.register(server -> {
+			registryManager = server.getRegistryManager();
+			loadConfig();
+		});
+	}
+
+	private static void loadConfig() {
+		if(!ConfigManager.loadConfig())
+			throw new RuntimeException("Could not load config");
 	}
 
 	@Override
 	public void onInitialize() {
 		LOGGER.info("GUI Shop loaded!");
-
-		if(!ConfigManager.loadConfig())
-			throw new RuntimeException("Could not load config");
 
 		Register.registerCommands();
 

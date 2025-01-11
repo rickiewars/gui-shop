@@ -30,7 +30,7 @@ public class Transaction {
 
     public boolean buyItem(ShopItem item, boolean tradeMany) {
         int amount = 1;
-        ItemStack givenItems = new ItemStack(Registries.ITEM.get(new Identifier(item.itemId())), amount);
+        ItemStack givenItems = new ItemStack(Registries.ITEM.get(Identifier.of(item.itemId())), amount);
         if (tradeMany) {
             try {
                 double balance = GUIShop.economyService.getBalance(player.getUuid());
@@ -59,7 +59,7 @@ public class Transaction {
     }
 
     public boolean sellItem(ShopItem item, boolean tradeMany) {
-        Item itemToSell = Registries.ITEM.get(new Identifier(item.itemId()));
+        Item itemToSell = Registries.ITEM.get(Identifier.of(item.itemId()));
         int amount = tradeMany ? Math.min(
                 player.getInventory().count(itemToSell),
                 itemToSell.getMaxCount()

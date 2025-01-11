@@ -1,7 +1,7 @@
 package unsafedodo.guishop.shop;
 
 import net.minecraft.component.ComponentChanges;
-import net.minecraft.component.DataComponentType;
+import net.minecraft.component.ComponentType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -69,8 +69,9 @@ public record ShopItem(
         }
 
         // Only compare the relevant components
-        DataComponentType<?>[] relevantComponentTypes = new DataComponentType[]{
+        ComponentType<?>[] relevantComponentTypes = new ComponentType[]{
                 DataComponentTypes.CUSTOM_MODEL_DATA,
+                DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE,
                 DataComponentTypes.ENCHANTMENTS,
                 DataComponentTypes.STORED_ENCHANTMENTS,
                 DataComponentTypes.ATTRIBUTE_MODIFIERS,
@@ -82,7 +83,7 @@ public record ShopItem(
                 DataComponentTypes.DYED_COLOR,
                 DataComponentTypes.TRIM,
         };
-        for (DataComponentType<?> type : relevantComponentTypes) {
+        for (ComponentType<?> type : relevantComponentTypes) {
             if (!Objects.equals(componentChanges.get(type), otherComponentChanges.get(type))) {
                 return false;
             }

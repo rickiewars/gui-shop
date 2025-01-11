@@ -68,7 +68,7 @@ public class ShopGUI extends SimpleGui{
     }
     protected void renderItemSlot(int slotIndex, int shopItemIndex) {
         ShopItem item = shop.getItems().get(shopItemIndex);
-        ItemStack guiItem = new ItemStack(Registries.ITEM.get(new Identifier(item.itemId())));
+        ItemStack guiItem = new ItemStack(Registries.ITEM.get(Identifier.of(item.itemId())));
         guiItem.applyChanges(item.componentChanges());
         Text name = Text.literal(item.itemName());
         this.setSlot(slotIndex, GuiElementBuilder.from(guiItem)
