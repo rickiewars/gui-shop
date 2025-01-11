@@ -154,6 +154,7 @@ public class Transaction {
                     inventory.removeStack(i, stackCount);
                 } else if (stackCount > amount) {
                     ItemStack newItem = new ItemStack(itemToRemove, stackCount - amount);
+                    newItem.applyChanges(stack.getComponentChanges());
                     inventory.removeStack(i);
                     inventory.setStack(i, newItem);
                     amount = 0;
