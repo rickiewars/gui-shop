@@ -55,7 +55,7 @@ public class GUIShopAddItemCommand {
             return -1;
         }
 
-        Optional<Item> item = Registries.ITEM.getOrEmpty(Identifier.of(itemId));
+        Optional<Item> item = Registries.ITEM.getOptionalValue(Identifier.of(itemId));
         if (item.isEmpty()) {
             context.getSource().sendFeedback(() -> Text.literal(
                     "Unknown item id \"" + itemId + "\""

@@ -78,7 +78,7 @@ public record ShopItem(
                 DataComponentTypes.UNBREAKABLE,
                 DataComponentTypes.RARITY,
                 DataComponentTypes.FOOD,
-                DataComponentTypes.FIRE_RESISTANT,
+                DataComponentTypes.DAMAGE_RESISTANT,
                 DataComponentTypes.TOOL,
                 DataComponentTypes.DYED_COLOR,
                 DataComponentTypes.TRIM,
