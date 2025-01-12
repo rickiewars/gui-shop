@@ -34,9 +34,9 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
+          cache: 'gradle'
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-
       - name: Build
         run: ./gradlew build
       - name: Upload GitHub release
