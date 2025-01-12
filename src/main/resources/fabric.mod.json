@@ -5,18 +5,19 @@
 	"name": "GUI Shop",
 	"description": "A server side mod for admin GUI shops via command",
 	"authors": [
-		"UnsafeDodo"
+		"UnsafeDodo",
+		"Rickiewars"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://github.com/rickiewars/gui-shop",
+		"sources": "https://github.com/rickiewars/gui-shop"
 	},
-	"license": "CC0-1.0",
+	"license": "MIT",
 	"icon": "assets/gui-shop/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"unsafedodo.guishop.GUIShop"
+			"rickiewars.guishop.GUIShop"
 		]
 	},
 	"mixins": [

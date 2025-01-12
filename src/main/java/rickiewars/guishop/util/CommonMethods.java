@@ -1,0 +1,68 @@
+package rickiewars.guishop.util;
+
+
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import net.minecraft.server.command.ServerCommandSource;
+import rickiewars.guishop.GUIShop;
+import rickiewars.guishop.shop.Shop;
+
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
+public class CommonMethods {
+
+    public static String arrayImplode(int[] array, String delimiter) {
+        StringBuilder strBldr = new StringBuilder();
+
+        for (int i = 0; i < array.length - 1; i++) {
+            strBldr.append(array[i]);
+            strBldr.append(delimiter);
+        }
+        strBldr.append(array[array.length - 1]);
+
+        return strBldr.toString();
+    }
+
+    /**
+     * Gets shop data by name.
+     * @param name The name of the shop to look for
+     * @return An object of class Shop from the list {@link GUIShop#shops} with the same case-sensitive name as the one
+     * passed by argument, or null if none is found.
+     */
+    public static Shop getShopByName(String name) {
+        for(Shop shop: GUIShop.shops){
+            if(shop.getName().equals(name)){
+                return shop;
+            }
+        }
+        return null;
+    }
+
+    public static List<Shop> getAllShops(){
+        return GUIShop.shops;
+    }
+
+    public static class ShopNameSuggestionProvider implements SuggestionProvider<ServerCommandSource> {
+        @Override
+        public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) {
+            String input = builder.getRemaining().toLowerCase();
+            for (Shop shop : CommonMethods.getAllShops()) {
+                if (shop.getName().toLowerCase().startsWith(input)) {
+                    builder.suggest(shop.getName());
+                }
+            }
+            return builder.buildFuture();
+        }
+    }
+
+    public static Throwable findRootCause(Throwable e) {
+        Throwable cause = e;
+        while (cause.getCause() != null) {
+            cause = cause.getCause();
+        }
+        return cause;
+    }
+}
