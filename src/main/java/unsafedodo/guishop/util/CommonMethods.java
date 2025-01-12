@@ -65,4 +65,8 @@ public class CommonMethods {
         }
         return cause;
     }
+
+    public static String pretty(long balance) {
+        return String.format("$%d", balance);
+    }
 }

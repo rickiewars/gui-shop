@@ -1,7 +1,7 @@
 package unsafedodo.guishop.command;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.FloatArgumentType;
+import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -27,8 +27,8 @@ public class GUIShopAddHeldItemCommand {
                 .then(CommandManager.argument("shopName", StringArgumentType.string())
                     .suggests(new CommonMethods.ShopNameSuggestionProvider())
                         .then(CommandManager.argument("itemName", StringArgumentType.string())
-                            .then(CommandManager.argument("buyItemPrice", FloatArgumentType.floatArg(-1.0f))
-                                .then(CommandManager.argument("sellItemPrice", FloatArgumentType.floatArg(-1.0f))
+                            .then(CommandManager.argument("buyItemPrice", LongArgumentType.longArg(-1))
+                                .then(CommandManager.argument("sellItemPrice", LongArgumentType.longArg(-1))
                                     .requires(Permissions.require("guishop.additem", 2))
                                     .executes(GUIShopAddHeldItemCommand::run)))))));
     }
@@ -36,8 +36,8 @@ public class GUIShopAddHeldItemCommand {
     public static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         String shopName = StringArgumentType.getString(context, "shopName");
         String itemName = StringArgumentType.getString(context, "itemName");
-        float buyItemPrice = FloatArgumentType.getFloat(context, "buyItemPrice");
-        float sellItemPrice = FloatArgumentType.getFloat(context, "sellItemPrice");
+        long buyItemPrice = LongArgumentType.getLong(context, "buyItemPrice");
+        long sellItemPrice = LongArgumentType.getLong(context, "sellItemPrice");
 
         Shop foundShop = CommonMethods.getShopByName(shopName);
         if (foundShop == null) {

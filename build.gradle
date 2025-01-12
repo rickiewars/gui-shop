@@ -29,6 +29,18 @@ repositories {
 		url  "https://maven.impactdev.net/repository/development"
 	}
 
+	exclusiveContent {
+		forRepository {
+			maven {
+				name = "Modrinth"
+				url = "https://api.modrinth.com/maven"
+			}
+		}
+		filter {
+			includeGroup "maven.modrinth"
+		}
+	}
+
 	mavenCentral()
 }
 
@@ -54,6 +66,13 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 	include(modImplementation("me.lucko:fabric-permissions-api:${project.fabric_permissions_api_version}"))
+
+	modImplementation include("eu.pb4:common-economy-api:${project.common_economy_api_version}")
+
+	modImplementation "maven.modrinth:diamond-economy:${project.diamondeconomy_version}-fabric"
+
+	// Required for Diamond Economy to work in development mode.
+	implementation(include("org.xerial:sqlite-jdbc:${project.sqlite_version}"))
 
 	// For now commented out as its not available for this version and it breaks the genSources task for some reason
 //	modImplementation("net.impactdev.impactor.api:economy:${project.impactor_economy_api_version}")

@@ -54,8 +54,8 @@ public class GUIShopListCommand {
             stringBuilder.append("\n").append(foundShop.getName()).append(" items list:\n\n");
             for(ShopItem item: foundShop.getItems()){
                 stringBuilder.append("Item name: ").append(item.itemName()).append(", ")
-                    .append("Buy price: ").append(String.format("%.2f", item.buyItemPrice())).append(", ")
-                        .append("Sell price: ").append(String.format("%.2f", item.sellItemPrice())).append("\n\n");
+                    .append("Buy price: ").append(CommonMethods.pretty(item.buyItemPrice())).append(", ")
+                        .append("Sell price: ").append(CommonMethods.pretty(item.sellItemPrice())).append("\n\n");
             }
 
             String msg = StringUtils.chomp(stringBuilder.toString());

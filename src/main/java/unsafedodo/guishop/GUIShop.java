@@ -3,13 +3,13 @@ package unsafedodo.guishop;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.minecraft.registry.DynamicRegistryManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import unsafedodo.guishop.config.ConfigManager;
 import unsafedodo.guishop.economy.IEconomyService;
 import unsafedodo.guishop.shop.Shop;
 import unsafedodo.guishop.util.Register;
+import unsafedodo.guishop.util.ServerHandler;
 import unsafedodo.guishop.util.ShopFileHandler;
 
 import java.io.IOException;
@@ -23,7 +23,6 @@ public class GUIShop implements ModInitializer {
 	 */
 	public static final LinkedList<Shop> shops = new LinkedList<>();
 	public static IEconomyService economyService = null;
-	public static DynamicRegistryManager registryManager = null;
 
 	static {
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
@@ -34,7 +33,7 @@ public class GUIShop implements ModInitializer {
 			}
 		});
 		ServerLifecycleEvents.SERVER_STARTING.register(server -> {
-			registryManager = server.getRegistryManager();
+			ServerHandler.init(server);
 			loadConfig();
 		});
 	}

@@ -12,7 +12,7 @@ import java.util.concurrent.ExecutionException;
 public class MockEconomyService implements IEconomyService {
     boolean skipValidation = false;
     boolean successState = true;
-    double balanceState = 999999.99;
+    long balanceState = 999999999;
 
     public MockEconomyService() {
         GUIShop.LOGGER.debug("MockEconomyService constructor");
@@ -26,7 +26,7 @@ public class MockEconomyService implements IEconomyService {
     public void MockSuccessState(boolean successState) {
         this.successState = successState;
     }
-    public void MockBalanceState(double balanceState) {
+    public void MockBalanceState(long balanceState) {
         this.balanceState = balanceState;
     }
     public void SkipValidation(boolean skipValidation) {
@@ -34,7 +34,7 @@ public class MockEconomyService implements IEconomyService {
     }
 
     @Override
-    public boolean add(UUID uuid, double amount) {
+    public boolean add(UUID uuid, long amount) {
         GUIShop.LOGGER.debug("MockEconomyService.add: " + uuid + " " + amount);
         return skipValidation && successState
                 || amount > 0 && uuid != null && successState;
@@ -42,27 +42,27 @@ public class MockEconomyService implements IEconomyService {
     }
 
     @Override
-    public boolean remove(UUID uuid, double amount) {
+    public boolean remove(UUID uuid, long amount) {
         GUIShop.LOGGER.debug("MockEconomyService.remove: " + uuid + " " + amount);
         return skipValidation && successState
                 || amount > 0 && uuid != null && successState;
     }
 
     @Override
-    public boolean hasEnoughMoney(UUID uuid, double amount) throws ExecutionException, InterruptedException {
+    public boolean hasEnoughMoney(UUID uuid, long amount) throws ExecutionException, InterruptedException {
         GUIShop.LOGGER.debug("MockEconomyService.hasEnoughMoney: " + uuid + " " + amount);
         return skipValidation && successState
                 || amount > 0 && uuid != null && successState;
     }
 
     @Override
-    public double getBalance(UUID uuid) throws ExecutionException, InterruptedException {
+    public long getBalance(UUID uuid) throws ExecutionException, InterruptedException {
         GUIShop.LOGGER.debug("MockEconomyService.getBalance: " + uuid);
         return balanceState;
     }
 
     @Override
-    public boolean transfer(UUID sender, UUID receiver, double amount) {
+    public boolean transfer(UUID sender, UUID receiver, long amount) {
         GUIShop.LOGGER.debug("MockEconomyService.transfer: " + sender + " " + receiver + " " + amount);
         return skipValidation && successState
                 || amount > 0 && sender != null && receiver != null && successState;

@@ -3,7 +3,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.FloatArgumentType;
+import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.serialization.JsonOps;
@@ -17,10 +17,10 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import unsafedodo.guishop.GUIShop;
 import unsafedodo.guishop.shop.Shop;
 import unsafedodo.guishop.shop.ShopItem;
 import unsafedodo.guishop.util.CommonMethods;
+import unsafedodo.guishop.util.ServerHandler;
 
 import java.util.Optional;
 
@@ -32,8 +32,8 @@ public class GUIShopAddItemCommand {
                     .suggests(new CommonMethods.ShopNameSuggestionProvider())
                         .then(CommandManager.argument("itemName", StringArgumentType.string())
                             .then(CommandManager.argument("itemId", StringArgumentType.string())
-                                .then(CommandManager.argument("buyItemPrice", FloatArgumentType.floatArg(-1.0f))
-                                    .then(CommandManager.argument("sellItemPrice", FloatArgumentType.floatArg(-1.0f))
+                                .then(CommandManager.argument("buyItemPrice", LongArgumentType.longArg(-1))
+                                    .then(CommandManager.argument("sellItemPrice", LongArgumentType.longArg(-1))
                                         .then(CommandManager.argument("description", StringArgumentType.string())
                                             .then(CommandManager.argument("componentChanges", StringArgumentType.string())
                                                 .requires(Permissions.require("guishop.additem", 2))
@@ -44,8 +44,8 @@ public class GUIShopAddItemCommand {
         String shopName = StringArgumentType.getString(context, "shopName");
         String itemName = StringArgumentType.getString(context, "itemName");
         String itemId = StringArgumentType.getString(context, "itemId");
-        float buyItemPrice = FloatArgumentType.getFloat(context, "buyItemPrice");
-        float sellItemPrice = FloatArgumentType.getFloat(context, "sellItemPrice");
+        long buyItemPrice = LongArgumentType.getLong(context, "buyItemPrice");
+        long sellItemPrice = LongArgumentType.getLong(context, "sellItemPrice");
         String descriptionLine = StringArgumentType.getString(context, "description");
         String componentChangesString = StringArgumentType.getString(context, "componentChanges");
 
@@ -72,7 +72,7 @@ public class GUIShopAddItemCommand {
                     componentChangesString.isEmpty() ? "{}" : componentChangesString
             );
             componentChanges = ComponentChanges.CODEC.parse(
-                    GUIShop.registryManager.getOps(JsonOps.INSTANCE), jsonInput
+                    ServerHandler.getRegistryManager().getOps(JsonOps.INSTANCE), jsonInput
             ).getOrThrow();
         } catch (JsonSyntaxException e) {
             context.getSource().sendFeedback(() -> Text.literal("Error parsing json component").formatted(Formatting.RED), false);

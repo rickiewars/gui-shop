@@ -9,6 +9,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import unsafedodo.guishop.util.CommonMethods;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -21,8 +22,8 @@ import java.util.Objects;
 public record ShopItem(
         String itemName,
         String itemId,
-        float buyItemPrice,
-        float sellItemPrice,
+        long buyItemPrice,
+        long sellItemPrice,
         String[] description,
         ComponentChanges componentChanges
 ) {
@@ -37,8 +38,8 @@ public record ShopItem(
 
         ShopItem shopItem = (ShopItem) o;
 
-        if (Float.compare(shopItem.buyItemPrice, buyItemPrice) != 0) return false;
-        if (Float.compare(shopItem.sellItemPrice, sellItemPrice) != 0) return false;
+        if (shopItem.buyItemPrice != buyItemPrice) return false;
+        if (shopItem.sellItemPrice != sellItemPrice) return false;
         if (!itemName.equals(shopItem.itemName)) return false;
         if (!itemId.equals(shopItem.itemId)) return false;
 
@@ -101,8 +102,8 @@ public record ShopItem(
     public int hashCode() {
         int result = itemName != null ? itemName.hashCode() : 0;
         result = 31 * result + (itemId != null ? itemId.hashCode() : 0);
-        result = 31 * result + (buyItemPrice != 0.0f ? Float.floatToIntBits(buyItemPrice) : 0);
-        result = 31 * result + (sellItemPrice != 0.0f ? Float.floatToIntBits(sellItemPrice) : 0);
+        result = 31 * result + (buyItemPrice != 0 ? Long.hashCode(buyItemPrice) : 0);
+        result = 31 * result + (sellItemPrice != 0 ? Long.hashCode(sellItemPrice) : 0);
         result = 31 * result + Arrays.hashCode(description);
         result = 31 * result + (componentChanges != null ? componentChanges.hashCode() : 0);
         return result;
@@ -123,7 +124,7 @@ public record ShopItem(
 
         if (buyItemPrice > 0) {
             priceText.append(Text.literal("Left click to buy for ").formatted(Formatting.GREEN)
-                    .append(Text.literal(String.format("%.2f $", buyItemPrice)).formatted(Formatting.YELLOW)));
+                    .append(Text.literal(CommonMethods.pretty(buyItemPrice)).formatted(Formatting.YELLOW)));
         }
 
         return priceText;
@@ -134,7 +135,7 @@ public record ShopItem(
 
         if (sellItemPrice > 0) {
             priceText.append(Text.literal("Right click to sell for ").formatted(Formatting.RED)
-                    .append(Text.literal(String.format("%.2f $", sellItemPrice)).formatted(Formatting.YELLOW)));
+                    .append(Text.literal(CommonMethods.pretty(sellItemPrice)).formatted(Formatting.YELLOW)));
         }
 
         return priceText;

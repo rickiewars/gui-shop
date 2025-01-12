@@ -22,11 +22,11 @@ public class ShopItemSerializer implements JsonSerializer<ShopItem>, JsonDeseria
             description[i] = jsonDescription.get(i).getAsString();
         }
 
-        float buyItemPrice = jsonShop.get("buyPrice").getAsFloat();
-        float sellItemPrice = jsonShop.get("sellPrice").getAsFloat();
+        long buyItemPrice = jsonShop.get("buyPrice").getAsLong();
+        long sellItemPrice = jsonShop.get("sellPrice").getAsLong();
 
         ComponentChanges componentChanges = ComponentChanges.CODEC.parse(
-                GUIShop.registryManager.getOps(JsonOps.INSTANCE), jsonShop.get("components")
+                ServerHandler.getRegistryManager().getOps(JsonOps.INSTANCE), jsonShop.get("components")
         ).resultOrPartial().orElse(null);
 
         return new ShopItem(itemName, itemId, buyItemPrice, sellItemPrice, description, componentChanges);
@@ -36,14 +36,14 @@ public class ShopItemSerializer implements JsonSerializer<ShopItem>, JsonDeseria
     public JsonElement serialize(ShopItem shopItem, Type type, JsonSerializationContext jsonSerializationContext) {
         String itemName = shopItem.itemName();
         String itemId = shopItem.itemId();
-        float buyItemPrice = shopItem.buyItemPrice();
-        float sellItemPrice = shopItem.sellItemPrice();
+        long buyItemPrice = shopItem.buyItemPrice();
+        long sellItemPrice = shopItem.sellItemPrice();
         String[] description = shopItem.description();
 
         JsonElement jsonComponentChanges;
         if (shopItem.hasComponentChanges()) {
             jsonComponentChanges = ComponentChanges.CODEC.encodeStart(
-                    GUIShop.registryManager.getOps(JsonOps.INSTANCE), shopItem.componentChanges()
+                    ServerHandler.getRegistryManager().getOps(JsonOps.INSTANCE), shopItem.componentChanges()
             ).resultOrPartial().orElseThrow();
         } else {
             jsonComponentChanges = new JsonObject();

@@ -18,6 +18,7 @@ import unsafedodo.guishop.GUIShop;
 import unsafedodo.guishop.economy.Transaction;
 import unsafedodo.guishop.shop.Shop;
 import unsafedodo.guishop.shop.ShopItem;
+import unsafedodo.guishop.util.CommonMethods;
 
 import java.util.concurrent.ExecutionException;
 
@@ -109,9 +110,7 @@ public class ShopGUI extends SimpleGui{
             this.setSlot(PLAYER_BALANCE_SLOT, new GuiElementBuilder()
                     .setItem(Items.PLAYER_HEAD)
                     .setName(Text.literal("Your balance: ").setStyle(Style.EMPTY.withItalic(true)).formatted(Formatting.GREEN)
-                            .append(Text.literal(String.format(
-                                    "%.2f $",
-                                    GUIShop.economyService.getBalance(player.getUuid()))
+                            .append(Text.literal(CommonMethods.pretty(GUIShop.economyService.getBalance(player.getUuid()))
                             ).setStyle(Style.EMPTY.withItalic(true)).formatted(Formatting.YELLOW)))
                     .setSkullOwner(HeadTextures.MONEY_SYMBOL, null, null));
         } catch (ExecutionException | InterruptedException ignored) {}

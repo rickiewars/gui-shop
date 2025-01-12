@@ -3,13 +3,16 @@ package unsafedodo.guishop.economy;
 import com.google.gson.annotations.SerializedName;
 import net.fabricmc.loader.api.FabricLoader;
 import unsafedodo.guishop.GUIShop;
+import unsafedodo.guishop.economy.services.DiamondEconomyService;
 import unsafedodo.guishop.economy.services.MockEconomyService;
 
 public enum EconomyType {
 //    @SerializedName(value = "impactor", alternate = {"impactor-economy", "impactorEconomy"})
 //    IMPACTOR("impactor"),
     @SerializedName(value = "mock", alternate = {"test", "debug"})
-    MOCK("mock");
+    MOCK("mock"),
+    @SerializedName(value = "diamond", alternate = {"diamond-economy", "diamondEconomy"})
+    DIAMOND("diamondeconomy");
 
     private final String modId;
 
@@ -39,6 +42,7 @@ public enum EconomyType {
         try {
             return switch (this) {
 //                case IMPACTOR -> new ImpactorEconomyService();
+                case DIAMOND -> new DiamondEconomyService();
                 case MOCK -> new MockEconomyService();
             };
         } catch (ExceptionInInitializerError e) {
@@ -52,7 +56,10 @@ public enum EconomyType {
             return IMPACTOR;
         } else*/ if (service instanceof MockEconomyService) {
             return MOCK;
-        } else {
+        } else if (service instanceof DiamondEconomyService) {
+            return DIAMOND;
+        }
+        else {
             return null;
         }
     }

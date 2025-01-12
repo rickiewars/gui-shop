@@ -12,6 +12,7 @@ import net.minecraft.util.Identifier;
 import unsafedodo.guishop.GUIShop;
 import unsafedodo.guishop.shop.Shop;
 import unsafedodo.guishop.shop.ShopItem;
+import unsafedodo.guishop.util.CommonMethods;
 
 import java.util.concurrent.ExecutionException;
 
@@ -33,7 +34,7 @@ public class Transaction {
         ItemStack givenItems = new ItemStack(Registries.ITEM.get(Identifier.of(item.itemId())), amount);
         if (tradeMany) {
             try {
-                double balance = GUIShop.economyService.getBalance(player.getUuid());
+                long balance = GUIShop.economyService.getBalance(player.getUuid());
                 int canAfford = (int) (balance / item.buyItemPrice());
                 givenItems.setCount(Math.min(canAfford, givenItems.getMaxCount()));
                 amount = givenItems.getCount();
@@ -123,14 +124,14 @@ public class Transaction {
         if (suppressMessages) return;
 
         String tradeType = isSellTransaction ? "sold" : "bought";
-        double price = isSellTransaction ? item.sellItemPrice() : item.buyItemPrice();
-        double totalPrice = price * amount;
+        long price = isSellTransaction ? item.sellItemPrice() : item.buyItemPrice();
+        long totalPrice = price * amount;
         MutableText message = Text.literal(String.format(
-                "You have %s %d %s for %.2f $",
+                "You have %s %d %s for %s",
                 tradeType,
                 amount,
                 item.itemName(),
-                totalPrice
+                CommonMethods.pretty(totalPrice)
         )).formatted(Formatting.GREEN);
         player.sendMessage(message);
     }
