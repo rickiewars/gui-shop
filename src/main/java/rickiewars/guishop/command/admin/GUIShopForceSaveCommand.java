@@ -1,14 +1,14 @@
-package rickiewars.guishop.command;
+package rickiewars.guishop.command.admin;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import rickiewars.guishop.GUIShop;
+import rickiewars.guishop.command.GuiShopPermission;
 import rickiewars.guishop.util.ShopFileHandler;
 
 import java.io.IOException;
@@ -16,9 +16,9 @@ import java.io.IOException;
 public class GUIShopForceSaveCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment){
         dispatcher.register(CommandManager.literal("guishop")
-                .then(CommandManager.literal("forcesave")
-                        .requires(Permissions.require("guishop.forcesave", 2))
-                        .executes(GUIShopForceSaveCommand::run)));
+            .then(CommandManager.literal("forcesave")
+                .requires(GuiShopPermission.FORCE_SAVE.require())
+                .executes(GUIShopForceSaveCommand::run)));
     }
 
     public static int run(CommandContext<ServerCommandSource> context) {

@@ -1,8 +1,7 @@
-package rickiewars.guishop.command.sell;
+package rickiewars.guishop.command.player;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.command.CommandManager;
@@ -10,6 +9,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import rickiewars.guishop.command.GuiShopPermission;
 import rickiewars.guishop.economy.Transaction;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
@@ -19,10 +19,10 @@ public class SellCommand {
 	public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
 		dispatcher.register(CommandManager.literal("sell")
 				.then(CommandManager.literal("hand")
-						.requires(Permissions.require("guishop.sell.hand", 2))
+						.requires(GuiShopPermission.SELL_HAND.require())
 						.executes(SellCommand::sellHand))
 //				.then(CommandManager.literal("all")
-//						.requires(Permissions.require("guishop.sell.all", 2))
+//						.requires(GuiShopPermission.SELL_ALL.require())
 //						.executes(SellCommand::sellAll))
 		);
 	}

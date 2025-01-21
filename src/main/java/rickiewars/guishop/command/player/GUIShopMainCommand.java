@@ -1,8 +1,7 @@
-package rickiewars.guishop.command;
+package rickiewars.guishop.command.player;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -10,13 +9,14 @@ import net.minecraft.text.ClickEvent;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import rickiewars.guishop.command.GuiShopPermission;
 
 public class GUIShopMainCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment){
         dispatcher.register(CommandManager.literal("guishop")
-                .requires(Permissions.require("guishop.main", 2))
+                .requires(GuiShopPermission.MAIN.require())
                 .then(CommandManager.literal("help")
-                        .requires(Permissions.require("guishop.help", 2))
+                        .requires(GuiShopPermission.HELP.require())
                         .executes(GUIShopMainCommand::runHelp))
                 .executes(GUIShopMainCommand::run));
     }

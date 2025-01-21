@@ -9,6 +9,8 @@ import net.minecraft.registry.Registries;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import org.jetbrains.annotations.Nullable;
+import rickiewars.guishop.economy.EconomyUtils;
 import rickiewars.guishop.util.CommonMethods;
 
 import java.util.Arrays;
@@ -24,6 +26,8 @@ public record ShopItem(
         String itemId,
         long buyItemPrice,
         long sellItemPrice,
+        @Nullable
+        String currencyId,
         String[] description,
         ComponentChanges componentChanges
 ) {
@@ -145,5 +149,16 @@ public record ShopItem(
         return Text.literal("Hold shift to trade up to a stack of items").formatted(Formatting.AQUA);
     }
 
+    @Override
+    public String currencyId() {
+        if (currencyId == null) {
+            return EconomyUtils.getFirstCurrencyId();
+        }
+        return currencyId;
+    }
+
+    public boolean hasCurrency() {
+        return currencyId != null;
+    }
 }
 

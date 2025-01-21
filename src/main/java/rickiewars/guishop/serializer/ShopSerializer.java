@@ -1,4 +1,4 @@
-package rickiewars.guishop.util;
+package rickiewars.guishop.serializer;
 
 import com.google.gson.*;
 import rickiewars.guishop.shop.Shop;
@@ -13,6 +13,10 @@ public class ShopSerializer implements JsonSerializer<Shop>, JsonDeserializer<Sh
         JsonObject jsonShop = jsonElement.getAsJsonObject();
         JsonArray jsonItems = jsonShop.getAsJsonArray("items");
         ShopItem[] items = new ShopItem[jsonItems.size()];
+        String defaultCurrencyId = null;
+        if (jsonShop.has("defaultCurrency")) {
+            defaultCurrencyId = jsonShop.get("defaultCurrency").getAsString();
+        }
 
         String shopName = jsonShop.get("shopName").getAsString();
         for(int i = 0; i < jsonItems.size(); i++){
@@ -21,12 +25,11 @@ public class ShopSerializer implements JsonSerializer<Shop>, JsonDeserializer<Sh
         }
 
         LinkedList<ShopItem> shopItems = new LinkedList<>();
-        for (ShopItem item:
-                items) {
+        for (ShopItem item: items) {
             shopItems.addLast(item);
         }
 
-        return new Shop(shopName, shopItems);
+        return new Shop(shopName, shopItems, defaultCurrencyId);
     }
 
     @Override
@@ -36,6 +39,10 @@ public class ShopSerializer implements JsonSerializer<Shop>, JsonDeserializer<Sh
 
         JsonObject jsonShop = new JsonObject();
         jsonShop.add("shopName", shopName);
+        if (shop.hasDefaultCurrency()) {
+            JsonElement defaultCurrencyId = new JsonPrimitive(shop.getDefaultCurrencyId());
+            jsonShop.add("defaultCurrency", defaultCurrencyId);
+        }
         jsonShop.add("items", items);
 
         return jsonShop;

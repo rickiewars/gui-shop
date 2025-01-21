@@ -1,10 +1,7 @@
 package rickiewars.guishop.util;
 
 import rickiewars.guishop.GUIShop;
-import rickiewars.guishop.config.ConfigData;
 import rickiewars.guishop.config.ConfigManager;
-import rickiewars.guishop.economy.EconomyType;
-import rickiewars.guishop.shop.Shop;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -35,11 +32,7 @@ public class ShopFileHandler implements Runnable{
     }
 
     public void saveToFile() throws IOException {
-        Shop[] shops = new Shop[GUIShop.shops.size()];
-        String jsonString = ConfigManager.GSON.toJson(new ConfigData(
-                GUIShop.shops.toArray(shops),
-                EconomyType.getTypeFromService(GUIShop.economyService)
-        ));
+        String jsonString = ConfigManager.GSON.toJson(GUIShop.config);
 
         File configDir = Paths.get("", "config").toFile();
         File configFile = new File(configDir, "guishop.json");

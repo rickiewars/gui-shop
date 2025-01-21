@@ -1,16 +1,15 @@
 package rickiewars.guishop.util;
 
 
-import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.suggestion.SuggestionProvider;
-import com.mojang.brigadier.suggestion.Suggestions;
-import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.item.Item;
+import net.minecraft.registry.Registries;
+import net.minecraft.util.Identifier;
 import rickiewars.guishop.GUIShop;
+import rickiewars.guishop.config.Config;
 import rickiewars.guishop.shop.Shop;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import java.util.Optional;
 
 public class CommonMethods {
 
@@ -29,11 +28,11 @@ public class CommonMethods {
     /**
      * Gets shop data by name.
      * @param name The name of the shop to look for
-     * @return An object of class Shop from the list {@link GUIShop#shops} with the same case-sensitive name as the one
+     * @return An object of class Shop from the list {@link Config#shops} with the same case-sensitive name as the one
      * passed by argument, or null if none is found.
      */
     public static Shop getShopByName(String name) {
-        for(Shop shop: GUIShop.shops){
+        for(Shop shop: GUIShop.config.shops){
             if(shop.getName().equals(name)){
                 return shop;
             }
@@ -42,20 +41,7 @@ public class CommonMethods {
     }
 
     public static List<Shop> getAllShops(){
-        return GUIShop.shops;
-    }
-
-    public static class ShopNameSuggestionProvider implements SuggestionProvider<ServerCommandSource> {
-        @Override
-        public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) {
-            String input = builder.getRemaining().toLowerCase();
-            for (Shop shop : CommonMethods.getAllShops()) {
-                if (shop.getName().toLowerCase().startsWith(input)) {
-                    builder.suggest(shop.getName());
-                }
-            }
-            return builder.buildFuture();
-        }
+        return GUIShop.config.shops;
     }
 
     public static Throwable findRootCause(Throwable e) {
@@ -69,4 +55,18 @@ public class CommonMethods {
     public static String pretty(long balance) {
         return String.format("$%d", balance);
     }
+
+    public static Item getItem(String id) {
+        return Registries.ITEM.get(Identifier.of(id));
+    }
+    public static Optional<Item> getOptionalItem(String id) {
+        return Registries.ITEM.getOrEmpty(Identifier.of(id));
+    }
+    public static Item getItem(String id, Item defaultItem) {
+        return getOptionalItem(id).orElse(defaultItem);
+    }
+    public static String getItemId(Item item) {
+        return Registries.ITEM.getId(item).toString();
+    }
+
 }
