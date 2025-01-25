@@ -13,7 +13,6 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
-import rickiewars.guishop.util.CommonMethods;
 
 public class Transaction {
 
@@ -114,7 +113,7 @@ public class Transaction {
                 tradeType,
                 amount,
                 item.itemName(),
-                CommonMethods.pretty(totalPrice)
+                item.formatCurrency(totalPrice)
         )).formatted(Formatting.GREEN);
         player.sendMessage(message);
     }

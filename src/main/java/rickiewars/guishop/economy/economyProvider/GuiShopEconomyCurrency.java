@@ -8,6 +8,7 @@ import net.minecraft.item.Items;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import rickiewars.guishop.config.Config;
+import rickiewars.guishop.util.CommonMethods;
 
 public class GuiShopEconomyCurrency implements EconomyCurrency {
     public static String DEFAULT_ID = GuiShopEconomyProvider.ID + ":credit";
@@ -34,7 +35,18 @@ public class GuiShopEconomyCurrency implements EconomyCurrency {
     private String valueString(long value) {
         String prefix = this.currencyDefinition.prefix;
         String suffix = this.currencyDefinition.suffix;
-        return prefix + value + suffix;
+        int decimalPlaces = this.currencyDefinition.decimalPlaces;
+        if (decimalPlaces == 0) {
+            return prefix + value + suffix;
+        }
+
+        String valueString = String.valueOf(value);
+        if (valueString.length() <= decimalPlaces + 1) {
+            valueString = CommonMethods.padLeft(valueString, decimalPlaces + 1, '0');
+        }
+        return prefix
+            + CommonMethods.insert(valueString, -decimalPlaces, '.')
+            + suffix;
     }
 
     @Override
@@ -51,6 +63,7 @@ public class GuiShopEconomyCurrency implements EconomyCurrency {
 
         String prefix = this.currencyDefinition.prefix;
         String suffix = this.currencyDefinition.suffix;
+        int decimalPlaces = this.currencyDefinition.decimalPlaces;
 
         if (value.startsWith(prefix)) {
             value = value.substring(prefix.length());
@@ -59,6 +72,10 @@ public class GuiShopEconomyCurrency implements EconomyCurrency {
             }
         }
 
+        if (value.isEmpty()) return 0;
+        if (decimalPlaces == 0) return Long.parseLong(value);
+
+        value = value.replace(".", "");
         return Long.parseLong(value);
     }
 

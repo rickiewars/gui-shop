@@ -14,7 +14,10 @@ import org.jetbrains.annotations.Nullable;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.config.Config;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 
 public class GuiShopEconomyProvider implements EconomyProvider {
     public static final String ID = GUIShop.MODID;
@@ -85,10 +88,12 @@ public class GuiShopEconomyProvider implements EconomyProvider {
     @Override
     public @Nullable String defaultAccount(MinecraftServer minecraftServer, GameProfile gameProfile, EconomyCurrency economyCurrency) {
         if (GUIShop.config.economy == null) return null;
-        Optional<Map.Entry<String, Config.AccountDefinition>> account = GUIShop.config.economy.accounts.entrySet().stream()
-                .filter(entry -> entry.getValue().currencyId.equals(economyCurrency.id().toString())).findFirst();
-
-        return account.map(Map.Entry::getKey).orElse(null);
+        for (Map.Entry<String, Config.AccountDefinition> entry : GUIShop.config.economy.accounts.entrySet()) {
+            if (entry.getValue().currencyId.equals(economyCurrency.id().toString())) {
+                return entry.getKey();
+            }
+        }
+        return null;
     }
 
     @Override

@@ -3,6 +3,7 @@ package rickiewars.guishop.util;
 
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.config.Config;
@@ -10,6 +11,7 @@ import rickiewars.guishop.shop.Shop;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class CommonMethods {
 
@@ -52,10 +54,6 @@ public class CommonMethods {
         return cause;
     }
 
-    public static String pretty(long balance) {
-        return String.format("$%d", balance);
-    }
-
     public static Item getItem(String id) {
         return Registries.ITEM.get(Identifier.of(id));
     }
@@ -67,6 +65,30 @@ public class CommonMethods {
     }
     public static String getItemId(Item item) {
         return Registries.ITEM.getId(item).toString();
+    }
+
+    public static String translatePlayer(UUID uuid) {
+        ServerPlayerEntity player = ServerHandler.getPlayerByUUID(uuid);
+        return player != null ? player.getName().getString() : uuid.toString();
+    }
+
+    // Make sure the string length is at least the specified length
+    // If it is less, pad it with the specified character on the left
+    public static String padLeft(String str, int length, char padChar) {
+        if (str.length() >= length) return str;
+        return String.valueOf(padChar).repeat(length - str.length()) + str;
+    }
+
+    /**
+     * Insert a character into a string at a specified index
+     * @param str The string to insert the character into
+     * @param index The index to insert the character at. If negative, it will be counted from the end of the string
+     * @param insertChar The character to insert
+     * @return The new string with the character inserted
+     */
+    public static String insert(String str, int index, char insertChar) {
+        if (index < 0) index = str.length() + index;
+        return str.substring(0, index) + insertChar + str.substring(index);
     }
 
 }

@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import rickiewars.guishop.config.Config;
 import rickiewars.guishop.config.ConfigManager;
 import rickiewars.guishop.economy.economyProvider.GuiShopEconomyProvider;
+import rickiewars.guishop.sql.DatabaseManager;
 import rickiewars.guishop.util.Register;
 import rickiewars.guishop.util.ServerHandler;
 import rickiewars.guishop.util.ShopFileHandler;
@@ -21,6 +22,8 @@ public class GUIShop implements ModInitializer {
 	 * Holds the shops that are currently loaded
 	 */
 	public static Config config = new Config();
+
+	public static DatabaseManager databaseManager;
 
 	static {
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {

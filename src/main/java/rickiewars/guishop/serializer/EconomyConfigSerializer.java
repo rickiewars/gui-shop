@@ -3,16 +3,16 @@ package rickiewars.guishop.serializer;
 import com.google.gson.*;
 import rickiewars.guishop.config.Config.AccountDefinition;
 import rickiewars.guishop.config.Config.CurrencyDefinition;
-import rickiewars.guishop.config.Config.EconomyDefinition;
+import rickiewars.guishop.config.Config.EconomyConfig;
 
 import java.lang.reflect.Type;
 
-public class EconomyDefinitionSerializer implements JsonSerializer<EconomyDefinition>, JsonDeserializer<EconomyDefinition> {
+public class EconomyConfigSerializer implements JsonSerializer<EconomyConfig>, JsonDeserializer<EconomyConfig> {
     private static final String JSON_PATH = "economy";
     @Override
-    public EconomyDefinition deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+    public EconomyConfig deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
         JsonObject economy = jsonElement.getAsJsonObject();
-        EconomyDefinition economyConfig = new EconomyDefinition();
+        EconomyConfig economyConfig = new EconomyConfig();
 
         if (economy.has("currencies")) {
             JsonObject currencies = economy.get("currencies").getAsJsonObject();
@@ -54,7 +54,7 @@ public class EconomyDefinitionSerializer implements JsonSerializer<EconomyDefini
     }
 
     @Override
-    public JsonElement serialize(EconomyDefinition economy, Type type, JsonSerializationContext jsonSerializationContext) {
+    public JsonElement serialize(EconomyConfig economy, Type type, JsonSerializationContext jsonSerializationContext) {
         JsonObject result = new JsonObject();
 
         if (economy.currencies != null && !economy.currencies.isEmpty()) {

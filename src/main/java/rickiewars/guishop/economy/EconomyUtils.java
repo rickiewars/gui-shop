@@ -19,8 +19,10 @@ public class EconomyUtils {
     }
 
     public static String getFirstCurrencyId() {
-        return GUIShop.config.economyProviders.currencies.keySet().stream().findFirst()
-                .orElse(GuiShopEconomyCurrency.DEFAULT_ID);
+        for (String currencyId : GUIShop.config.economyProviders.currencies.keySet()) {
+            return currencyId;
+        }
+        return GuiShopEconomyCurrency.DEFAULT_ID;
     }
 
     private static EconomyProvider getProvider(String currencyId) {

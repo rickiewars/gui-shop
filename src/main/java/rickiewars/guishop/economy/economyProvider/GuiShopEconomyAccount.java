@@ -11,6 +11,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.config.Config;
+import rickiewars.guishop.sql.DatabaseManager;
 
 import java.util.UUID;
 
@@ -21,6 +22,10 @@ public class GuiShopEconomyAccount implements EconomyAccount {
     private final UUID uuid;
     private final String uuidString;
     private final Config.AccountDefinition accountDefinition;
+
+    private DatabaseManager db() {
+        return GUIShop.databaseManager;
+    }
 
     public GuiShopEconomyAccount(Identifier accountId, Config.AccountDefinition accountDefinition, UUID uuid) {
         this.id = accountId;
@@ -45,51 +50,50 @@ public class GuiShopEconomyAccount implements EconomyAccount {
 
     @Override
     public long balance() {
-        // TODO: Implement this method
-        return 0;
+        return this.db().getBalanceFromUUID(
+            this.currency().id().toString(),
+            uuid.toString()
+        );
     }
 
     @Override
     public EconomyTransaction canIncreaseBalance(long value) {
-        // TODO: Implement this method
-        int currentBal = 1000;
-        long newBal = (long)currentBal+value;
-        // TODO: I think we can use Long.MAX_VALUE? SQLite's INTEGER can store up to 8 bytes of data, which is equivalent to that of a long
-        //       To do overflow check, just check if the new balance is smaller than 0, which occurs when the value has overflown
+        long currentBal = this.balance();
+        long newBal = currentBal+value;
+        // 2 billion should be plenty for a player's balance
         if (newBal >= Integer.MAX_VALUE) {
             return new EconomyTransaction.Simple(
-                    false,
-                    Text.literal("Congratulations! You have hit the limit of " + currency().formatValue(Integer.MAX_VALUE, false) + ". Go spend some money so we can give you money again!"),
-                    currentBal,
-                    currentBal,
-                    0,
-                    this
+                false,
+                Text.literal("Congratulations! You have hit the limit of " + currency().formatValue(Integer.MAX_VALUE, false) + ". Go spend some money so we can give you money again!"),
+                currentBal,
+                currentBal,
+                0,
+                this
             );
         }
 
         return new EconomyTransaction.Simple(
-                true,
-                Text.literal("Added " + currency().formatValue(value, false) + " to the account"),
-                newBal,
-                currentBal,
-                value,
-                this
+            true,
+            Text.literal("Added " + currency().formatValue(value, false) + " to the account"),
+            newBal,
+            currentBal,
+            value,
+            this
         );
     }
 
     @Override
     public EconomyTransaction canDecreaseBalance(long value) {
-        // TODO: Implement this method
-        int currentBal = 1000;
-        long newBal = (long)currentBal-value;
+        long currentBal = this.balance();
+        long newBal = currentBal - value;
         if (newBal < 0) {
             return new EconomyTransaction.Simple(
-                    false,
-                    Text.literal("You don't have enough money to take " + currency().formatValue(value, false) + " from your account of " + currency().formatValue(currentBal, false)),
-                    currentBal,
-                    currentBal,
-                    0,
-                    this
+                false,
+                Text.literal("You don't have enough money to take " + currency().formatValue(value, false) + " from your account of " + currency().formatValue(currentBal, false)),
+                currentBal,
+                currentBal,
+                0,
+                this
             );
         }
 
@@ -105,8 +109,11 @@ public class GuiShopEconomyAccount implements EconomyAccount {
 
     @Override
     public void setBalance(long value) {
-        GUIShop.LOGGER.info("Setting balance of " + uuidString + " to " + value);
-        // TODO: Implement this method
+        this.db().setBalance(
+            this.currency().id().toString(),
+            uuidString,
+            (int)value
+        );
     }
 
     @Override

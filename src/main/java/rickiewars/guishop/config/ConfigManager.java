@@ -6,6 +6,7 @@ import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.serializer.*;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
+import rickiewars.guishop.sql.SQLiteDatabaseManager;
 import rickiewars.guishop.util.ShopFileHandler;
 
 import java.io.*;
@@ -22,7 +23,8 @@ public class ConfigManager {
     public static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(ShopItem.class, new ShopItemSerializer())
             .registerTypeAdapter(Shop.class, new ShopSerializer())
-            .registerTypeAdapter(Config.EconomyDefinition.class, new EconomyDefinitionSerializer())
+            .registerTypeAdapter(Config.DatabaseConfig.class, new DatabaseConfigSerializer())
+            .registerTypeAdapter(Config.EconomyConfig.class, new EconomyConfigSerializer())
             .registerTypeAdapter(Config.CurrencyDefinition.class, new CurrencyDefinitionSerializer())
             .registerTypeAdapter(Config.AccountDefinition.class, new AccountDefinitionSerializer())
             .registerTypeAdapter(Config.EconomyProviders.class, new EconomyProvidersSerializer())
@@ -82,6 +84,23 @@ public class ConfigManager {
                     config.configureDefaultEconomy();
                 }
             }
+
+            if (config.database == null) {
+                configUpdated = true;
+                GUIShop.LOGGER.info(
+                        "No database configuration found. Adding the default SQLite configuration."
+                );
+                config.database = new Config.DatabaseConfig();
+            }
+
+            Config.DatabaseConfig.DatabaseType type = config.database.type;
+            if (type == Config.DatabaseConfig.DatabaseType.SQLITE) {
+                SQLiteDatabaseManager.initDatabase(config);
+                GUIShop.databaseManager = new SQLiteDatabaseManager();
+            } else {
+                throw new RuntimeException("Unsupported database type: " + type);
+            }
+
 
             GUIShop.config = config;
 

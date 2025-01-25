@@ -24,6 +24,7 @@ public class CurrencyDefinitionSerializer implements JsonSerializer<CurrencyDefi
                 currency.get("name").getAsString(),
                 currency.get("prefix").getAsString(),
                 currency.get("suffix").getAsString(),
+                currency.has("decimalPlaces") ? currency.get("decimalPlaces").getAsInt() : 2,
                 new ItemStack(CommonMethods.getOptionalItem(iconString).orElseGet(() -> {
                     GUIShop.LOGGER.warn("Invalid item id for account icon: " + iconString);
                     return GuiShopEconomyCurrency.DEFAULT_ICON;
@@ -37,6 +38,7 @@ public class CurrencyDefinitionSerializer implements JsonSerializer<CurrencyDefi
         result.addProperty("name", currency.name);
         result.addProperty("prefix", currency.prefix);
         result.addProperty("suffix", currency.suffix);
+        result.addProperty("decimalPlaces", currency.decimalPlaces);
         result.addProperty("icon", CommonMethods.getItemId(currency.icon.getItem()));
 
         return result;

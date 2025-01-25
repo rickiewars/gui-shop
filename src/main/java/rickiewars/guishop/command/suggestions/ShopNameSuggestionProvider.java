@@ -8,13 +8,15 @@ import net.minecraft.server.command.ServerCommandSource;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.util.CommonMethods;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class ShopNameSuggestionProvider implements SuggestionProvider<ServerCommandSource> {
     @Override
     public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) {
         String input = builder.getRemaining().toLowerCase();
-        for (Shop shop : CommonMethods.getAllShops()) {
+        List<Shop> shops = CommonMethods.getAllShops();
+        for (Shop shop : shops) {
             if (shop.getName().toLowerCase().startsWith(input)) {
                 builder.suggest(shop.getName());
             }
