@@ -1,5 +1,7 @@
 package rickiewars.guishop.shop;
 
+import eu.pb4.common.economy.api.CommonEconomy;
+import eu.pb4.common.economy.api.EconomyCurrency;
 import net.minecraft.component.ComponentChanges;
 import net.minecraft.component.ComponentType;
 import net.minecraft.component.DataComponentTypes;
@@ -9,12 +11,12 @@ import net.minecraft.registry.Registries;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import rickiewars.guishop.util.CommonMethods;
+import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
+import rickiewars.guishop.economy.EconomyUtils;
+import rickiewars.guishop.util.ServerHandler;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * An item that can be bought or sold in a shop
@@ -24,6 +26,8 @@ public record ShopItem(
         String itemId,
         long buyItemPrice,
         long sellItemPrice,
+        @Nullable
+        String currencyId,
         String[] description,
         ComponentChanges componentChanges
 ) {
@@ -124,7 +128,7 @@ public record ShopItem(
 
         if (buyItemPrice > 0) {
             priceText.append(Text.literal("Left click to buy for ").formatted(Formatting.GREEN)
-                    .append(Text.literal(CommonMethods.pretty(buyItemPrice)).formatted(Formatting.YELLOW)));
+                .append(Text.literal(formatCurrency(buyItemPrice)).formatted(Formatting.YELLOW)));
         }
 
         return priceText;
@@ -135,7 +139,7 @@ public record ShopItem(
 
         if (sellItemPrice > 0) {
             priceText.append(Text.literal("Right click to sell for ").formatted(Formatting.RED)
-                    .append(Text.literal(CommonMethods.pretty(sellItemPrice)).formatted(Formatting.YELLOW)));
+                .append(Text.literal(formatCurrency(sellItemPrice)).formatted(Formatting.YELLOW)));
         }
 
         return priceText;
@@ -145,5 +149,31 @@ public record ShopItem(
         return Text.literal("Hold shift to trade up to a stack of items").formatted(Formatting.AQUA);
     }
 
+    @Override
+    public String currencyId() {
+        if (currencyId == null) {
+            return EconomyUtils.getFirstCurrencyId();
+        }
+        return currencyId;
+    }
+
+    public EconomyCurrency currency() {
+        Identifier currencyId = Identifier.of(currencyId());
+        for (EconomyCurrency currency : CommonEconomy.getCurrencies(ServerHandler.getServer())) {
+            if (currency.id().equals(currencyId)) {
+                return currency;
+            }
+        }
+
+        throw new NoSuchElementException("Could not find currency with id " + currencyId);
+    }
+
+    public String formatCurrency(long value) {
+        return currency().formatValue(value, false);
+    }
+
+    public boolean hasCurrency() {
+        return currencyId != null;
+    }
 }
 

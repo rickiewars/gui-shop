@@ -1,8 +1,11 @@
 package rickiewars.guishop.util;
 
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import rickiewars.guishop.command.*;
-import rickiewars.guishop.command.sell.SellCommand;
+import rickiewars.guishop.command.admin.*;
+import rickiewars.guishop.command.player.GUIShopListCommand;
+import rickiewars.guishop.command.player.GUIShopMainCommand;
+import rickiewars.guishop.command.player.GUIShopOpenCommand;
+import rickiewars.guishop.command.player.SellCommand;
 
 public class Register {
     public static void registerCommands(){

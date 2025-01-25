@@ -1,28 +1,29 @@
 package rickiewars.guishop;
 
 import net.fabricmc.api.ModInitializer;
-
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rickiewars.guishop.config.Config;
 import rickiewars.guishop.config.ConfigManager;
-import rickiewars.guishop.economy.IEconomyService;
-import rickiewars.guishop.shop.Shop;
+import rickiewars.guishop.economy.economyProvider.GuiShopEconomyProvider;
+import rickiewars.guishop.sql.DatabaseManager;
 import rickiewars.guishop.util.Register;
 import rickiewars.guishop.util.ServerHandler;
 import rickiewars.guishop.util.ShopFileHandler;
 
 import java.io.IOException;
-import java.util.LinkedList;
 
 public class GUIShop implements ModInitializer {
+	public static final String MODID = "guishop";
     public static final Logger LOGGER = LoggerFactory.getLogger("gui-shop");
 
 	/**
 	 * Holds the shops that are currently loaded
 	 */
-	public static final LinkedList<Shop> shops = new LinkedList<>();
-	public static IEconomyService economyService = null;
+	public static Config config = new Config();
+
+	public static DatabaseManager databaseManager;
 
 	static {
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
@@ -48,6 +49,7 @@ public class GUIShop implements ModInitializer {
 		LOGGER.info("GUI Shop loaded!");
 
 		Register.registerCommands();
+		GuiShopEconomyProvider.init();
 
 		ShopFileHandler fileHandler = new ShopFileHandler();
 		if (!fileHandler.initialize()) {

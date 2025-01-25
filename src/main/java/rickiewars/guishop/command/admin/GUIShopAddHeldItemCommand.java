@@ -1,12 +1,12 @@
-package rickiewars.guishop.command;
+package rickiewars.guishop.command.admin;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.command.CommandRegistryAccess;
+import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.component.ComponentChanges;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
@@ -14,6 +14,10 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import rickiewars.guishop.command.GuiShopPermission;
+import rickiewars.guishop.command.suggestions.CurrencySuggestionProvider;
+import rickiewars.guishop.command.suggestions.ShopNameSuggestionProvider;
+import rickiewars.guishop.economy.economyProvider.GuiShopEconomyCurrency;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
 import rickiewars.guishop.util.CommonMethods;
@@ -24,13 +28,17 @@ public class GUIShopAddHeldItemCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
         dispatcher.register(CommandManager.literal("guishop")
             .then(CommandManager.literal("addhelditem")
+                .requires(GuiShopPermission.ADD_ITEM.require())
                 .then(CommandManager.argument("shopName", StringArgumentType.string())
-                    .suggests(new CommonMethods.ShopNameSuggestionProvider())
-                        .then(CommandManager.argument("itemName", StringArgumentType.string())
-                            .then(CommandManager.argument("buyItemPrice", LongArgumentType.longArg(-1))
-                                .then(CommandManager.argument("sellItemPrice", LongArgumentType.longArg(-1))
-                                    .requires(Permissions.require("guishop.additem", 2))
-                                    .executes(GUIShopAddHeldItemCommand::run)))))));
+                    .suggests(new ShopNameSuggestionProvider())
+                    .then(CommandManager.argument("itemName", StringArgumentType.string())
+                        .then(CommandManager.argument("buyItemPrice", LongArgumentType.longArg(-1))
+                            .then(CommandManager.argument("sellItemPrice", LongArgumentType.longArg(-1))
+                                .executes(GUIShopAddHeldItemCommand::run)
+                                .then(CommandManager.argument("currency", IdentifierArgumentType.identifier())
+                                    .suggests(new CurrencySuggestionProvider())
+                                    .executes(GUIShopAddHeldItemCommand::run)
+                                )))))));
     }
 
     public static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
@@ -38,6 +46,12 @@ public class GUIShopAddHeldItemCommand {
         String itemName = StringArgumentType.getString(context, "itemName");
         long buyItemPrice = LongArgumentType.getLong(context, "buyItemPrice");
         long sellItemPrice = LongArgumentType.getLong(context, "sellItemPrice");
+
+        String currency = GuiShopEconomyCurrency.DEFAULT_ID;
+        try {
+            currency = StringArgumentType.getString(context, "currency");
+        } catch (IllegalArgumentException ignored) {}
+
 
         Shop foundShop = CommonMethods.getShopByName(shopName);
         if (foundShop == null) {
@@ -66,6 +80,7 @@ public class GUIShopAddHeldItemCommand {
                 itemId,
                 buyItemPrice,
                 sellItemPrice,
+                currency,
                 new String[]{},
                 heldItemComponentChanges
         ));

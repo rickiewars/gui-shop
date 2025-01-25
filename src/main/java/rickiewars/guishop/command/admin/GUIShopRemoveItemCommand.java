@@ -1,14 +1,15 @@
-package rickiewars.guishop.command;
+package rickiewars.guishop.command.admin;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import rickiewars.guishop.command.GuiShopPermission;
+import rickiewars.guishop.command.suggestions.ShopNameSuggestionProvider;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
 import rickiewars.guishop.util.CommonMethods;
@@ -16,12 +17,12 @@ import rickiewars.guishop.util.CommonMethods;
 public class GUIShopRemoveItemCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment){
         dispatcher.register(CommandManager.literal("guishop")
-                .then(CommandManager.literal("removeitem")
-                        .then(CommandManager.argument("shopName", StringArgumentType.string())
-                                .suggests(new CommonMethods.ShopNameSuggestionProvider())
-                                .then(CommandManager.argument("itemName", StringArgumentType.string())
-                                        .requires(Permissions.require("guishop.removeitem", 2))
-                                            .executes(GUIShopRemoveItemCommand::run)))));
+            .then(CommandManager.literal("removeitem")
+                .then(CommandManager.argument("shopName", StringArgumentType.string())
+                    .suggests(new ShopNameSuggestionProvider())
+                    .then(CommandManager.argument("itemName", StringArgumentType.string())
+                        .requires(GuiShopPermission.REMOVE_ITEM.require())
+                        .executes(GUIShopRemoveItemCommand::run)))));
     }
 
     public static int run(CommandContext<ServerCommandSource> context){

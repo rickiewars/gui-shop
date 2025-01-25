@@ -2,6 +2,8 @@ package rickiewars.guishop.shop;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
+import org.jetbrains.annotations.Nullable;
+import rickiewars.guishop.economy.EconomyUtils;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -12,6 +14,8 @@ import java.util.List;
 public class Shop {
     private final String name;
     private final List<ShopItem> items;
+    @Nullable
+    private final String defaultCurrencyId;
 
     public String getName() {
         return name;
@@ -31,13 +35,32 @@ public class Shop {
         return null;
     }
 
-    public Shop(String name) {
-        this(name, new LinkedList<>());
+    public String getCurrencyId(ShopItem item) {
+        if (item.hasCurrency()) {
+            return item.currencyId();
+        }
+        return getDefaultCurrencyId();
     }
 
-    public Shop(String name, List<ShopItem> items) {
+    public String getDefaultCurrencyId() {
+        if (hasDefaultCurrency()) {
+            return defaultCurrencyId;
+        }
+        return EconomyUtils.getFirstCurrencyId();
+    }
+
+    public boolean hasDefaultCurrency() {
+        return defaultCurrencyId != null;
+    }
+
+    public Shop(String name) {
+        this(name, new LinkedList<>(), null);
+    }
+
+    public Shop(String name, List<ShopItem> items, @Nullable String defaultCurrencyId) {
         this.name = name;
         this.items = items;
+        this.defaultCurrencyId = defaultCurrencyId;
     }
 
     @Override

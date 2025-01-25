@@ -1,9 +1,8 @@
-package rickiewars.guishop.command;
+package rickiewars.guishop.command.player;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -11,6 +10,8 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.apache.commons.lang3.StringUtils;
 import rickiewars.guishop.GUIShop;
+import rickiewars.guishop.command.GuiShopPermission;
+import rickiewars.guishop.command.suggestions.ShopNameSuggestionProvider;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
 import rickiewars.guishop.util.CommonMethods;
@@ -18,19 +19,21 @@ import rickiewars.guishop.util.CommonMethods;
 public class GUIShopListCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment){
         dispatcher.register(CommandManager.literal("guishop")
-                .then(CommandManager.literal("list")
-                        .requires(Permissions.require("guishop.list", 3))
-                            .executes(GUIShopListCommand::runAllShops)
+            .then(CommandManager.literal("list")
+                .requires(GuiShopPermission.LIST.require())
+                .executes(GUIShopListCommand::runAllShops)
                 .then(CommandManager.argument("shopName", StringArgumentType.string())
-                        .requires(Permissions.require("guishop.list.items", 2))
-                            .executes(GUIShopListCommand::runSpecificShop))));
+                    .suggests(new ShopNameSuggestionProvider())
+                    .requires(GuiShopPermission.LIST_ITEMS.require())
+                    .executes(GUIShopListCommand::runSpecificShop)
+                )));
     }
 
     public static int runAllShops(CommandContext<ServerCommandSource> context){
-        if(!GUIShop.shops.isEmpty()){
+        if(!GUIShop.config.shops.isEmpty()){
             StringBuilder msgBldr = new StringBuilder();
 
-            for(Shop shop: GUIShop.shops){
+            for(Shop shop: GUIShop.config.shops){
                 msgBldr.append(shop.getName()).append("\n");
             }
             String msg = StringUtils.chomp(msgBldr.toString());
@@ -54,8 +57,8 @@ public class GUIShopListCommand {
             stringBuilder.append("\n").append(foundShop.getName()).append(" items list:\n\n");
             for(ShopItem item: foundShop.getItems()){
                 stringBuilder.append("Item name: ").append(item.itemName()).append(", ")
-                    .append("Buy price: ").append(CommonMethods.pretty(item.buyItemPrice())).append(", ")
-                        .append("Sell price: ").append(CommonMethods.pretty(item.sellItemPrice())).append("\n\n");
+                    .append("Buy price: ").append(item.formatCurrency(item.buyItemPrice())).append(", ")
+                    .append("Sell price: ").append(item.formatCurrency(item.sellItemPrice())).append("\n\n");
             }
 
             String msg = StringUtils.chomp(stringBuilder.toString());

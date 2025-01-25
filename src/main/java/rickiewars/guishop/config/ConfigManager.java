@@ -3,11 +3,11 @@ package rickiewars.guishop.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import rickiewars.guishop.GUIShop;
-import rickiewars.guishop.economy.EconomyType;
+import rickiewars.guishop.serializer.*;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
-import rickiewars.guishop.util.ShopItemSerializer;
-import rickiewars.guishop.util.ShopSerializer;
+import rickiewars.guishop.sql.SQLiteDatabaseManager;
+import rickiewars.guishop.util.ShopFileHandler;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -23,6 +23,11 @@ public class ConfigManager {
     public static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(ShopItem.class, new ShopItemSerializer())
             .registerTypeAdapter(Shop.class, new ShopSerializer())
+            .registerTypeAdapter(Config.DatabaseConfig.class, new DatabaseConfigSerializer())
+            .registerTypeAdapter(Config.EconomyConfig.class, new EconomyConfigSerializer())
+            .registerTypeAdapter(Config.CurrencyDefinition.class, new CurrencyDefinitionSerializer())
+            .registerTypeAdapter(Config.AccountDefinition.class, new AccountDefinitionSerializer())
+            .registerTypeAdapter(Config.EconomyProviders.class, new EconomyProvidersSerializer())
             .setPrettyPrinting()
             .disableHtmlEscaping()
             .create();
@@ -31,23 +36,25 @@ public class ConfigManager {
      * Initialize a new empty configuration file.
      * Only gets called if the configuration file does not exist on load.
      */
-    private static ConfigData initConfigFile(File configFile) throws IOException {
-        ConfigData configData = new ConfigData();
+    private static Config initConfigFile(File configFile) throws IOException {
+        Config config = new Config();
+        config.configureDefaultEconomy();
+        config.configureDefaultEconomyProvider();
 
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(configFile), StandardCharsets.UTF_8));
-        writer.write(GSON.toJson(configData));
+        writer.write(GSON.toJson(config));
         writer.close();
 
-        return configData;
+        return config;
     }
 
     /**
      * Try to load the configuration data from guishop.json
      */
-    private static ConfigData getConfigData(File configFile) throws IOException {
+    private static Config getConfigData(File configFile) throws IOException {
         return configFile.exists() ? GSON.fromJson(
             new InputStreamReader(new FileInputStream(configFile), StandardCharsets.UTF_8),
-            ConfigData.class
+            Config.class
         ) : initConfigFile(configFile);
     }
 
@@ -57,37 +64,50 @@ public class ConfigManager {
      */
     public static boolean loadConfig(){
         boolean success;
+        boolean configUpdated = false;
         try {
             File configDir = Paths.get("", "config").toFile();
             File configFile = new File(configDir, "guishop.json");
 
-            ConfigData configData = getConfigData(configFile);
+            Config config = getConfigData(configFile);
 
-            if (configData.economy == null) {
-                GUIShop.LOGGER.warn("Unknown economy type. Falling back to next supported economy.");
-                configData.economy = EconomyType.firstLoaded();
-            }
-            if (configData.economy == null) {
-                GUIShop.LOGGER.error("None of the supported economy mods are found. Please install at least one.");
-                return false;
-            }
-            if (configData.economy != EconomyType.MOCK && !configData.economy.modIsLoaded()) {
-                GUIShop.LOGGER.error(
-                    "Configured economy type " +
-                    configData.economy.pretty() +
-                    " is not loaded. Make sure the mod you configured is installed."
+            if (!config.economyProvidersConfigured()) {
+                configUpdated = true;
+                GUIShop.LOGGER.info(
+                        "No economy providers have been configured. Adding the built-in economy provider."
                 );
-                return false;
-            }
-            GUIShop.LOGGER.info("Configured economy: " + configData.economy.pretty());
-            GUIShop.economyService = configData.economy.getEconomyService();
-
-            GUIShop.shops.clear();
-            if(configData.shops != null){
-                for(Shop shop: configData.shops)
-                    GUIShop.shops.addLast(shop);
+                config.configureDefaultEconomyProvider();
+                if (!config.economyConfigured()) {
+                    GUIShop.LOGGER.info(
+                            "The built-in economy provider has not been configured. Using default configuration."
+                    );
+                    config.configureDefaultEconomy();
+                }
             }
 
+            if (config.database == null) {
+                configUpdated = true;
+                GUIShop.LOGGER.info(
+                        "No database configuration found. Adding the default SQLite configuration."
+                );
+                config.database = new Config.DatabaseConfig();
+            }
+
+            Config.DatabaseConfig.DatabaseType type = config.database.type;
+            if (type == Config.DatabaseConfig.DatabaseType.SQLITE) {
+                SQLiteDatabaseManager.initDatabase(config);
+                GUIShop.databaseManager = new SQLiteDatabaseManager();
+            } else {
+                throw new RuntimeException("Unsupported database type: " + type);
+            }
+
+
+            GUIShop.config = config;
+
+            if (configUpdated) {
+                ShopFileHandler fileHandler = new ShopFileHandler();
+                fileHandler.saveToFile();
+            }
 
             success = true;
 

@@ -9,7 +9,7 @@ import java.util.UUID;
 public class ServerHandler {
     private static MinecraftServer minecraftServer;
 
-    private static MinecraftServer server() {
+    public static MinecraftServer getServer() {
         if (minecraftServer == null) {
             throw new RuntimeException("Server not initialized");
         }
@@ -21,10 +21,10 @@ public class ServerHandler {
     }
 
     public static ServerPlayerEntity getPlayerByUUID(UUID uuid) {
-        return server().getPlayerManager().getPlayer(uuid);
+        return getServer().getPlayerManager().getPlayer(uuid);
     }
 
     public static DynamicRegistryManager getRegistryManager() {
-        return server().getRegistryManager();
+        return getServer().getRegistryManager();
     }
 }

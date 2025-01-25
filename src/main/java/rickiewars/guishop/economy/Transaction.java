@@ -1,5 +1,7 @@
 package rickiewars.guishop.economy;
 
+import eu.pb4.common.economy.api.EconomyAccount;
+import eu.pb4.common.economy.api.EconomyTransaction;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -9,48 +11,39 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
-import rickiewars.guishop.util.CommonMethods;
-
-import java.util.concurrent.ExecutionException;
 
 public class Transaction {
 
     private final ServerPlayerEntity player;
     private final Shop shop;
-    private final boolean suppressMessages;
 
-    public Transaction(ServerPlayerEntity player, Shop shop) { this(player, shop, false); }
-    public Transaction(ServerPlayerEntity player, Shop shop, boolean suppressMessages) {
+    public Transaction(ServerPlayerEntity player, Shop shop) {
         this.player = player;
         this.shop = shop;
-        this.suppressMessages = suppressMessages;
     }
 
     public boolean buyItem(ShopItem item, boolean tradeMany) {
+        EconomyAccount account = EconomyUtils.getAccount(player, shop.getCurrencyId(item));
+
         int amount = 1;
         ItemStack givenItems = new ItemStack(Registries.ITEM.get(Identifier.of(item.itemId())), amount);
         if (tradeMany) {
-            try {
-                long balance = GUIShop.economyService.getBalance(player.getUuid());
-                int canAfford = (int) (balance / item.buyItemPrice());
-                givenItems.setCount(Math.min(canAfford, givenItems.getMaxCount()));
-                amount = givenItems.getCount();
-            } catch (ExecutionException | InterruptedException ignored) {}
+            long balance = account.balance();
+            int canAfford = (int) (balance / item.buyItemPrice());
+            givenItems.setCount(Math.min(canAfford, givenItems.getMaxCount()));
+            amount = givenItems.getCount();
         }
 
         if (item.hasComponentChanges()) {
             givenItems.applyChanges(item.componentChanges());
         }
 
-        if (amount == 0 || !GUIShop.economyService.remove(player.getUuid(), item.buyItemPrice() * amount)){
-            if (!suppressMessages) {
-                player.sendMessage(Text.literal(
-                        "You don't have enough money"
-                ).formatted(Formatting.RED));
-            }
+        if (amount == 0 || account.decreaseBalance(item.buyItemPrice() * amount).isFailure()){
+            player.sendMessage(Text.literal(
+                    "You don't have enough money"
+            ).formatted(Formatting.RED));
             return false;
         }
 
@@ -60,34 +53,29 @@ public class Transaction {
     }
 
     public boolean sellItem(ShopItem item, boolean tradeMany) {
+        EconomyAccount account = EconomyUtils.getAccount(player, shop.getCurrencyId(item));
+
         Item itemToSell = Registries.ITEM.get(Identifier.of(item.itemId()));
         int amount = tradeMany ? Math.min(
                 player.getInventory().count(itemToSell),
                 itemToSell.getMaxCount()
         ) : 1;
 
+        EconomyTransaction canIncreaseBalance = account.canIncreaseBalance(item.sellItemPrice() * amount);
+        if (canIncreaseBalance.isFailure()) {
+            player.sendMessage(canIncreaseBalance.message());
+            return false;
+        }
+
         int amountRemovedFromInventory = removeItemsFromInventory(itemToSell, amount, item);
         if (amountRemovedFromInventory == 0){
-            if (!suppressMessages) {
-                player.sendMessage(Text.literal(
-                        "You don't have this item"
-                ).formatted(Formatting.RED));
-            }
+            player.sendMessage(Text.literal(
+                    "You don't have this item"
+            ).formatted(Formatting.RED));
             return false;
         }
 
-        if (!GUIShop.economyService.add(player.getUuid(), item.sellItemPrice() * amountRemovedFromInventory)) {
-            ItemStack refund = new ItemStack(itemToSell, amountRemovedFromInventory);
-            refund.applyChanges(item.componentChanges());
-            player.getInventory().offerOrDrop(refund);
-            if (!suppressMessages) {
-                player.sendMessage(Text.literal(
-                        "Something went wrong, canceling transaction"
-                ).formatted(Formatting.RED));
-            }
-            return false;
-        }
-
+        account.increaseBalance(item.sellItemPrice() * amountRemovedFromInventory);
         tradeSuccessfulMessage(item, amountRemovedFromInventory, true);
         return true;
     }
@@ -98,20 +86,16 @@ public class Transaction {
 
         ShopItem sellItem = this.shop.findItem(itemStack);
         if (sellItem == null) {
-            if (!suppressMessages) {
-                player.sendMessage(Text.literal(
-                        "This item cannot be sold in this shop"
-                ).formatted(Formatting.RED));
-            }
+            player.sendMessage(Text.literal(
+                    "This item cannot be sold in this shop"
+            ).formatted(Formatting.RED));
             return false;
         }
 
-        if (!GUIShop.economyService.add(player.getUuid(), sellItem.sellItemPrice() * amount)) {
-            if (!suppressMessages) {
-                player.sendMessage(Text.literal(
-                        "Something went wrong, canceling transaction"
-                ).formatted(Formatting.RED));
-            }
+        EconomyAccount account = EconomyUtils.getAccount(player, shop.getCurrencyId(sellItem));
+        EconomyTransaction transaction = account.increaseBalance(sellItem.sellItemPrice() * amount);
+        if (transaction.isFailure()) {
+            player.sendMessage(transaction.message());
             return false;
         }
 
@@ -121,8 +105,6 @@ public class Transaction {
     }
 
     private void tradeSuccessfulMessage(ShopItem item, int amount, boolean isSellTransaction) {
-        if (suppressMessages) return;
-
         String tradeType = isSellTransaction ? "sold" : "bought";
         long price = isSellTransaction ? item.sellItemPrice() : item.buyItemPrice();
         long totalPrice = price * amount;
@@ -131,7 +113,7 @@ public class Transaction {
                 tradeType,
                 amount,
                 item.itemName(),
-                CommonMethods.pretty(totalPrice)
+                item.formatCurrency(totalPrice)
         )).formatted(Formatting.GREEN);
         player.sendMessage(message);
     }

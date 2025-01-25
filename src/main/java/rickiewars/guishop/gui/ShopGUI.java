@@ -1,5 +1,6 @@
 package rickiewars.guishop.gui;
 
+import eu.pb4.common.economy.api.EconomyAccount;
 import eu.pb4.sgui.api.ClickType;
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.SimpleGui;
@@ -14,11 +15,10 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import rickiewars.guishop.GUIShop;
+import rickiewars.guishop.economy.EconomyUtils;
 import rickiewars.guishop.economy.Transaction;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
-import rickiewars.guishop.util.CommonMethods;
 
 import java.util.concurrent.ExecutionException;
 
@@ -106,14 +106,16 @@ public class ShopGUI extends SimpleGui{
     }
 
     private void renderPlayerBalanceSlot() {
-        try {
-            this.setSlot(PLAYER_BALANCE_SLOT, new GuiElementBuilder()
-                    .setItem(Items.PLAYER_HEAD)
-                    .setName(Text.literal("Your balance: ").setStyle(Style.EMPTY.withItalic(true)).formatted(Formatting.GREEN)
-                            .append(Text.literal(CommonMethods.pretty(GUIShop.economyService.getBalance(player.getUuid()))
-                            ).setStyle(Style.EMPTY.withItalic(true)).formatted(Formatting.YELLOW)))
-                    .setSkullOwner(HeadTextures.MONEY_SYMBOL, null, null));
-        } catch (ExecutionException | InterruptedException ignored) {}
+        // TODO: One shop may have items with different currencies.
+        //       I could iterate over all currencies and display the balance for each one.
+        //       The only issue is that fetching all currencies used by the shop may be expensive.
+        EconomyAccount account = EconomyUtils.getAccount(player, shop.getDefaultCurrencyId());
+        this.setSlot(PLAYER_BALANCE_SLOT, new GuiElementBuilder()
+                .setItem(Items.PLAYER_HEAD)
+                .setName(Text.literal("Your balance: ").setStyle(Style.EMPTY.withItalic(true)).formatted(Formatting.GREEN)
+                        .append(Text.literal(account.currency().formatValue(account.balance(), true)
+                        ).setStyle(Style.EMPTY.withItalic(true)).formatted(Formatting.YELLOW)))
+                .setSkullOwner(HeadTextures.MONEY_SYMBOL, null, null));
     }
 
     private void buyItem(ShopItem item, boolean tradeMany) {
