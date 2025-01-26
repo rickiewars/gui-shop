@@ -58,7 +58,7 @@ public class CommonMethods {
         return Registries.ITEM.get(Identifier.of(id));
     }
     public static Optional<Item> getOptionalItem(String id) {
-        return Registries.ITEM.getOrEmpty(Identifier.of(id));
+        return Registries.ITEM.getOptionalValue(Identifier.of(id));
     }
     public static Item getItem(String id, Item defaultItem) {
         return getOptionalItem(id).orElse(defaultItem);
