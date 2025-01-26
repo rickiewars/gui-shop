@@ -13,30 +13,30 @@ They can be later opened by using commands, allowing integration with NPC mods l
 ## Installation
 Put the .jar file in the "mods" folder
 
-**(Requires [Fabric API](https://www.curseforge.com/minecraft/mc-mods/fabric-api) and [a supported Economy](#supported-economies))**
+**(Requires [Fabric API](https://www.curseforge.com/minecraft/mc-mods/fabric-api) and (optionally) [a supported Economy](#supported-economies))**
 <br><br>
 
 ## Commands and permissions
 All commands can be used by admins (permission level 3) or by users/groups with the specific permission
 
 
-| Description                | Command                                                                                        | Permission               | 
-|----------------------------|------------------------------------------------------------------------------------------------|--------------------------|
-| Main command               | `/guishop`                                                                                     | `automessage.main`       |
-| Create a shop              | `/guishop create <shopName>`                                                                   | `automessage.create`     |
-| Delete a shop              | `/guishop delete <shopName> `                                                                  | `automessage.delete`     |
-| Add an item in a shop      | `/guishop additem <shopName> <itemId> <buyPrice> <sellPrice> <description> <componentChanges>` | `automessage.additem`    |
-| Remove an item from a shop | `/guishop removeitem <shopName> <itemName>`                                                    | `automessage.removeitem` |
-| Open a shop for a player   | `/guishop open <shopName> <playerName>`                                                        | `automessage.open`       |
-| List all shops             | `/guishop list`                                                                                | `automessage.list`       |
-| List all items in a shop   | `/guishop list <shopName>`                                                                     | `automessage.list`       |
-| Force save config          | `/guishop forcesave`                                                                           | `automessage.forcesave`  |
-| Reload config file         | `/automessage reload`                                                                          | `automessage.reload`     |
+| Description                | Command                                                                                                   | Permission               | 
+|----------------------------|-----------------------------------------------------------------------------------------------------------|--------------------------|
+| Main command               | `/guishop`                                                                                                | `automessage.main`       |
+| Create a shop              | `/guishop create <shopName>`                                                                              | `automessage.create`     |
+| Delete a shop              | `/guishop delete <shopName> `                                                                             | `automessage.delete`     |
+| Add an item in a shop      | `/guishop additem <shopName> <itemId> <buyPrice> <sellPrice> <currency> <description> <componentChanges>` | `automessage.additem`    |
+| Remove an item from a shop | `/guishop removeitem <shopName> <itemName>`                                                               | `automessage.removeitem` |
+| Open a shop for a player   | `/guishop open <shopName> <playerName>`                                                                   | `automessage.open`       |
+| List all shops             | `/guishop list`                                                                                           | `automessage.list`       |
+| List all items in a shop   | `/guishop list <shopName>`                                                                                | `automessage.list`       |
+| Force save config          | `/guishop forcesave`                                                                                      | `automessage.forcesave`  |
+| Reload config file         | `/automessage reload`                                                                                     | `automessage.reload`     |
 
 ### Commands examples
 Create a shop: `/guishop create "Test shop"`"
 
-Add item in a shop: `/guishop additem "Diamond" "minecraft:diamond" 250.00 100.00 "This is a Diamond\\An expensive diamond\\Shiny" "{}"` *(you can split each description line by using "\\\\")*
+Add item in a shop: `/guishop additem "Diamond" "minecraft:diamond" 250.00 100.00 guishop:credit "This is a Diamond\\An expensive diamond\\Shiny" "{}"` *(you can split each description line by using "\\\\")*
 
 Remove item from shop: `/guishop removeitem "Test shop" "Diamond"`
 
@@ -53,7 +53,36 @@ You can even add items from the JSON file (check [JSON Example](#json-example)).
 ### JSON example
 ```json5
 {
-  "economy": "impactor",
+  "database": {
+    "type": "sqlite",
+    "currency": "./config/guishop.sqlite"
+  },
+  "economy": {
+    "currencies": {
+      "guishop:credit": {
+        "name": "Credits",
+        "prefix": "$",
+        "suffix": "",
+        "decimalPlaces": 2,
+        "icon": "minecraft:diamond"
+      }
+    },
+    "accounts": {
+      "guishop:account": {
+        "name": "Account",
+        "currency": "guishop:credit",
+        "icon": "minecraft:diamond"
+      }
+    }
+  },
+  "economyProviders": {
+    "currencies": {
+      "guishop:credit": "guishop"
+    },
+    "accounts": {
+      "guishop:account": "guishop:credit"
+    }
+  },
   "shops": [
     {
       "shopName": "Shop number one",
@@ -67,6 +96,7 @@ You can even add items from the JSON file (check [JSON Example](#json-example)).
           ],
           "buyPrice": 50.0,
           "sellPrice": 25.0,
+          "currency": "guishop:credit",
           "componentChanges": "{}",
           "quantityList": [
             1
@@ -111,11 +141,10 @@ You can even add items from the JSON file (check [JSON Example](#json-example)).
 ```
 
 ## Supported Economies:
- - ~~[EightsEconomyP](https://legacy.curseforge.com/minecraft/mc-mods/eightseconomyp)~~ *(not explicitly implemented)*
- - [Impactor](https://modrinth.com/mod/impactor)
-
-### Discord
-Join my [discord server](https://discord.gg/tExFemXyJS) if you need support for one of my mods!
+From 1.4.5 and onwards, the mod supports any (combination of) economy mod that uses the [Common Economy API](https://github.com/Patbox/common-economy-api).
+A great example is [Common Bridge](https://modrinth.com/mod/common-bridge), which bridges multiple economy plugins to use the Common Economy API.
+Finally, GuiShop comes with its own economy provider which can be configured in the config file.
+This build-in economy provider can be configured with multiple currencies and accounts.
 
 ## Showcase
 ![img.png](resources/img.png)
