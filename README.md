@@ -20,23 +20,32 @@ Put the .jar file in the "mods" folder
 All commands can be used by admins (permission level 3) or by users/groups with the specific permission
 
 
-| Description                | Command                                                                                                   | Permission               | 
-|----------------------------|-----------------------------------------------------------------------------------------------------------|--------------------------|
-| Main command               | `/guishop`                                                                                                | `automessage.main`       |
-| Create a shop              | `/guishop create <shopName>`                                                                              | `automessage.create`     |
-| Delete a shop              | `/guishop delete <shopName> `                                                                             | `automessage.delete`     |
-| Add an item in a shop      | `/guishop additem <shopName> <itemId> <buyPrice> <sellPrice> <currency> <description> <componentChanges>` | `automessage.additem`    |
-| Remove an item from a shop | `/guishop removeitem <shopName> <itemName>`                                                               | `automessage.removeitem` |
-| Open a shop for a player   | `/guishop open <shopName> <playerName>`                                                                   | `automessage.open`       |
-| List all shops             | `/guishop list`                                                                                           | `automessage.list`       |
-| List all items in a shop   | `/guishop list <shopName>`                                                                                | `automessage.list`       |
-| Force save config          | `/guishop forcesave`                                                                                      | `automessage.forcesave`  |
-| Reload config file         | `/automessage reload`                                                                                     | `automessage.reload`     |
+| Description                | Command                                                                                | Permission               | 
+|----------------------------|----------------------------------------------------------------------------------------|--------------------------|
+| Main command               | `/guishop`                                                                             | `automessage.main`       |
+| Create a shop              | `/guishop create <shopName>`                                                           | `automessage.create`     |
+| Delete a shop              | `/guishop delete <shopName> `                                                          | `automessage.delete`     |
+| Add an item in a shop      | `/guishop additem <shopName> <itemId> <buyPrice> <sellPrice> <currency> <description>` | `automessage.additem`    |
+| Remove an item from a shop | `/guishop removeitem <shopName> <itemName>`                                            | `automessage.removeitem` |
+| Open a shop for a player   | `/guishop open <shopName> <playerName>`                                                | `automessage.open`       |
+| List all shops             | `/guishop list`                                                                        | `automessage.list`       |
+| List all items in a shop   | `/guishop list <shopName>`                                                             | `automessage.list`       |
+| Force save config          | `/guishop forcesave`                                                                   | `automessage.forcesave`  |
+| Reload config file         | `/automessage reload`                                                                  | `automessage.reload`     |
 
 ### Commands examples
 Create a shop: `/guishop create "Test shop"`"
 
-Add item in a shop: `/guishop additem "Diamond" "minecraft:diamond" 250.00 100.00 guishop:credit "This is a Diamond\\An expensive diamond\\Shiny" "{}"` *(you can split each description line by using "\\\\")*
+Add item in a shop: `/guishop additem "Diamond" minecraft:diamond[minecraft:enchantment_glint_override=true,minecraft:custom_name=hello] 250 100 guishop:credit "This is a Diamond\\An expensive diamond\\Shiny"` *(you can split each description line by using "\\\\")*
+
+> Item components are supported in the same way as in the `/give` command.
+You can use an item generator like [mcstacker](https://mcstacker.net/) or the one from
+[Gamergeeks](https://www.gamergeeks.net/apps/minecraft/give-command-generator)
+to generate items with components like enchantments, custom names, etc.
+In-game, you'll also get suggestions for item components.
+
+> The buy and sell prices are without any formatting so say you configured 2 decimal places in your config
+> and you want to sell an item for 1.50, you would use 150 as the sell price.
 
 Remove item from shop: `/guishop removeitem "Test shop" "Diamond"`
 
@@ -94,24 +103,22 @@ You can even add items from the JSON file (check [JSON Example](#json-example)).
             "This is a nice boat",
             "Very beautiful"
           ],
-          "buyPrice": 50.0,
-          "sellPrice": 25.0,
+          "buyPrice": 50,
+          "sellPrice": 25,
           "currency": "guishop:credit",
-          "componentChanges": "{}",
-          "quantityList": [
-            1
-          ]
+          "componentChanges": {}
         },
         {
           "name": "BBQ Sword",
           "itemId": "minecraft:diamond_sword",
           "description": [],
-          "buyPrice": 0.0,
-          "sellPrice": 0.0,
-          "componentChanges": "{Damage:0,Enchantments:[{id:\"fire_aspect\",lvl:2},{id:\"sweeping\",lvl:2}],display:{Lore:['[{\"text\":\"Crispy and tasty\",\"italic\":false}]'],Name:'[{\"text\":\"The BBQ\",\"italic\":false}]'}}",
-          "quantityList": [
-            1
-          ]
+          "buyPrice": 0,
+          "sellPrice": 0,
+          "currency": "guishop:credit",
+          "components": {
+            "minecraft:enchantment_glint_override": true,
+            "minecraft:custom_name": "\"hello\""
+          }
         },
         {
           "name": "Amethyst",
@@ -121,14 +128,10 @@ You can even add items from the JSON file (check [JSON Example](#json-example)).
             "<purple>amethyst</purple>",
             "<rainbow>SHINY</rainbow>"
           ],
-          "buyPrice": 200.0,
-          "sellPrice": 100.0,
-          "componentChanges": "{}",
-          "quantityList": [
-            1,
-            40,
-            64
-          ]
+          "buyPrice": 200,
+          "sellPrice": 100,
+          "currency": "guishop:credit",
+          "components": {}
         }
       ]
     },
