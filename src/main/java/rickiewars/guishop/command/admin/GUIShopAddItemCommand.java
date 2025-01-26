@@ -1,18 +1,15 @@
 package rickiewars.guishop.command.admin;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.serialization.JsonOps;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.IdentifierArgumentType;
+import net.minecraft.command.argument.ItemStackArgument;
 import net.minecraft.command.argument.ItemStackArgumentType;
 import net.minecraft.component.ComponentChanges;
-import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -25,7 +22,6 @@ import rickiewars.guishop.economy.economyProvider.GuiShopEconomyCurrency;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
 import rickiewars.guishop.util.CommonMethods;
-import rickiewars.guishop.util.ServerHandler;
 
 public class GUIShopAddItemCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment){
@@ -43,15 +39,13 @@ public class GUIShopAddItemCommand {
                                         .executes(GUIShopAddItemCommand::run)
                                         .then(CommandManager.argument("description", StringArgumentType.string())
                                             .executes(GUIShopAddItemCommand::run)
-                                            .then(CommandManager.argument("componentChanges", StringArgumentType.string())
-                                                .executes(GUIShopAddItemCommand::run)
-                                            ))))))))));
+                                        )))))))));
     }
 
     public static int run(CommandContext<ServerCommandSource> context) {
         String shopName = StringArgumentType.getString(context, "shopName");
         String itemName = StringArgumentType.getString(context, "itemName");
-        Item item = ItemStackArgumentType.getItemStackArgument(context, "item").getItem();
+        ItemStackArgument itemStackArgument = ItemStackArgumentType.getItemStackArgument(context, "item");
         long buyItemPrice = LongArgumentType.getLong(context, "buyItemPrice");
         long sellItemPrice = LongArgumentType.getLong(context, "sellItemPrice");
 
@@ -62,12 +56,7 @@ public class GUIShopAddItemCommand {
 
         String descriptionLine = "";
         try {
-            descriptionLine = StringArgumentType.getString(context, "currency");
-        } catch (IllegalArgumentException ignored) {}
-
-        String componentChangesString = "";
-        try {
-            componentChangesString = StringArgumentType.getString(context, "currency");
+            descriptionLine = StringArgumentType.getString(context, "description");
         } catch (IllegalArgumentException ignored) {}
 
         Shop foundShop = CommonMethods.getShopByName(shopName);
@@ -76,28 +65,15 @@ public class GUIShopAddItemCommand {
             return -1;
         }
 
-        String registryItemId = Registries.ITEM.getId(item).toString();
+        String registryItemId = Registries.ITEM.getId(itemStackArgument.getItem()).toString();
 
         String[] description = descriptionLine.split("\\\\");
 
         ComponentChanges componentChanges;
         try {
-            JsonElement jsonInput = JsonParser.parseString(
-                    componentChangesString.isEmpty() ? "{}" : componentChangesString
-            );
-            componentChanges = ComponentChanges.CODEC.parse(
-                    ServerHandler.getRegistryManager().getOps(JsonOps.INSTANCE), jsonInput
-            ).getOrThrow();
-        } catch (JsonSyntaxException e) {
-            context.getSource().sendFeedback(() -> Text.literal("Error parsing json component").formatted(Formatting.RED), false);
-            String message = CommonMethods.findRootCause(e).getLocalizedMessage();
-            context.getSource().sendFeedback(() -> Text.literal(message).formatted(Formatting.RED), false);
-            return -1;
-        } catch (Exception e){
-            context.getSource().sendFeedback(()-> Text.literal("Error parsing component changes").formatted(Formatting.RED), false);
-            String message = CommonMethods.findRootCause(e).getLocalizedMessage();
-            context.getSource().sendFeedback(() -> Text.literal(message).formatted(Formatting.RED), false);
-            return -1;
+            componentChanges = itemStackArgument.createStack(1, false).getComponentChanges();
+        } catch (CommandSyntaxException e) {
+            throw new RuntimeException("Error getting component changes from item", e);
         }
 
         foundShop.getItems().add(new ShopItem(itemName, registryItemId, buyItemPrice, sellItemPrice, currency, description, componentChanges));
