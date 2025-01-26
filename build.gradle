@@ -24,9 +24,16 @@ repositories {
 		url "https://cursemaven.com"
 	}
 
-	maven{
-		name 'Impactor Economy'
-		url  "https://maven.impactdev.net/repository/development"
+	exclusiveContent {
+		forRepository {
+			maven {
+				name = "Modrinth"
+				url = "https://api.modrinth.com/maven"
+			}
+		}
+		filter {
+			includeGroup "maven.modrinth"
+		}
 	}
 
 	mavenCentral()
@@ -55,8 +62,9 @@ dependencies {
 
 	include(modImplementation("me.lucko:fabric-permissions-api:${project.fabric_permissions_api_version}"))
 
-	// For now commented out as its not available for this version and it breaks the genSources task for some reason
-//	modImplementation("net.impactdev.impactor.api:economy:${project.impactor_economy_api_version}")
+	modImplementation include("eu.pb4:common-economy-api:${project.common_economy_api_version}")
+
+	implementation(include("org.xerial:sqlite-jdbc:${project.sqlite_version}"))
 
 	modImplementation include("eu.pb4:sgui:${project.sgui_version}")
 
