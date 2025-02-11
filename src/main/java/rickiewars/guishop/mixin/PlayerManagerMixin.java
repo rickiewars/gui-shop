@@ -16,14 +16,15 @@ import rickiewars.guishop.sql.DatabaseManager;
 public class PlayerManagerMixin {
     @Inject(method = "onPlayerConnect", at = @At("TAIL"))
     private void guishop_onPlayerConnectMixin(ClientConnection connection, ServerPlayerEntity player, ConnectedClientData commonListenerCookie, CallbackInfo ci) {
-        GUIShop.LOGGER.info("Player connected");
+        if (GUIShop.economyConfig.disabled) {
+            return;
+        }
+
         DatabaseManager dm = GUIShop.databaseManager;
         String uuid = player.getUuid().toString();
         String name = player.getName().toString();
-        GUIShop.LOGGER.info("Initializing account for player: " + uuid + " " + name);
 
         CommonEconomy.getCurrencies(player.server).forEach(currency -> {
-            GUIShop.LOGGER.info("Adding player to currency: " + currency.id().toString());
             dm.addPlayer(currency.id().toString(), uuid, name);
         });
     }

@@ -25,7 +25,7 @@ public class Transaction {
     }
 
     public boolean buyItem(ShopItem item, boolean tradeMany) {
-        EconomyAccount account = EconomyUtils.getAccount(player, shop.getCurrencyId(item));
+        EconomyAccount account = EconomyUtils.getDefaultAccount(player, shop.getCurrencyId(item));
 
         int amount = 1;
         ItemStack givenItems = new ItemStack(Registries.ITEM.get(Identifier.of(item.itemId())), amount);
@@ -53,7 +53,7 @@ public class Transaction {
     }
 
     public boolean sellItem(ShopItem item, boolean tradeMany) {
-        EconomyAccount account = EconomyUtils.getAccount(player, shop.getCurrencyId(item));
+        EconomyAccount account = EconomyUtils.getDefaultAccount(player, shop.getCurrencyId(item));
 
         Item itemToSell = Registries.ITEM.get(Identifier.of(item.itemId()));
         int amount = tradeMany ? Math.min(
@@ -92,7 +92,7 @@ public class Transaction {
             return false;
         }
 
-        EconomyAccount account = EconomyUtils.getAccount(player, shop.getCurrencyId(sellItem));
+        EconomyAccount account = EconomyUtils.getDefaultAccount(player, shop.getCurrencyId(sellItem));
         EconomyTransaction transaction = account.increaseBalance(sellItem.sellItemPrice() * amount);
         if (transaction.isFailure()) {
             player.sendMessage(transaction.message());

@@ -1,8 +1,8 @@
 package rickiewars.guishop.util;
 
 import rickiewars.guishop.GUIShop;
-import rickiewars.guishop.config.Config;
 import rickiewars.guishop.config.ConfigManager;
+import rickiewars.guishop.config.EconomyConfig;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
  * - The command can be triggered using the `guishop forcesave` command
  * - The command will be triggered on server shutdown
  */
-public class ShopFileHandler implements Runnable{
+public class EconomyFileHandler implements Runnable{
 
     private static final ScheduledExecutorService executorService = new ScheduledThreadPoolExecutor(1);
 
@@ -33,10 +33,10 @@ public class ShopFileHandler implements Runnable{
     }
 
     public void saveToFile() throws IOException {
-        String jsonString = ConfigManager.GSON.toJson(GUIShop.config);
+        String jsonString = ConfigManager.GSON.toJson(GUIShop.economyConfig);
 
         File configDir = Paths.get("", "config").toFile();
-        File configFile = new File(configDir, Config.FILE_NAME);
+        File configFile = new File(configDir, EconomyConfig.FILE_NAME);
 
         {
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(configFile), StandardCharsets.UTF_8));
