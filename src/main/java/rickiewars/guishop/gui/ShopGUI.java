@@ -109,7 +109,7 @@ public class ShopGUI extends SimpleGui{
         // TODO: One shop may have items with different currencies.
         //       I could iterate over all currencies and display the balance for each one.
         //       The only issue is that fetching all currencies used by the shop may be expensive.
-        EconomyAccount account = EconomyUtils.getAccount(player, shop.getDefaultCurrencyId());
+        EconomyAccount account = EconomyUtils.getDefaultAccount(player, shop.getDefaultCurrencyId());
         this.setSlot(PLAYER_BALANCE_SLOT, new GuiElementBuilder()
                 .setItem(Items.PLAYER_HEAD)
                 .setName(Text.literal("Your balance: ").setStyle(Style.EMPTY.withItalic(true)).formatted(Formatting.GREEN)

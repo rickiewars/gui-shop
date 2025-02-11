@@ -27,7 +27,7 @@ public record ShopItem(
         long buyItemPrice,
         long sellItemPrice,
         @Nullable
-        String currencyId,
+        Identifier currencyId,
         String[] description,
         ComponentChanges componentChanges
 ) {
@@ -150,7 +150,7 @@ public record ShopItem(
     }
 
     @Override
-    public String currencyId() {
+    public Identifier currencyId() {
         if (currencyId == null) {
             return EconomyUtils.getFirstCurrencyId();
         }
@@ -158,7 +158,7 @@ public record ShopItem(
     }
 
     public EconomyCurrency currency() {
-        Identifier currencyId = Identifier.of(currencyId());
+        Identifier currencyId = currencyId();
         for (EconomyCurrency currency : CommonEconomy.getCurrencies(ServerHandler.getServer())) {
             if (currency.id().equals(currencyId)) {
                 return currency;

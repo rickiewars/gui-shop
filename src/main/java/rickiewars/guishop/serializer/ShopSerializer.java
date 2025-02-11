@@ -1,6 +1,8 @@
 package rickiewars.guishop.serializer;
 
 import com.google.gson.*;
+import net.minecraft.util.Identifier;
+import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
 
@@ -13,9 +15,12 @@ public class ShopSerializer implements JsonSerializer<Shop>, JsonDeserializer<Sh
         JsonObject jsonShop = jsonElement.getAsJsonObject();
         JsonArray jsonItems = jsonShop.getAsJsonArray("items");
         ShopItem[] items = new ShopItem[jsonItems.size()];
-        String defaultCurrencyId = null;
+        Identifier defaultCurrencyId = null;
         if (jsonShop.has("defaultCurrency")) {
-            defaultCurrencyId = jsonShop.get("defaultCurrency").getAsString();
+            String defaultCurrencyIdStr = jsonShop.get("defaultCurrency").getAsString();
+            defaultCurrencyId = defaultCurrencyIdStr.contains(":")
+                    ? Identifier.of(defaultCurrencyIdStr)
+                    : Identifier.of(GUIShop.MODID, defaultCurrencyIdStr);
         }
 
         String shopName = jsonShop.get("shopName").getAsString();
@@ -40,7 +45,7 @@ public class ShopSerializer implements JsonSerializer<Shop>, JsonDeserializer<Sh
         JsonObject jsonShop = new JsonObject();
         jsonShop.add("shopName", shopName);
         if (shop.hasDefaultCurrency()) {
-            JsonElement defaultCurrencyId = new JsonPrimitive(shop.getDefaultCurrencyId());
+            JsonElement defaultCurrencyId = new JsonPrimitive(shop.getDefaultCurrencyId().toString());
             jsonShop.add("defaultCurrency", defaultCurrencyId);
         }
         jsonShop.add("items", items);

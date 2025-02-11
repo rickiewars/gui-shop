@@ -20,18 +20,23 @@ Put the .jar file in the "mods" folder
 All commands can be used by admins (permission level 3) or by users/groups with the specific permission
 
 
-| Description                | Command                                                                                | Permission               | 
-|----------------------------|----------------------------------------------------------------------------------------|--------------------------|
-| Main command               | `/guishop`                                                                             | `automessage.main`       |
-| Create a shop              | `/guishop create <shopName>`                                                           | `automessage.create`     |
-| Delete a shop              | `/guishop delete <shopName> `                                                          | `automessage.delete`     |
-| Add an item in a shop      | `/guishop additem <shopName> <itemId> <buyPrice> <sellPrice> <currency> <description>` | `automessage.additem`    |
-| Remove an item from a shop | `/guishop removeitem <shopName> <itemName>`                                            | `automessage.removeitem` |
-| Open a shop for a player   | `/guishop open <shopName> <playerName>`                                                | `automessage.open`       |
-| List all shops             | `/guishop list`                                                                        | `automessage.list`       |
-| List all items in a shop   | `/guishop list <shopName>`                                                             | `automessage.list`       |
-| Force save config          | `/guishop forcesave`                                                                   | `automessage.forcesave`  |
-| Reload config file         | `/automessage reload`                                                                  | `automessage.reload`     |
+| Description                       | Command                                                                                | Permission               | 
+|-----------------------------------|----------------------------------------------------------------------------------------|--------------------------|
+| Main command                      | `/guishop`                                                                             | `guishop.main`           |
+| Create a shop                     | `/guishop create <shopName>`                                                           | `guishop.create`         |
+| Delete a shop                     | `/guishop delete <shopName> `                                                          | `guishop.delete`         |
+| Add an item in a shop             | `/guishop additem <shopName> <itemId> <buyPrice> <sellPrice> <currency> <description>` | `guishop.additem`        |
+| Remove an item from a shop        | `/guishop removeitem <shopName> <itemName>`                                            | `guishop.removeitem`     |
+| Open a shop for a player          | `/guishop open <shopName> <playerName>`                                                | `guishop.open`           |
+| List all shops                    | `/guishop list`                                                                        | `guishop.list`           |
+| List all items in a shop          | `/guishop list <shopName>`                                                             | `guishop.list`           |
+| Force save config                 | `/guishop forcesave`                                                                   | `guishop.forcesave`      |
+| Reload config file                | `/guishop reload`                                                                      | `guishop.reload`         |
+| Show balance for all currencies   | `/guishop balance`                                                                     | `guishop.balance`        |
+| Show balance for a currency       | `/guishop balance <currency>`                                                          | `guishop.balance`        |
+| Send your money to another player | `/guishop balance <currency> send <playerName> <amount>`                               | `guishop.balance.send`   |
+| Increase a player's balance       | `/guishop balance <currency> add <playerName> <amount>`                                | `guishop.balance.add`    |
+| Decrease a player's balance       | `/guishop balance <currency> remove <playerName> <amount>`                             | `guishop.balance.remove` |
 
 ### Commands examples
 Create a shop: `/guishop create "Test shop"`"
@@ -51,24 +56,21 @@ Remove item from shop: `/guishop removeitem "Test shop" "Diamond"`
 
 Open a shop and show it to a specific player: `/guishop open "Test shop" "Steve"`
 
-
-## Configuration
-You can find the config file in `./config/guishop.json`
-<br>Both items' names and descriptions support [Simplified Text Format](https://placeholders.pb4.eu/user/text-format/).
-
-You can even add items from the JSON file (check [JSON Example](#json-example)). This can be useful when your `additem` command would be very long, or to easily set component data *(remember to reload the mod using `/guishop reload` after editing the config file)*
+## Economy configuration
+Guishop has a built-in optional economy provider that can be configured in the `./config/guishopeconomy.json` file.
 
 
-### JSON example
+### Economy provider configuration example
 ```json5
 {
+  "disabled": false,
   "database": {
     "type": "sqlite",
     "currency": "./config/guishop.sqlite"
   },
   "economy": {
     "currencies": {
-      "guishop:credit": {
+      "credit": {
         "name": "Credits",
         "prefix": "$",
         "suffix": "",
@@ -77,20 +79,49 @@ You can even add items from the JSON file (check [JSON Example](#json-example)).
       }
     },
     "accounts": {
-      "guishop:account": {
+      "account": {
         "name": "Account",
-        "currency": "guishop:credit",
+        "currency": "credit",
         "icon": "minecraft:diamond"
       }
     }
   },
+  "command": {
+    "disabled": false,
+    "alias": ""
+  }
+}
+```
+
+## Guishop configuration
+You can find the main config file in `./config/guishop.json`.
+
+In `economyProviders` you can specify the economy provider you want to use.
+This can be an external economy mod that uses the [Common Economy API](https://github.com/Patbox/common-economy-api)
+or the built-in economy provider configured in `guishopeconomy.json`.
+The object is a mapping usually `mod_id:currency_id` to a list of `account_id`'s.
+To use the build-in economy provider, prefix your configured currency with `guishop:`.
+
+In `shops` you can define your shops and their items.
+Both the items' names and descriptions support [Simplified Text Format](https://placeholders.pb4.eu/user/text-format/).
+You can both use the config file and in-game commands to add items to the shop.
+
+Just remember to:
+- reload the mod using `/guishop reload` after editing the config file,
+- save the in-game changes using `/guishop forcesave` to reflect them in the config file.
+- not to work in both the config file and in-game at the same time.
+  - If the in-game changes are saved, they will overwrite any changes made to the config file.
+  - If the config file is reloaded, it will overwrite any in-game changes.
+  - Be careful when making large-scale changes to the config file while the server is running
+    as the mod will automatically save in-game changes every 30 minutes.
+
+### JSON example
+```json5
+{
   "economyProviders": {
-    "currencies": {
-      "guishop:credit": "guishop"
-    },
-    "accounts": {
-      "guishop:account": "guishop:credit"
-    }
+    "guishop:credit": [
+      "account"
+    ]
   },
   "shops": [
     {
@@ -146,8 +177,10 @@ You can even add items from the JSON file (check [JSON Example](#json-example)).
 ## Supported Economies:
 From 1.4.5 and onwards, the mod supports any (combination of) economy mod that uses the [Common Economy API](https://github.com/Patbox/common-economy-api).
 A great example is [Common Bridge](https://modrinth.com/mod/common-bridge), which bridges multiple economy plugins to use the Common Economy API.
-Finally, GuiShop comes with its own economy provider which can be configured in the config file.
+
+GuiShop also comes with its own economy provider which can be configured in the config file.
 This build-in economy provider can be configured with multiple currencies and accounts.
+_(The multi-account per currency functionality has not been properly implemented yet.)_
 
 ## Showcase
 ![img.png](resources/img.png)

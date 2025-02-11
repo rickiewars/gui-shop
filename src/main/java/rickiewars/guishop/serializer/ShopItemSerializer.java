@@ -3,6 +3,8 @@ package rickiewars.guishop.serializer;
 import com.google.gson.*;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.component.ComponentChanges;
+import net.minecraft.util.Identifier;
+import rickiewars.guishop.economy.economyProvider.GuiShopEconomyProvider;
 import rickiewars.guishop.shop.ShopItem;
 import rickiewars.guishop.util.ServerHandler;
 
@@ -25,9 +27,12 @@ public class ShopItemSerializer implements JsonSerializer<ShopItem>, JsonDeseria
         long buyItemPrice = jsonShop.get("buyPrice").getAsLong();
         long sellItemPrice = jsonShop.get("sellPrice").getAsLong();
 
-        String currencyId = null;
+        Identifier currencyId = null;
         if (jsonShop.has("currency")) {
-            currencyId = jsonShop.get("currency").getAsString();
+            String currencyIdStr = jsonShop.get("currency").getAsString();
+            currencyId = currencyIdStr.contains(":")
+                    ? Identifier.of(currencyIdStr)
+                    : Identifier.of(GuiShopEconomyProvider.ID, currencyIdStr);
         }
 
         ComponentChanges componentChanges = ComponentChanges.CODEC.parse(
@@ -67,8 +72,8 @@ public class ShopItemSerializer implements JsonSerializer<ShopItem>, JsonDeseria
         finalResult.add("buyPrice", new JsonPrimitive(buyItemPrice));
         finalResult.add("sellPrice", new JsonPrimitive(sellItemPrice));
         if (shopItem.hasCurrency()) {
-            String currencyId = shopItem.currencyId();
-            finalResult.add("currency", new JsonPrimitive(currencyId));
+            Identifier currencyId = shopItem.currencyId();
+            finalResult.add("currency", new JsonPrimitive(currencyId.toString()));
         }
         finalResult.add("components", jsonComponentChanges);
 

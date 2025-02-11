@@ -15,6 +15,7 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 import rickiewars.guishop.command.GuiShopPermission;
 import rickiewars.guishop.command.suggestions.CurrencySuggestionProvider;
 import rickiewars.guishop.command.suggestions.ShopNameSuggestionProvider;
@@ -49,9 +50,9 @@ public class GUIShopAddItemCommand {
         long buyItemPrice = LongArgumentType.getLong(context, "buyItemPrice");
         long sellItemPrice = LongArgumentType.getLong(context, "sellItemPrice");
 
-        String currency = GuiShopEconomyCurrency.DEFAULT_ID;
+        Identifier currency = GuiShopEconomyCurrency.DEFAULT_ID;
         try {
-            currency = IdentifierArgumentType.getIdentifier(context, "currency").toString();
+            currency = IdentifierArgumentType.getIdentifier(context, "currency");
         } catch (IllegalArgumentException ignored) {}
 
         String descriptionLine = "";
