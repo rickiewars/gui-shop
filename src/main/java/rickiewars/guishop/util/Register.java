@@ -2,6 +2,7 @@ package rickiewars.guishop.util;
 
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import rickiewars.guishop.command.admin.*;
+import rickiewars.guishop.command.economy.GUIShopBalanceCommand;
 import rickiewars.guishop.command.player.GUIShopListCommand;
 import rickiewars.guishop.command.player.GUIShopMainCommand;
 import rickiewars.guishop.command.player.GUIShopOpenCommand;
@@ -20,5 +21,6 @@ public class Register {
         CommandRegistrationCallback.EVENT.register(GUIShopRemoveItemCommand::register);
         CommandRegistrationCallback.EVENT.register(GUIShopForceSaveCommand::register);
         CommandRegistrationCallback.EVENT.register(SellCommand::register);
+        CommandRegistrationCallback.EVENT.register(GUIShopBalanceCommand::register);
     }
 }

@@ -1,28 +1,28 @@
 package rickiewars.guishop.serializer;
 
 import com.google.gson.*;
-import rickiewars.guishop.config.Config.AccountDefinition;
-import rickiewars.guishop.config.Config.CurrencyDefinition;
-import rickiewars.guishop.config.Config.EconomyConfig;
+import rickiewars.guishop.config.EconomyConfig.AccountDefinition;
+import rickiewars.guishop.config.EconomyConfig.CurrencyDefinition;
+import rickiewars.guishop.config.EconomyConfig.EconomyProviderDefinition;
 
 import java.lang.reflect.Type;
 
-public class EconomyConfigSerializer implements JsonSerializer<EconomyConfig>, JsonDeserializer<EconomyConfig> {
+public class EconomyProviderDefinitionSerializer implements JsonSerializer<EconomyProviderDefinition>, JsonDeserializer<EconomyProviderDefinition> {
     private static final String JSON_PATH = "economy";
     @Override
-    public EconomyConfig deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
-        JsonObject economy = jsonElement.getAsJsonObject();
-        EconomyConfig economyConfig = new EconomyConfig();
+    public EconomyProviderDefinition deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+        JsonObject economyDefinitionObject = jsonElement.getAsJsonObject();
+        EconomyProviderDefinition economyDefinition = new EconomyProviderDefinition();
 
-        if (economy.has("currencies")) {
-            JsonObject currencies = economy.get("currencies").getAsJsonObject();
+        if (economyDefinitionObject.has("currencies")) {
+            JsonObject currencies = economyDefinitionObject.get("currencies").getAsJsonObject();
             currencies.entrySet().forEach(entry -> {
                 String key = entry.getKey();
                 JsonElement value = entry.getValue();
 
                 try {
                     CurrencyDefinition currency = jsonDeserializationContext.deserialize(value, CurrencyDefinition.class);
-                    economyConfig.currencies.put(key, currency);
+                    economyDefinition.currencies.put(key, currency);
                 } catch (IllegalStateException e) {
                     throw new JsonParseException(
                         "Invalid currency definition for " + String.join(JSON_PATH, "currencies", key) + ": "
@@ -32,15 +32,15 @@ public class EconomyConfigSerializer implements JsonSerializer<EconomyConfig>, J
             });
         }
 
-        if (economy.has("accounts")) {
-            JsonObject accounts = economy.get("accounts").getAsJsonObject();
+        if (economyDefinitionObject.has("accounts")) {
+            JsonObject accounts = economyDefinitionObject.get("accounts").getAsJsonObject();
             accounts.entrySet().forEach(entry -> {
                 String key = entry.getKey();
                 JsonElement value = entry.getValue();
 
                 try {
                     AccountDefinition account = jsonDeserializationContext.deserialize(value, AccountDefinition.class);
-                    economyConfig.accounts.put(key, account);
+                    economyDefinition.accounts.put(key, account);
                 } catch (IllegalStateException e) {
                     throw new JsonParseException(
                         "Invalid currency definition for " + String.join(JSON_PATH, "accounts", key) + ": "
@@ -50,11 +50,11 @@ public class EconomyConfigSerializer implements JsonSerializer<EconomyConfig>, J
             });
         }
 
-        return economyConfig;
+        return economyDefinition;
     }
 
     @Override
-    public JsonElement serialize(EconomyConfig economy, Type type, JsonSerializationContext jsonSerializationContext) {
+    public JsonElement serialize(EconomyProviderDefinition economy, Type type, JsonSerializationContext jsonSerializationContext) {
         JsonObject result = new JsonObject();
 
         if (economy.currencies != null && !economy.currencies.isEmpty()) {

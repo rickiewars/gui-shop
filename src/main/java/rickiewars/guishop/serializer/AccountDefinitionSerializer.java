@@ -3,7 +3,7 @@ package rickiewars.guishop.serializer;
 import com.google.gson.*;
 import net.minecraft.item.ItemStack;
 import rickiewars.guishop.GUIShop;
-import rickiewars.guishop.config.Config.AccountDefinition;
+import rickiewars.guishop.config.EconomyConfig.AccountDefinition;
 import rickiewars.guishop.economy.economyProvider.GuiShopEconomyAccount;
 import rickiewars.guishop.util.CommonMethods;
 
@@ -35,7 +35,7 @@ public class AccountDefinitionSerializer implements JsonSerializer<AccountDefini
     public JsonElement serialize(AccountDefinition economy, Type type, JsonSerializationContext jsonSerializationContext) {
         JsonObject result = new JsonObject();
         result.addProperty("name", economy.name);
-        result.addProperty("currency", economy.currencyId);
+        result.addProperty("currency", economy.currencyId.getPath());
         result.addProperty("icon", CommonMethods.getItemId(economy.icon.getItem()));
 
         return result;

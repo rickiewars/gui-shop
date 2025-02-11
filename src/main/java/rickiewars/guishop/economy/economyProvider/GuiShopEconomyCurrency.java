@@ -7,17 +7,17 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import rickiewars.guishop.config.Config;
+import rickiewars.guishop.config.EconomyConfig;
 import rickiewars.guishop.util.CommonMethods;
 
 public class GuiShopEconomyCurrency implements EconomyCurrency {
-    public static String DEFAULT_ID = GuiShopEconomyProvider.ID + ":credit";
+    public static Identifier DEFAULT_ID = Identifier.of(GuiShopEconomyProvider.ID, "credit");
     public static final Item DEFAULT_ICON = Items.DIAMOND;
 
     private final Identifier id;
-    private final Config.CurrencyDefinition currencyDefinition;
+    private final EconomyConfig.CurrencyDefinition currencyDefinition;
 
-    public GuiShopEconomyCurrency(Identifier id, Config.CurrencyDefinition currencyDefinition) {
+    public GuiShopEconomyCurrency(Identifier id, EconomyConfig.CurrencyDefinition currencyDefinition) {
         this.id = id;
         this.currencyDefinition = currencyDefinition;
     }

@@ -10,24 +10,24 @@ import net.minecraft.item.Items;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import rickiewars.guishop.GUIShop;
-import rickiewars.guishop.config.Config;
+import rickiewars.guishop.config.EconomyConfig;
 import rickiewars.guishop.sql.DatabaseManager;
 
 import java.util.UUID;
 
 public class GuiShopEconomyAccount implements EconomyAccount {
-    public static String DEFAULT_ID = GuiShopEconomyProvider.ID + ":account";
+    public static Identifier DEFAULT_ID = Identifier.of(GuiShopEconomyProvider.ID,"account");
     public static final Item DEFAULT_ICON = Items.DIAMOND;
     private final Identifier id;
     private final UUID uuid;
     private final String uuidString;
-    private final Config.AccountDefinition accountDefinition;
+    private final EconomyConfig.AccountDefinition accountDefinition;
 
     private DatabaseManager db() {
         return GUIShop.databaseManager;
     }
 
-    public GuiShopEconomyAccount(Identifier accountId, Config.AccountDefinition accountDefinition, UUID uuid) {
+    public GuiShopEconomyAccount(Identifier accountId, EconomyConfig.AccountDefinition accountDefinition, UUID uuid) {
         this.id = accountId;
         this.accountDefinition = accountDefinition;
         this.uuid = uuid;
@@ -123,7 +123,7 @@ public class GuiShopEconomyAccount implements EconomyAccount {
 
     @Override
     public EconomyCurrency currency() {
-        return GuiShopEconomyProvider.INSTANCE.getCurrency(null, accountDefinition.currencyId);
+        return GuiShopEconomyProvider.INSTANCE.getCurrency(null, accountDefinition.currencyId.getPath());
     }
 
     @Override

@@ -1,7 +1,7 @@
 package rickiewars.guishop.sql;
 
 import rickiewars.guishop.GUIShop;
-import rickiewars.guishop.config.Config;
+import rickiewars.guishop.config.EconomyConfig;
 import rickiewars.guishop.util.CommonMethods;
 
 import java.io.File;
@@ -12,8 +12,11 @@ import java.util.UUID;
 public class SQLiteDatabaseManager implements DatabaseManager {
     public static String url;
 
-    public static void initDatabase(Config config) {
-        if (config.database.fileLocation == null || config.database.fileLocation.isEmpty()) {
+    public static void initDatabase(EconomyConfig config) {
+        if (config.database == null
+            || config.database.fileLocation == null
+            || config.database.fileLocation.isEmpty()
+        ) {
             GUIShop.LOGGER.error("Database file location not set in config");
             return;
         }

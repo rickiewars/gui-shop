@@ -6,8 +6,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rickiewars.guishop.config.Config;
 import rickiewars.guishop.config.ConfigManager;
+import rickiewars.guishop.config.EconomyConfig;
 import rickiewars.guishop.economy.economyProvider.GuiShopEconomyProvider;
 import rickiewars.guishop.sql.DatabaseManager;
+import rickiewars.guishop.util.EconomyFileHandler;
 import rickiewars.guishop.util.Register;
 import rickiewars.guishop.util.ServerHandler;
 import rickiewars.guishop.util.ShopFileHandler;
@@ -22,6 +24,7 @@ public class GUIShop implements ModInitializer {
 	 * Holds the shops that are currently loaded
 	 */
 	public static Config config = new Config();
+	public static EconomyConfig economyConfig = new EconomyConfig();
 
 	public static DatabaseManager databaseManager;
 
@@ -44,10 +47,16 @@ public class GUIShop implements ModInitializer {
 			throw new RuntimeException("Could not load config");
 	}
 
+	private static void loadEconomyConfig() {
+		if(!ConfigManager.loadEconomyConfig())
+			throw new RuntimeException("Could not load economy config");
+	}
+
 	@Override
 	public void onInitialize() {
 		LOGGER.info("GUI Shop loaded!");
 
+		loadEconomyConfig();
 		Register.registerCommands();
 		GuiShopEconomyProvider.init();
 
@@ -57,13 +66,25 @@ public class GUIShop implements ModInitializer {
 			System.out.println(msg);
 			LOGGER.info(msg);
 		}
+		// TODO: Consider if this is necessary
+		EconomyFileHandler ecoFileHandler = new EconomyFileHandler();
+		if (!ecoFileHandler.initialize()) {
+			String msg = "Could not initialize economy-to-file save daemon";
+			System.out.println(msg);
+			LOGGER.info(msg);
+		}
+
 	}
-
-
 
 	public static void onServerShutdown() throws IOException {
 		ShopFileHandler fileHandler = new ShopFileHandler();
 		fileHandler.saveToFile();
 		fileHandler.killTask();
+		LOGGER.info("Shops saved to file");
+
+		EconomyFileHandler ecoFileHandler = new EconomyFileHandler();
+		ecoFileHandler.saveToFile();
+		ecoFileHandler.killTask();
+		LOGGER.info("Economy saved to file");
 	}
 }
