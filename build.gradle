@@ -18,6 +18,7 @@ repositories {
 
 	maven { url = "https://jitpack.io" }
 
+	// Mods from Patbox
 	maven { url 'https://maven.nucleoid.xyz' }
 
 	maven {
