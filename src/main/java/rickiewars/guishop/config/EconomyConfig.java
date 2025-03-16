@@ -147,7 +147,7 @@ public class EconomyConfig {
 
     public static class DatabaseConfig {
         public static final DatabaseType DEFAULT_TYPE = DatabaseType.SQLITE;
-        public static final String DEFAULT_FILE_LOCATION = "./config/guishop.sqlite";
+        public static final String DEFAULT_FILE_LOCATION = "./world/guishop.sqlite";
 
         public enum DatabaseType {
             SQLITE("sqlite");
@@ -159,9 +159,6 @@ public class EconomyConfig {
         }
 
         public DatabaseType type;
-        // Use null to use the default location
-        // Only used if type is sqlite
-        // Example: "./config/guishop.sqlite"
         public String fileLocation;
 
         public DatabaseConfig(DatabaseType type, String fileLocation) {

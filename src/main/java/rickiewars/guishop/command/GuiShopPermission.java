@@ -17,6 +17,7 @@ import java.util.function.Predicate;
  * 4: Owner has access to all commands
  */
 public enum GuiShopPermission {
+    SELL("guishop.sell", 2),
     SELL_HAND("guishop.sell.hand", 2),
     OPEN("guishop.open", 2),
     HELP("guishop.help", 2),

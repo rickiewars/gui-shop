@@ -33,7 +33,7 @@ public class DatabaseConfigSerializer implements JsonSerializer<DatabaseConfig>,
     public JsonElement serialize(DatabaseConfig dbConfig, Type type, JsonSerializationContext jsonSerializationContext) {
         JsonObject result = new JsonObject();
         result.addProperty("type", dbConfig.type.name);
-        result.addProperty("currency", dbConfig.fileLocation);
+        result.addProperty("fileLocation", dbConfig.fileLocation);
 
         return result;
     }
@@ -41,7 +41,7 @@ public class DatabaseConfigSerializer implements JsonSerializer<DatabaseConfig>,
     private DatabaseConfig deserializeAsSqlite(JsonObject database) {
         String fileLocation = database.has("fileLocation")
                 ? database.get("fileLocation").getAsString()
-                : "./config/guishop.sqlite";
+                : DatabaseConfig.DEFAULT_FILE_LOCATION;
 
         return new DatabaseConfig(DatabaseType.SQLITE,fileLocation);
     }
