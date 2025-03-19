@@ -56,6 +56,9 @@ Remove item from shop: `/guishop removeitem "Test shop" "Diamond"`
 
 Open a shop and show it to a specific player: `/guishop open "Test shop" "Steve"`
 
+You can also add items only to be bought or sold in a shop.
+Items with a buy price of -1 can only be sold and items with a sell price of -1 can only be bought.
+
 ## Economy configuration
 Guishop has a built-in optional economy provider that can be configured in the `./config/guishopeconomy.json` file.
 
@@ -140,11 +143,11 @@ Just remember to:
           "componentChanges": {}
         },
         {
-          "name": "BBQ Sword",
+          "name": "Free BBQ Sword",
           "itemId": "minecraft:diamond_sword",
           "description": [],
           "buyPrice": 0,
-          "sellPrice": 0,
+          "sellPrice": -1,
           "currency": "guishop:credit",
           "components": {
             "minecraft:enchantment_glint_override": true,
