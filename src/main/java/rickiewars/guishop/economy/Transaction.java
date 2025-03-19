@@ -25,6 +25,13 @@ public class Transaction {
     }
 
     public boolean buyItem(ShopItem item, boolean tradeMany) {
+        if (item.buyItemPrice() < 0) {
+            player.sendMessage(Text.literal(
+                "This item cannot be bought in this shop"
+            ).formatted(Formatting.RED));
+            return false;
+        }
+
         EconomyAccount account = EconomyUtils.getDefaultAccount(player, shop.getCurrencyId(item));
 
         int amount = 1;
@@ -53,6 +60,13 @@ public class Transaction {
     }
 
     public boolean sellItem(ShopItem item, boolean tradeMany) {
+        if (item.sellItemPrice() < 0) {
+            player.sendMessage(Text.literal(
+                "This item cannot be sold in this shop"
+            ).formatted(Formatting.RED));
+            return false;
+        }
+
         EconomyAccount account = EconomyUtils.getDefaultAccount(player, shop.getCurrencyId(item));
 
         Item itemToSell = Registries.ITEM.get(Identifier.of(item.itemId()));
@@ -85,7 +99,7 @@ public class Transaction {
         int amount = tradeMany ? amountInHand : 1;
 
         ShopItem sellItem = this.shop.findItem(itemStack);
-        if (sellItem == null) {
+        if (sellItem == null || sellItem.sellItemPrice() < 0) {
             player.sendMessage(Text.literal(
                     "This item cannot be sold in this shop"
             ).formatted(Formatting.RED));
