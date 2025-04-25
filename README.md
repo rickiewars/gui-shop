@@ -187,3 +187,37 @@ _(The multi-account per currency functionality has not been properly implemented
 
 ## Showcase
 ![img.png](resources/img.png)
+
+## TODO
+
+- [ ] Add unit tests
+  - Patbox also has some examples on how to write tests in:
+    - sgui
+    - polymer
+    - TextPlaceholderAPI
+  - Also see the mc-serverkit project for some examples
+- [ ] Consider what to do if a player is in spectator mode
+  - Patbox recently added something for this in sgui
+- [ ] Add migration for config files
+  - Minecraft often changes how NBT data is stored.
+    For example, in 1.21.5, Mojang removed the `levels` parameter from the `minecraft:enchantments` component.
+    To advoid data loss on enchantments / custom names, we should add a migration to the config.
+  - [ ] Add version field to the config file
+  - [ ] Write migration for 1.21.4 -> 1.21.5
+    - [ ] `enchantments={levels:{sharpness:2}}` -> `enchantments={sharpness:2}`
+    - [ ] `{"text":"An unnecesary op shield","italic":false}` -> `{text:"An unnecesary op shield",italic:false}`
+
+**1.21.4**
+```mclang
+/execute as rickiewars run guishop additem update_test enhancedItem shield[custom_name='["",{"text":"OP Shield","italic":true,"underlined":true,"bold":true}]',lore=['["",{"text":"An unnecesary op shield","italic":true}]'],rarity=epic,enchantments={levels:{bane_of_arthropods:5,fire_aspect:2,knockback:2,looting:3,mending:1,sharpness:5,smite:5,sweeping_edge:3,unbreaking:3,vanishing_curse:1}}] 100 100 guishop:credit "my description"
+```
+
+**1.21.5**
+```mclang
+/execute as rickiewars run guishop additem update_test enhancedItem shield[custom_name=[{"text":"OP Shield","italic":false,"underlined":true,"bold":true}],lore=[[{"text":"An unnecesary op shield","italic":false}]],rarity=epic,enchantments={bane_of_arthropods:5,fire_aspect:2,knockback:2,looting:3,mending:1,sharpness:5,smite:5,sweeping_edge:3,unbreaking:3,vanishing_curse:1}] 100 100 guishop:credit "my description"
+```
+
+**Give command for inport at https://gamersgeeks.net/apps/minecraft/give-command-generator (version 1.21.5)**
+```mclang
+give @p shield[custom_name=[{"text":"OP Shield","italic":false,"bold":true,"underlined":true,"color":"dark_red"}],lore=[[{"text":"An unnecesary OP shield","strikethrough":true}]],item_name=[{"text":"OP Shield","italic":false}],enchantments={aqua_affinity:1,knockback:2,looting:3,mending:1,sharpness:5,unbreaking:3,vanishing_curse:1},death_protection={death_effects:[{type:apply_effects,effects:[{id:resistance,duration:100,amplifier:9}]}]},unbreakable={}]
+```

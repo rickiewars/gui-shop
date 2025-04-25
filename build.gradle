@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.9-SNAPSHOT'
+	id 'fabric-loom' version '1.10-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -12,17 +12,17 @@ base {
 
 repositories {
 	maven {
-		name 'Fabric Permission API'
-		url 'https://oss.sonatype.org/content/repositories/snapshots'
+		name = 'Fabric Permission API'
+		url = 'https://oss.sonatype.org/content/repositories/snapshots'
 	}
 
 	maven { url = "https://jitpack.io" }
 
 	// Mods from Patbox
-	maven { url 'https://maven.nucleoid.xyz' }
+	maven { url = 'https://maven.nucleoid.xyz' }
 
 	maven {
-		url "https://cursemaven.com"
+		url = "https://cursemaven.com"
 	}
 
 	exclusiveContent {

@@ -11,6 +11,8 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import rickiewars.guishop.command.GuiShopPermission;
 
+import java.net.URI;
+
 public class GUIShopMainCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment){
         dispatcher.register(CommandManager.literal("guishop")
@@ -40,8 +42,20 @@ public class GUIShopMainCommand {
 
     public static int run(CommandContext<ServerCommandSource> context){
         String git = "https://github.com/rickiewars/gui-shop";
-        context.getSource().sendFeedback(()-> Text.literal("GUIShop by Rickiewars is running!\nThis project is a fork of the original work by UnsafeDodo.\nCheck the GitHub repository for usage:").formatted(Formatting.GREEN), false);
-        context.getSource().sendFeedback(()->Text.literal(git).setStyle(Style.EMPTY.withUnderline(true)).styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, git))).formatted(Formatting.BLUE), false);
+        context.getSource().sendFeedback(()-> Text.literal("""
+            GUIShop by Rickiewars is running!
+            This project is a fork of the original work by UnsafeDodo.
+            Check the GitHub repository for usage:
+            """).formatted(Formatting.GREEN), false);
+        context.getSource().sendFeedback(()->Text.literal(git).setStyle(Style.EMPTY.withUnderline(true)).styled(
+            style -> {
+                try {
+                    return style.withClickEvent(new ClickEvent.OpenUrl(new URI(git)));
+                } catch (Exception e) {
+                    return style.withClickEvent(new ClickEvent.CopyToClipboard(git));
+                }
+            }
+        ).formatted(Formatting.BLUE), false);
         return 0;
     }
 }
