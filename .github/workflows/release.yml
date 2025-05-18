@@ -57,4 +57,4 @@ jobs:
             fabric
           game-versions: |-
             1.21.5
-          files: target/RwcGuiShop-${{ github.event.release.tag_name }}.jar
+          files: "build/libs/*.jar;!build/libs/*-sources.jar"
