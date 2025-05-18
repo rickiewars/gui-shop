@@ -38,12 +38,14 @@ jobs:
           cache: 'gradle'
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+      - name: Verify release version
+        run: ./gradlew verifyTagMatchesVersion -Ptag=${{ github.event.release.tag_name }}
       - name: Build
         run: ./gradlew build
       - name: Upload GitHub release
         uses: AButler/upload-release-assets@v3.0
         with:
-          files: "build/libs/*.jar;!build/libs/*-sources.jar"
+          files: build/libs/gui-shop-${{ github.event.release.tag_name }}.jar
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload to Modrinth
         uses: cloudnode-pro/modrinth-publish@v2
@@ -57,4 +59,4 @@ jobs:
             fabric
           game-versions: |-
             1.21.5
-          files: "build/libs/*.jar;!build/libs/*-sources.jar"
+          files: build/libs/gui-shop-${{ github.event.release.tag_name }}.jar
