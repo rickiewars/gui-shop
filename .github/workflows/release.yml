@@ -57,7 +57,7 @@ jobs:
         uses: cloudnode-pro/modrinth-publish@v2
         with:
           token: ${{ secrets.MODRINTH_TOKEN }}
-          project: rwc-gui-shop
+          project: fsywSq9M
           name: ${{ github.event.release.name }}
           version: ${{ github.event.release.tag_name }}
           changelog: ${{ github.event.release.body }}
