@@ -38,10 +38,29 @@ jobs:
           cache: 'gradle'
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+      - name: Verify release version
+        run: ./gradlew verifyTagMatchesVersion -Ptag=${{ github.event.release.tag_name }}
       - name: Build
         run: ./gradlew build
       - name: Upload GitHub release
         uses: AButler/upload-release-assets@v3.0
         with:
-          files: "build/libs/*.jar;!build/libs/*-sources.jar"
+          files: build/libs/gui-shop-${{ github.event.release.tag_name }}.jar
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract Minecraft version
+        id: extract_mc
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          MC_VERSION="${TAG#*+}"  # strips everything before the +
+          echo "mc_version=$MC_VERSION" >> "$GITHUB_OUTPUT"
+      - name: Upload to Modrinth
+        uses: cloudnode-pro/modrinth-publish@v2
+        with:
+          token: ${{ secrets.MODRINTH_TOKEN }}
+          project: fsywSq9M
+          name: ${{ github.event.release.name }}
+          version: ${{ github.event.release.tag_name }}
+          changelog: ${{ github.event.release.body }}
+          loaders: fabric
+          game-versions: ${{ steps.extract_mc.outputs.mc_version }}
+          files: build/libs/gui-shop-${{ github.event.release.tag_name }}.jar
