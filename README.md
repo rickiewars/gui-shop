@@ -2,7 +2,7 @@
 
 This is a fork of the original [GUI Shop](https://github.com/UnsafeDodo/gui-shop) mod by [UnsafeDodo](https://github.com/UnsafeDodo).
 I adapted it to my requirements and added some features.
-I'm not planning to provide support _(at this time)_, but feel free to use or fork it if you want.
+I'm not planning to provide support _(at this time)_, but feel free to make suggestions or fork it if you want.
 
 # GUI Shop
 
