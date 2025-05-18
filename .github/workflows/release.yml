@@ -45,3 +45,16 @@ jobs:
         with:
           files: "build/libs/*.jar;!build/libs/*-sources.jar"
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload to Modrinth
+        uses: cloudnode-pro/modrinth-publish@v2
+        with:
+          token: ${{ secrets.MODRINTH_TOKEN }}
+          project: rwc-gui-shop
+          name: ${{ github.event.release.name }}
+          version: ${{ github.event.release.tag_name }}
+          changelog: ${{ github.event.release.body }}
+          loaders: |-
+            fabric
+          game-versions: |-
+            1.21.5
+          files: target/RwcGuiShop-${{ github.event.release.tag_name }}.jar
