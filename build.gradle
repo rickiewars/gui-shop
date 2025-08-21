@@ -73,6 +73,10 @@ dependencies {
 
 	modImplementation(include("eu.pb4:placeholder-api:${project.placeholder_api_version}"))
 
+    // Used for unit tests
+    testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
+    testImplementation "org.junit.platform:junit-platform-suite:${project.junit_platform_version}"
+    testImplementation "org.junit.platform:junit-platform-suite-engine:${project.junit_platform_version}"
 }
 
 processResources {
@@ -81,6 +85,29 @@ processResources {
 	filesMatching("fabric.mod.json") {
 		expand "version": project.version
 	}
+}
+
+test {
+    useJUnitPlatform()
+
+    testLogging {
+        events = ["passed", "skipped", "failed"]
+        exceptionFormat = "full" // So you get full stacktraces, not truncated garbage
+        showExceptions = true
+        showCauses = true
+        showStackTraces = true
+        showStandardStreams = true // Captures System.out and System.err during tests
+    }
+
+    afterTest { descriptor, result ->
+        logger.lifecycle("Duration: ${result.endTime - result.startTime} ms")
+    }
+
+    afterSuite { desc, result ->
+        if (!desc.parent && result.testCount == 0) {
+            throw new GradleException("No tests were executed! Check your test configuration.")
+        }
+    }
 }
 
 tasks.withType(JavaCompile).configureEach {
