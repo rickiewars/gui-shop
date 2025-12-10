@@ -15,6 +15,7 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import rickiewars.guishop.api.minecraft.impl.MinecraftPlayer;
 import rickiewars.guishop.economy.EconomyUtils;
 import rickiewars.guishop.economy.Transaction;
 import rickiewars.guishop.shop.Shop;
@@ -53,11 +54,7 @@ public class ShopGUI extends SimpleGui{
         }
 
         this.renderPlayerBalanceSlot();
-
-        this.setSlot(EXIT_BUTTON_SLOT, new GuiElementBuilder()
-                .setItem(Items.BARRIER)
-                .setName(Text.literal("Exit").setStyle(Style.EMPTY.withItalic(true)))
-                .setCallback(((index, clickType, action) -> this.close())));
+        this.renderExitButtonSlot();
 
         for(int i = 0; i < Math.min(shop.getItems().size(), ITEM_SLOTS); i++){
             renderItemSlot(i);
@@ -118,22 +115,29 @@ public class ShopGUI extends SimpleGui{
                 .setSkullOwner(HeadTextures.MONEY_SYMBOL, null, null));
     }
 
+    private void renderExitButtonSlot() {
+        this.setSlot(EXIT_BUTTON_SLOT, new GuiElementBuilder()
+            .setItem(Items.BARRIER)
+            .setName(Text.literal("Exit").setStyle(Style.EMPTY.withItalic(true)))
+            .setCallback(((index, clickType, action) -> this.close())));
+    }
+
     private void buyItem(ShopItem item, boolean tradeMany) {
-        Transaction transaction = new Transaction(player, shop);
+        Transaction transaction = new Transaction(new MinecraftPlayer(player), shop);
         if (transaction.buyItem(item, tradeMany)) {
             this.renderPlayerBalanceSlot();
         }
     }
 
     private void sellItem(ShopItem item, boolean tradeMany) {
-        Transaction transaction = new Transaction(player, shop);
+        Transaction transaction = new Transaction(new MinecraftPlayer(player), shop);
         if (transaction.sellItem(item, tradeMany)) {
             this.renderPlayerBalanceSlot();
         }
     }
 
     private void sellCursorStack(ItemStack items, boolean tradeMany) {
-        Transaction transaction = new Transaction(player, shop);
+        Transaction transaction = new Transaction(new MinecraftPlayer(player), shop);
         if (transaction.sellStack(items, tradeMany)) {
             this.renderPlayerBalanceSlot();
         }

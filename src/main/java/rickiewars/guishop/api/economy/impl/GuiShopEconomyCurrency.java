@@ -1,4 +1,4 @@
-package rickiewars.guishop.economy.economyProvider;
+package rickiewars.guishop.api.economy.impl;
 
 import eu.pb4.common.economy.api.EconomyCurrency;
 import eu.pb4.common.economy.api.EconomyProvider;
@@ -24,7 +24,7 @@ public class GuiShopEconomyCurrency implements EconomyCurrency {
 
     @Override
     public Text name() {
-        return Text.literal("Currency");
+        return Text.literal(this.currencyDefinition.name);
     }
 
     @Override
@@ -68,7 +68,7 @@ public class GuiShopEconomyCurrency implements EconomyCurrency {
         if (value.startsWith(prefix)) {
             value = value.substring(prefix.length());
             if (value.endsWith(suffix)) {
-                value = value.substring(0, value.length() - suffix.length() - 1);
+                value = value.substring(0, value.length() - suffix.length());
             }
         }
 

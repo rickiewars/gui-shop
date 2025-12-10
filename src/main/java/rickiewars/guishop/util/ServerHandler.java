@@ -1,6 +1,5 @@
 package rickiewars.guishop.util;
 
-import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 
@@ -22,9 +21,5 @@ public class ServerHandler {
 
     public static ServerPlayerEntity getPlayerByUUID(UUID uuid) {
         return getServer().getPlayerManager().getPlayer(uuid);
-    }
-
-    public static DynamicRegistryManager getRegistryManager() {
-        return getServer().getRegistryManager();
     }
 }

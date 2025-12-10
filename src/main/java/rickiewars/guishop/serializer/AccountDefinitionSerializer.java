@@ -3,8 +3,8 @@ package rickiewars.guishop.serializer;
 import com.google.gson.*;
 import net.minecraft.item.ItemStack;
 import rickiewars.guishop.GUIShop;
+import rickiewars.guishop.api.economy.impl.GuiShopEconomyAccount;
 import rickiewars.guishop.config.EconomyConfig.AccountDefinition;
-import rickiewars.guishop.economy.economyProvider.GuiShopEconomyAccount;
 import rickiewars.guishop.util.CommonMethods;
 
 import java.lang.reflect.Type;

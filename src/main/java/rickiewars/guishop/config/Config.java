@@ -1,8 +1,8 @@
 package rickiewars.guishop.config;
 
 import net.minecraft.util.Identifier;
-import rickiewars.guishop.economy.economyProvider.GuiShopEconomyAccount;
-import rickiewars.guishop.economy.economyProvider.GuiShopEconomyCurrency;
+import rickiewars.guishop.api.economy.impl.GuiShopEconomyAccount;
+import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 import rickiewars.guishop.shop.Shop;
 
 import java.util.HashMap;

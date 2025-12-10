@@ -31,6 +31,7 @@ public record ShopItem(
         String[] description,
         ComponentChanges componentChanges
 ) {
+    /// Check if the ShopItem has component changes like Enchantments, a custom name or description
     public boolean hasComponentChanges() {
         return !(Objects.isNull(componentChanges) || componentChanges.isEmpty());
     }
@@ -57,12 +58,17 @@ public record ShopItem(
         return true;
     }
 
+    /// Compare the ShopItem with an actual Minecraft ItemStack
     public boolean matches(ItemStack other) {
         if (!matches(other.getItem())) return false;
 
         ComponentChanges otherComponentChanges = other.getComponentChanges();
-        if (componentChanges == null && otherComponentChanges == null) return true;
-        if (componentChanges == null || otherComponentChanges == null) return false;
+
+        boolean currentHasComponentChanges = !(Objects.isNull(componentChanges) || componentChanges.isEmpty());
+        boolean otherHasComponentChanges = !(Objects.isNull(otherComponentChanges) || otherComponentChanges.isEmpty());
+
+        if (!currentHasComponentChanges && !otherHasComponentChanges) return true;
+        if (!currentHasComponentChanges || !otherHasComponentChanges) return false;
 
         var damage = componentChanges.get(DataComponentTypes.DAMAGE);
         if (damage != null && damage.isPresent()) {
@@ -97,6 +103,7 @@ public record ShopItem(
         return true;
     }
 
+    /// Compare the ShopItem with another ShopItem based on an actual Minecraft ItemStack
     public boolean matches(Item other) {
         return Registries.ITEM.getId(other).toString().equals(itemId);
     }

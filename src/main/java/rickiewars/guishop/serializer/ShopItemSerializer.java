@@ -3,10 +3,11 @@ package rickiewars.guishop.serializer;
 import com.google.gson.*;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.component.ComponentChanges;
+import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
-import rickiewars.guishop.economy.economyProvider.GuiShopEconomyProvider;
+import rickiewars.guishop.api.economy.impl.GuiShopEconomyProvider;
 import rickiewars.guishop.shop.ShopItem;
-import rickiewars.guishop.util.ServerHandler;
 
 import java.lang.reflect.Type;
 
@@ -36,7 +37,7 @@ public class ShopItemSerializer implements JsonSerializer<ShopItem>, JsonDeseria
         }
 
         ComponentChanges componentChanges = ComponentChanges.CODEC.parse(
-                ServerHandler.getRegistryManager().getOps(JsonOps.INSTANCE), jsonShop.get("components")
+            DynamicRegistryManager.of(Registries.REGISTRIES).getOps(JsonOps.INSTANCE), jsonShop.get("components")
         ).resultOrPartial().orElse(null);
 
         return new ShopItem(itemName, itemId, buyItemPrice, sellItemPrice, currencyId, description, componentChanges);
@@ -53,7 +54,7 @@ public class ShopItemSerializer implements JsonSerializer<ShopItem>, JsonDeseria
         JsonElement jsonComponentChanges;
         if (shopItem.hasComponentChanges()) {
             jsonComponentChanges = ComponentChanges.CODEC.encodeStart(
-                    ServerHandler.getRegistryManager().getOps(JsonOps.INSTANCE), shopItem.componentChanges()
+                DynamicRegistryManager.of(Registries.REGISTRIES).getOps(JsonOps.INSTANCE), shopItem.componentChanges()
             ).resultOrPartial().orElseThrow();
         } else {
             jsonComponentChanges = new JsonObject();

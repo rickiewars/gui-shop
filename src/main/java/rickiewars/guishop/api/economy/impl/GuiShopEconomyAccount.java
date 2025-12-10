@@ -1,4 +1,4 @@
-package rickiewars.guishop.economy.economyProvider;
+package rickiewars.guishop.api.economy.impl;
 
 import eu.pb4.common.economy.api.EconomyAccount;
 import eu.pb4.common.economy.api.EconomyCurrency;
@@ -10,8 +10,8 @@ import net.minecraft.item.Items;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import rickiewars.guishop.GUIShop;
+import rickiewars.guishop.api.database.DatabaseManager;
 import rickiewars.guishop.config.EconomyConfig;
-import rickiewars.guishop.sql.DatabaseManager;
 
 import java.util.UUID;
 
@@ -50,7 +50,7 @@ public class GuiShopEconomyAccount implements EconomyAccount {
 
     @Override
     public long balance() {
-        return this.db().getBalanceFromUUID(
+        return this.db().getBalance(
             this.currency().id().toString(),
             uuid.toString()
         );
@@ -74,7 +74,7 @@ public class GuiShopEconomyAccount implements EconomyAccount {
 
         return new EconomyTransaction.Simple(
             true,
-            Text.literal("Added " + currency().formatValue(value, false) + " to the account"),
+            Text.literal("Added " + currency().formatValue(value, false) + " to your account"),
             newBal,
             currentBal,
             value,

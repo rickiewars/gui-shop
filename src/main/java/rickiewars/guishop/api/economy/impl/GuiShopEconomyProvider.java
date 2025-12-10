@@ -1,4 +1,4 @@
-package rickiewars.guishop.economy.economyProvider;
+package rickiewars.guishop.api.economy.impl;
 
 import com.mojang.authlib.GameProfile;
 import eu.pb4.common.economy.api.CommonEconomy;

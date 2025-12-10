@@ -32,24 +32,8 @@ public class PagedShopGUI extends ShopGUI {
 
         renderEmptySlot(PREVIOUS_PAGE_BUTTON_SLOT);
 
-        this.setSlot(PAGE_NUMBER_SLOT, new GuiElementBuilder(Items.PAPER)
-                .setName(Text.literal(String.format("Current page: %d", getPage()))
-                        .setStyle(Style.EMPTY.withItalic(true))
-                            .formatted(Formatting.AQUA))
-                .glow()
-                .setCount(getPage()));
-
-        this.setSlot(NEXT_PAGE_BUTTON_SLOT, new GuiElementBuilder(Items.PLAYER_HEAD)
-                .setSkullOwner(HeadTextures.GUI_NEXT_PAGE, null, null)
-                .setName(Text.literal("Next page")
-                        .setStyle(Style.EMPTY.withItalic(true))
-                            .formatted(Formatting.AQUA))
-                .setCallback(((index, type1, action) -> {
-                    int oldPage = this.page;
-                    this.page = getNextPage();
-                    if(oldPage != page)
-                        updateGUI();
-                })));
+        this.renderCurrentPageNumberSlot();
+        this.renderNextPageSlot();
     }
 
     public void updateGUI(){
@@ -64,43 +48,18 @@ public class PagedShopGUI extends ShopGUI {
             }
         }
 
-        this.setSlot(PAGE_NUMBER_SLOT, new GuiElementBuilder(Items.PAPER)
-                .setName(Text.literal(String.format("Current page: %d", getPage()))
-                        .setStyle(Style.EMPTY.withItalic(true))
-                        .formatted(Formatting.AQUA))
-                .glow()
-                .setCount(getPage()));
+        this.renderCurrentPageNumberSlot();
 
         if(page == 1){
             renderEmptySlot(PREVIOUS_PAGE_BUTTON_SLOT);
         } else {
-            this.setSlot(PREVIOUS_PAGE_BUTTON_SLOT, new GuiElementBuilder(Items.PLAYER_HEAD)
-                    .setSkullOwner(HeadTextures.GUI_PREVIOUS_PAGE, null, null)
-                    .setName(Text.literal("Previous page")
-                            .setStyle(Style.EMPTY.withItalic(true))
-                            .formatted(Formatting.AQUA))
-                    .setCallback(((index, type1, action) -> {
-                        int oldPage = this.page;
-                        this.page = getPreviousPage();
-                        if(oldPage != page)
-                            updateGUI();
-                    })));
+            this.renderPreviousPageSlot();
         }
 
         if(page == maxPage){
             renderEmptySlot(NEXT_PAGE_BUTTON_SLOT);
         } else {
-            this.setSlot(NEXT_PAGE_BUTTON_SLOT, new GuiElementBuilder(Items.PLAYER_HEAD)
-                    .setSkullOwner(HeadTextures.GUI_NEXT_PAGE, null, null)
-                    .setName(Text.literal("Next page")
-                            .setStyle(Style.EMPTY.withItalic(true))
-                            .formatted(Formatting.AQUA))
-                    .setCallback(((index, type1, action) -> {
-                        int oldPage = this.page;
-                        this.page = getNextPage();
-                        if(oldPage != page)
-                            updateGUI();
-                    })));
+            this.renderNextPageSlot();
         }
     }
 
@@ -114,5 +73,42 @@ public class PagedShopGUI extends ShopGUI {
 
     public int getNextPage(){
         return Math.min(page+1, maxPage);
+    }
+
+    private void renderCurrentPageNumberSlot() {
+        this.setSlot(PAGE_NUMBER_SLOT, new GuiElementBuilder(Items.PAPER)
+            .setName(Text.literal(String.format("Current page: %d", getPage()))
+                .setStyle(Style.EMPTY.withItalic(true))
+                .formatted(Formatting.AQUA))
+            .glow()
+            .setCount(getPage()));
+    }
+
+    private void renderPreviousPageSlot() {
+        this.setSlot(PREVIOUS_PAGE_BUTTON_SLOT, new GuiElementBuilder(Items.PLAYER_HEAD)
+            .setSkullOwner(HeadTextures.GUI_PREVIOUS_PAGE, null, null)
+            .setName(Text.literal("Previous page")
+                .setStyle(Style.EMPTY.withItalic(true))
+                .formatted(Formatting.AQUA))
+            .setCallback(((index, type1, action) -> {
+                int oldPage = this.page;
+                this.page = getPreviousPage();
+                if(oldPage != page)
+                    updateGUI();
+            })));
+    }
+
+    private void renderNextPageSlot() {
+        this.setSlot(NEXT_PAGE_BUTTON_SLOT, new GuiElementBuilder(Items.PLAYER_HEAD)
+            .setSkullOwner(HeadTextures.GUI_NEXT_PAGE, null, null)
+            .setName(Text.literal("Next page") // diff
+                .setStyle(Style.EMPTY.withItalic(true))
+                .formatted(Formatting.AQUA))
+            .setCallback(((index, type1, action) -> {
+                int oldPage = this.page;
+                this.page = getNextPage(); // diff
+                if(oldPage != page)
+                    updateGUI();
+            })));
     }
 }

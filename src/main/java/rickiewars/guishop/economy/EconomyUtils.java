@@ -7,7 +7,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import rickiewars.guishop.GUIShop;
-import rickiewars.guishop.economy.economyProvider.GuiShopEconomyCurrency;
+import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 
 import java.util.Collection;
 import java.util.NoSuchElementException;

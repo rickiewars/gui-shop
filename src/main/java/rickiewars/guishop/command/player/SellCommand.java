@@ -9,6 +9,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import rickiewars.guishop.api.minecraft.impl.MinecraftPlayer;
 import rickiewars.guishop.command.GuiShopPermission;
 import rickiewars.guishop.economy.Transaction;
 import rickiewars.guishop.shop.Shop;
@@ -41,7 +42,7 @@ public class SellCommand {
 		for (Shop shop : CommonMethods.getAllShops()) {
 			for (ShopItem shopItem : shop.getItems()) {
 				if (shopItem.matches(itemStack) && shopItem.sellItemPrice() > 0) {
-					Transaction transaction = new Transaction(player, shop);
+					Transaction transaction = new Transaction(new MinecraftPlayer(player), shop);
 					return transaction.sellStack(itemStack, true) ? 1 : 0;
 				}
 			}

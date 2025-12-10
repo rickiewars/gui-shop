@@ -3,10 +3,10 @@ package rickiewars.guishop.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import rickiewars.guishop.GUIShop;
+import rickiewars.guishop.api.database.impl.SQLiteDatabaseManager;
 import rickiewars.guishop.serializer.*;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
-import rickiewars.guishop.sql.SQLiteDatabaseManager;
 import rickiewars.guishop.util.EconomyFileHandler;
 import rickiewars.guishop.util.ShopFileHandler;
 
@@ -157,8 +157,7 @@ public class ConfigManager {
             if (!econConfig.disabled) {
                 EconomyConfig.DatabaseConfig.DatabaseType type = econConfig.database.type;
                 if (type == EconomyConfig.DatabaseConfig.DatabaseType.SQLITE) {
-                    SQLiteDatabaseManager.initDatabase(econConfig);
-                    GUIShop.databaseManager = new SQLiteDatabaseManager();
+                    GUIShop.databaseManager = new SQLiteDatabaseManager(econConfig);
                 } else {
                     throw new RuntimeException("Unsupported database type: " + type);
                 }

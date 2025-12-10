@@ -3,8 +3,8 @@ package rickiewars.guishop.serializer;
 import com.google.gson.*;
 import net.minecraft.item.ItemStack;
 import rickiewars.guishop.GUIShop;
+import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 import rickiewars.guishop.config.EconomyConfig.CurrencyDefinition;
-import rickiewars.guishop.economy.economyProvider.GuiShopEconomyCurrency;
 import rickiewars.guishop.util.CommonMethods;
 
 import java.lang.reflect.Type;

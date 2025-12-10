@@ -3,9 +3,9 @@ package rickiewars.guishop.config;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
-import rickiewars.guishop.economy.economyProvider.GuiShopEconomyAccount;
-import rickiewars.guishop.economy.economyProvider.GuiShopEconomyCurrency;
-import rickiewars.guishop.economy.economyProvider.GuiShopEconomyProvider;
+import rickiewars.guishop.api.economy.impl.GuiShopEconomyAccount;
+import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
+import rickiewars.guishop.api.economy.impl.GuiShopEconomyProvider;
 
 import java.util.HashMap;
 import java.util.Map;

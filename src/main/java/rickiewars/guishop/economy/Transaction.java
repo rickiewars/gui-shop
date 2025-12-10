@@ -2,24 +2,24 @@ package rickiewars.guishop.economy;
 
 import eu.pb4.common.economy.api.EconomyAccount;
 import eu.pb4.common.economy.api.EconomyTransaction;
-import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import rickiewars.guishop.api.minecraft.IInventory;
+import rickiewars.guishop.api.minecraft.IPlayer;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
 
 public class Transaction {
 
-    private final ServerPlayerEntity player;
+    private final IPlayer player;
     private final Shop shop;
 
-    public Transaction(ServerPlayerEntity player, Shop shop) {
+    public Transaction(IPlayer player, Shop shop) {
         this.player = player;
         this.shop = shop;
     }
@@ -32,7 +32,7 @@ public class Transaction {
             return false;
         }
 
-        EconomyAccount account = EconomyUtils.getDefaultAccount(player, shop.getCurrencyId(item));
+        EconomyAccount account = player.getAccount(shop.getCurrencyId(item));
 
         int amount = 1;
         ItemStack givenItems = new ItemStack(Registries.ITEM.get(Identifier.of(item.itemId())), amount);
@@ -67,7 +67,7 @@ public class Transaction {
             return false;
         }
 
-        EconomyAccount account = EconomyUtils.getDefaultAccount(player, shop.getCurrencyId(item));
+        EconomyAccount account = player.getAccount(shop.getCurrencyId(item));
 
         Item itemToSell = Registries.ITEM.get(Identifier.of(item.itemId()));
         int amount = tradeMany ? Math.min(
@@ -81,7 +81,8 @@ public class Transaction {
             return false;
         }
 
-        int amountRemovedFromInventory = removeItemsFromInventory(itemToSell, amount, item);
+        IInventory inventory = player.getInventory();
+        int amountRemovedFromInventory = inventory.remove(itemToSell, amount, item::matches);
         if (amountRemovedFromInventory == 0){
             player.sendMessage(Text.literal(
                     "You don't have this item"
@@ -106,7 +107,7 @@ public class Transaction {
             return false;
         }
 
-        EconomyAccount account = EconomyUtils.getDefaultAccount(player, shop.getCurrencyId(sellItem));
+        EconomyAccount account = player.getAccount(shop.getCurrencyId(sellItem));
         EconomyTransaction transaction = account.increaseBalance(sellItem.sellItemPrice() * amount);
         if (transaction.isFailure()) {
             player.sendMessage(transaction.message());
@@ -131,36 +132,4 @@ public class Transaction {
         )).formatted(Formatting.GREEN);
         player.sendMessage(message);
     }
-
-    private int removeItemsFromInventory (Item itemToRemove, int amount, ShopItem shopItem) {
-        //loop to remove items from player's inventory
-        PlayerInventory inventory = player.getInventory();
-        int amountToSell = amount;
-        for (int i = 0; i < inventory.size(); i++) {
-            ItemStack stack = inventory.getStack(i);
-            final int stackCount = stack.getCount();
-
-            if(stack.getItem().equals(itemToRemove) && shopItem.matches(stack)) {
-                if (stackCount < amount) {
-                    amount -= stackCount;
-                    inventory.removeStack(i, stackCount);
-                } else if (stackCount > amount) {
-                    ItemStack newItem = new ItemStack(itemToRemove, stackCount - amount);
-                    newItem.applyChanges(stack.getComponentChanges());
-                    inventory.removeStack(i);
-                    inventory.setStack(i, newItem);
-                    amount = 0;
-                    break;
-                } else {
-                    inventory.removeStack(i);
-                    amount = 0;
-                    break;
-                }
-            }
-        }
-        return amountToSell - amount;
-    }
-
-
-
 }

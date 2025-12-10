@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import rickiewars.guishop.GUIShop;
-import rickiewars.guishop.sql.DatabaseManager;
+import rickiewars.guishop.api.database.DatabaseManager;
 
 @Mixin(PlayerManager.class)
 public class PlayerManagerMixin {
@@ -25,7 +25,7 @@ public class PlayerManagerMixin {
         String name = player.getName().toString();
 
         CommonEconomy.getCurrencies(player.server).forEach(currency -> {
-            dm.addPlayer(currency.id().toString(), uuid, name);
+            dm.updateAccount(currency.id().toString(), uuid, name);
         });
     }
 }

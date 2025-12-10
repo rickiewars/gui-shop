@@ -7,7 +7,7 @@ import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.util.Identifier;
 import rickiewars.guishop.GUIShop;
-import rickiewars.guishop.economy.economyProvider.GuiShopEconomyCurrency;
+import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 
 public class GuiShopBalanceCommands {
 
