@@ -6,12 +6,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rickiewars.guishop.api.database.DatabaseManager;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyProvider;
+import rickiewars.guishop.api.minecraft.IServer;
+import rickiewars.guishop.api.minecraft.impl.MinecraftServer;
 import rickiewars.guishop.config.Config;
 import rickiewars.guishop.config.ConfigManager;
 import rickiewars.guishop.config.EconomyConfig;
 import rickiewars.guishop.util.EconomyFileHandler;
 import rickiewars.guishop.util.Register;
-import rickiewars.guishop.util.ServerHandler;
 import rickiewars.guishop.util.ShopFileHandler;
 
 import java.io.IOException;
@@ -28,6 +29,8 @@ public class GUIShop implements ModInitializer {
 
 	public static DatabaseManager databaseManager;
 
+	public static IServer minecraftServer;
+
 	static {
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
 			try {
@@ -37,7 +40,7 @@ public class GUIShop implements ModInitializer {
 			}
 		});
 		ServerLifecycleEvents.SERVER_STARTING.register(server -> {
-			ServerHandler.init(server);
+			minecraftServer = new MinecraftServer(server);
 			loadConfig();
 		});
 	}

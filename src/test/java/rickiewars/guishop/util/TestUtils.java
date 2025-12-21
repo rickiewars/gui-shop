@@ -1,0 +1,115 @@
+package rickiewars.guishop.util;
+
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.util.Identifier;
+import rickiewars.guishop.GUIShop;
+import rickiewars.guishop.api.database.DatabaseManager;
+import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
+import rickiewars.guishop.api.economy.impl.GuiShopEconomyProvider;
+import rickiewars.guishop.api.gui.MenuConfig;
+import rickiewars.guishop.api.minecraft.impl.TestServer;
+import rickiewars.guishop.config.EconomyConfig;
+import rickiewars.guishop.shop.Shop;
+import rickiewars.guishop.shop.ShopItem;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class TestUtils {
+
+    static public Shop testShop(int itemCount) {
+        return testShop(
+            List.of("minecraft:stone"),
+            Identifier.of(GuiShopEconomyProvider.ID, "credits"),
+            itemCount
+        );
+    }
+
+    static public Shop testShop(Identifier currencyId, int itemCount) {
+        return testShop(
+            List.of("minecraft:stone"),
+            currencyId,
+            itemCount
+        );
+    }
+
+    static public Shop testShop(List<String> itemIdSequence, Identifier currencyId, int itemCount) {
+        List<ShopItem> shopItems = new ArrayList<>();
+        int sequenceLength = itemIdSequence.size();
+
+        for (int i = 0; i < itemCount; i++) {
+            shopItems.add(new ShopItem(
+                "Item " + (i + 1),
+                itemIdSequence.get(i % sequenceLength),
+                10,
+                10,
+                currencyId,
+                new String[0],
+                null
+            ));
+        }
+        return new Shop("Test Shop", shopItems, currencyId);
+    }
+
+    static public MenuConfig menuConfig(int rows, int cols) {
+        assert cols >= 5 : "MenuConfig requires at least 5 columns for control buttons";
+        final int LAST_DYNAMIC_SLOT = rows * cols - 1;
+        return new MenuConfig(
+            rows + 1,
+            cols,
+            LAST_DYNAMIC_SLOT + 1,
+            LAST_DYNAMIC_SLOT + 2,
+            LAST_DYNAMIC_SLOT + 3,
+            LAST_DYNAMIC_SLOT + 4,
+            LAST_DYNAMIC_SLOT + 5,
+            true
+        );
+    }
+
+    static public class EconomyDetails {
+        /** Currency ID */
+        public Identifier currencyCreditsId = Identifier.of(GuiShopEconomyProvider.ID, "credits");
+        /** Currency ID */
+        public Identifier currencyCoinsId = Identifier.of(GuiShopEconomyProvider.ID, "coins");
+
+        /** Account ID */
+        public Identifier accountCardId = Identifier.of(GuiShopEconomyProvider.ID, "card");
+        /** Account ID */
+        public Identifier accountPouchId = Identifier.of(GuiShopEconomyProvider.ID, "pouch");
+        public Map<String, EconomyConfig.CurrencyDefinition> currencies = new HashMap<>();
+        public Map<String, EconomyConfig.AccountDefinition> accounts = new HashMap<>();
+    }
+
+    static public EconomyDetails initTestEconomy(DatabaseManager dbManager) {
+        EconomyDetails details = new EconomyDetails();
+
+        details.currencies.put(details.currencyCreditsId.getPath(), new EconomyConfig.CurrencyDefinition(
+            "Credits", "$", "", 2, new ItemStack(GuiShopEconomyCurrency.DEFAULT_ICON)
+        ));
+        details.currencies.put(details.currencyCoinsId.getPath(), new EconomyConfig.CurrencyDefinition(
+            "Coins", "", " Coins", 0, new ItemStack(Items.GOLD_NUGGET)
+        ));
+
+        details.accounts.put(details.accountCardId.getPath(), new EconomyConfig.AccountDefinition(
+            details.currencyCreditsId.getPath(),
+            "Credit card",
+            new ItemStack(Items.PAPER)
+        ));
+        details.accounts.put(details.accountPouchId.getPath(), new EconomyConfig.AccountDefinition(
+            details.currencyCoinsId.getPath(),
+            "Pouch",
+            new ItemStack(Items.BROWN_BUNDLE)
+        ));
+
+        GUIShop.economyConfig = new EconomyConfig();
+        GUIShop.economyConfig.economy = new EconomyConfig.EconomyProviderDefinition(details.currencies, details.accounts);
+        GUIShop.databaseManager = dbManager;
+        GUIShop.minecraftServer = new TestServer();
+
+        return details;
+    }
+
+}

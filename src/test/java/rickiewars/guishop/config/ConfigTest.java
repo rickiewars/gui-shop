@@ -2,12 +2,13 @@ package rickiewars.guishop.config;
 
 import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.Test;
+import rickiewars.guishop.MinecraftTest;
 
 import java.util.LinkedList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ConfigTest {
+public class ConfigTest extends MinecraftTest {
     @Test
     void defaultConstructorCreatesEmptyShopList() {
         Config config = new Config();

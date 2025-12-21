@@ -9,7 +9,7 @@ import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.GUIShop;
-import rickiewars.guishop.GUIShopTest;
+import rickiewars.guishop.MinecraftTest;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyProvider;
 import rickiewars.guishop.config.EconomyConfig;
@@ -20,15 +20,13 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GuiShopEconomyProviderTest {
+public class GuiShopEconomyProviderTest extends MinecraftTest {
 
     private GuiShopEconomyProvider provider;
     private GameProfile profile;
 
     @BeforeEach
     void setup() {
-        GUIShopTest.initMinecraft();
-
         provider = GuiShopEconomyProvider.INSTANCE;
         profile = new GameProfile(UUID.randomUUID(), "TestUser");
 
@@ -84,6 +82,7 @@ public class GuiShopEconomyProviderTest {
 
     @Test
     void getCurrencyReturnsCorrectInstance() {
+        assertNotNull(GUIShop.economyConfig.economy);
         GUIShop.economyConfig.economy.currencies.put(
             "coins",
             currencyDef("Coins", "$", "", 0)
@@ -110,6 +109,7 @@ public class GuiShopEconomyProviderTest {
 
     @Test
     void getCurrenciesReturnsAllDefinedCurrencies() {
+        assertNotNull(GUIShop.economyConfig.economy);
         GUIShop.economyConfig.economy.currencies.put("coins", currencyDef("Coins", "$", "", 0));
         GUIShop.economyConfig.economy.currencies.put("gems", currencyDef("Gems", "G", "", 2));
 
@@ -139,6 +139,7 @@ public class GuiShopEconomyProviderTest {
 
         EconomyConfig.AccountDefinition def = accountDef("Wallet", curId.getPath());
 
+        assertNotNull(GUIShop.economyConfig.economy);
         GUIShop.economyConfig.economy.currencies.put(curId.getPath(), currencyDef("Coins", "$", "", 0));
         GUIShop.economyConfig.economy.accounts.put("wallet", def);
 
@@ -164,6 +165,7 @@ public class GuiShopEconomyProviderTest {
     void getAccountsReturnsAllDefinedAccounts() {
         Identifier curId = Identifier.of(GuiShopEconomyProvider.ID, "coins");
 
+        assertNotNull(GUIShop.economyConfig.economy);
         GUIShop.economyConfig.economy.accounts.put("wallet", accountDef("Wallet", curId.getPath()));
         GUIShop.economyConfig.economy.accounts.put("bank", accountDef("Bank", curId.getPath()));
 
@@ -187,6 +189,7 @@ public class GuiShopEconomyProviderTest {
 
     @Test
     void defaultAccountReturnsNullIfNoMatchingCurrency() {
+        assertNotNull(GUIShop.economyConfig.economy);
         GUIShop.economyConfig.economy.accounts.put("wallet", accountDef("Wallet", "coins"));
         GUIShop.economyConfig.economy.accounts.put("bank", accountDef("Bank", "gems"));
 
@@ -202,6 +205,7 @@ public class GuiShopEconomyProviderTest {
     void defaultAccountReturnsFirstMatchingAccount() {
         Identifier coins = Identifier.of(GuiShopEconomyProvider.ID, "coins");
 
+        assertNotNull(GUIShop.economyConfig.economy);
         GUIShop.economyConfig.economy.accounts.put("wallet", accountDef("Wallet", coins.getPath()));
         GUIShop.economyConfig.economy.accounts.put("bank", accountDef("Bank", coins.getPath()));
 

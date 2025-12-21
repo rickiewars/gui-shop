@@ -39,20 +39,19 @@ public class SQLiteDatabaseManager implements DatabaseManager {
 
     // Initializes the database with registered tables
     private void initTables() {
-        Connection conn = connect();
-        if (conn == null) {
-            return;
-        }
+        try (Connection conn = connect()) {
+            if (conn == null) {
+                return;
+            }
 
-        String sql = "CREATE TABLE IF NOT EXISTS accounts (" +
-            "uuid text NOT NULL," +
-            "currency text NOT NULL," +
-            "name text NOT NULL," +
-            "balance integer DEFAULT 0," +
-            "PRIMARY KEY (uuid, currency)" +
-        ");";
+            String sql = "CREATE TABLE IF NOT EXISTS accounts (" +
+                "uuid text NOT NULL," +
+                "currency text NOT NULL," +
+                "name text NOT NULL," +
+                "balance integer DEFAULT 0," +
+                "PRIMARY KEY (uuid, currency)" +
+                ");";
 
-        try {
             Statement stmt = conn.createStatement();
             stmt.execute(sql);
         } catch (SQLException e) {

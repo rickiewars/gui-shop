@@ -1,11 +1,17 @@
 package rickiewars.guishop.util;
 
 
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.LodestoneTrackerComponent;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.GlobalPos;
 import rickiewars.guishop.GUIShop;
+import rickiewars.guishop.api.minecraft.IPlayer;
 import rickiewars.guishop.config.Config;
 import rickiewars.guishop.shop.Shop;
 
@@ -68,8 +74,8 @@ public class CommonMethods {
     }
 
     public static String translatePlayer(UUID uuid) {
-        ServerPlayerEntity player = ServerHandler.getPlayerByUUID(uuid);
-        return player != null ? player.getName().getString() : uuid.toString();
+        IPlayer player = GUIShop.minecraftServer.getPlayerByUUID(uuid);
+        return player != null ? player.name().toString() : uuid.toString();
     }
 
     // Make sure the string length is at least the specified length
@@ -89,6 +95,41 @@ public class CommonMethods {
     public static String insert(String str, int index, char insertChar) {
         if (index < 0) index = str.length() + index;
         return str.substring(0, index) + insertChar + str.substring(index);
+    }
+
+    public static ItemStack createDirectionalCompass(
+        IPlayer player,
+        float relativeYawDegrees
+    ) {
+        // Player yaw (Minecraft uses degrees, 0 = south, increases clockwise)
+        float yaw = player.getYaw();
+        float targetYaw = yaw + relativeYawDegrees;
+
+        // Convert yaw to direction vector
+        double radians = Math.toRadians(targetYaw);
+        double dx = -Math.sin(radians);
+        double dz =  Math.cos(radians);
+
+        // Place fake lodestone far away so wobble is minimal
+        int distance = 1000;
+
+        BlockPos targetPos = player.getBlockPos().add(
+            (int) (dx * distance),
+            0,
+            (int) (dz * distance)
+        );
+
+        ItemStack stack = new ItemStack(Items.COMPASS);
+
+        // Lodestone tracker component (1.21+)
+        stack.set(DataComponentTypes.LODESTONE_TRACKER,
+            new LodestoneTrackerComponent(
+                Optional.of(new GlobalPos(player.getWorldId(), targetPos)),
+                false
+            )
+        );
+
+        return stack;
     }
 
 }

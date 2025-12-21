@@ -8,12 +8,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.Test;
+import rickiewars.guishop.MinecraftTest;
 import rickiewars.guishop.config.ConfigManager;
 import rickiewars.guishop.shop.ShopItem;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ShopItemSerializerTest {
+public class ShopItemSerializerTest extends MinecraftTest {
     @Test
     void serializerProducesExpectedJsonShape() {
         ItemStack stack = new ItemStack(Items.DIAMOND_SWORD);

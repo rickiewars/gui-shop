@@ -9,13 +9,14 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Rarity;
 import org.junit.jupiter.api.Test;
+import rickiewars.guishop.MinecraftTest;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ShopItemTest {
+public class ShopItemTest extends MinecraftTest {
 
     // ----------------------------------------------------------
     // Basic construction tests
@@ -108,7 +109,6 @@ public class ShopItemTest {
 
     @Test
     void matchesIgnoresNameChanges() {
-        // Create component-changed stack
         ItemStack changed = new ItemStack(Items.IRON_SWORD);
         changed.set(DataComponentTypes.CUSTOM_NAME, Text.literal("Knight Blade"));
 
@@ -163,7 +163,6 @@ public class ShopItemTest {
 
     @Test
     void matchesFailsWhenCustomModelDataDiffers() {
-        // Required: Custom model data (relevant)
         ItemStack template = new ItemStack(Items.DIAMOND_SWORD);
         template.set(DataComponentTypes.CUSTOM_MODEL_DATA, CustomModelDataComponent.DEFAULT);
 

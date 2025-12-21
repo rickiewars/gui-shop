@@ -12,12 +12,9 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import rickiewars.guishop.command.GuiShopPermission;
 import rickiewars.guishop.command.suggestions.ShopNameSuggestionProvider;
-import rickiewars.guishop.gui.PagedShopGUI;
-import rickiewars.guishop.gui.ShopGUI;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.util.CommonMethods;
-
-import java.util.concurrent.ExecutionException;
+import rickiewars.guishop.util.GuiShopMenuHandler;
 
 public class GUIShopOpenCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment){
@@ -36,23 +33,7 @@ public class GUIShopOpenCommand {
 
         if(selectedShop != null){
             if(!selectedShop.getItems().isEmpty()){
-                if(selectedShop.getItems().size() <= PagedShopGUI.MAX_PAGE_ITEMS){
-                    try{
-                        ShopGUI shopGUI = new ShopGUI(EntityArgumentType.getPlayer(context, "playerName"), selectedShop);
-                        shopGUI.open();
-                    } catch (ExecutionException  | InterruptedException ignored){
-
-                    }
-
-                } else {
-                    try{
-                        PagedShopGUI pagedShopGUI = new PagedShopGUI(EntityArgumentType.getPlayer(context, "playerName"), selectedShop);
-                        pagedShopGUI.open();
-                    } catch (ExecutionException  | InterruptedException ignored){
-
-                    }
-
-                }
+                GuiShopMenuHandler.open(EntityArgumentType.getPlayer(context, "playerName"), selectedShop);
             }else{
                 context.getSource().sendFeedback(()->Text.literal("The shop does not contain any items").formatted(Formatting.RED), false);
                 return -1;

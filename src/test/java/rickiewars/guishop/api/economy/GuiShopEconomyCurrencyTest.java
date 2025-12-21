@@ -4,6 +4,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.Test;
+import rickiewars.guishop.MinecraftTest;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyProvider;
 import rickiewars.guishop.config.EconomyConfig;
@@ -11,7 +12,7 @@ import rickiewars.guishop.config.EconomyConfig;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
-public class GuiShopEconomyCurrencyTest {
+public class GuiShopEconomyCurrencyTest extends MinecraftTest {
 
     private EconomyConfig.CurrencyDefinition def(int decimals, String prefix, String suffix) {
         return new EconomyConfig.CurrencyDefinition(

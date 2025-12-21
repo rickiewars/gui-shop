@@ -13,8 +13,8 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
+import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.economy.EconomyUtils;
-import rickiewars.guishop.util.ServerHandler;
 
 import java.util.*;
 
@@ -166,7 +166,7 @@ public record ShopItem(
 
     public EconomyCurrency currency() {
         Identifier currencyId = currencyId();
-        for (EconomyCurrency currency : CommonEconomy.getCurrencies(ServerHandler.getServer())) {
+        for (EconomyCurrency currency : CommonEconomy.getCurrencies(GUIShop.minecraftServer.getInstance())) {
             if (currency.id().equals(currencyId)) {
                 return currency;
             }
@@ -181,6 +181,11 @@ public record ShopItem(
 
     public boolean hasCurrency() {
         return currencyId != null;
+    }
+
+    public int getMaxStackSize() {
+        Item item = Registries.ITEM.get(Identifier.of(itemId));
+        return item.getMaxCount();
     }
 }
 

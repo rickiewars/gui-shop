@@ -1,82 +1,37 @@
 package rickiewars.guishop.api.economy;
 
 import eu.pb4.common.economy.api.EconomyTransaction;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import rickiewars.guishop.GUIShop;
-import rickiewars.guishop.GUIShopTest;
-import rickiewars.guishop.api.database.impl.FakeDatabaseManager;
+import rickiewars.guishop.EconomyTest;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyAccount;
-import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyProvider;
 import rickiewars.guishop.config.EconomyConfig;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GuiShopEconomyAccountTest {
-    FakeDatabaseManager fakeDb = new FakeDatabaseManager();
-
-    Map<String, EconomyConfig.CurrencyDefinition> currencies = new HashMap<>();
-    Map<String, EconomyConfig.AccountDefinition> accounts = new HashMap<>();
-
-    Identifier creditsId = Identifier.of(GuiShopEconomyProvider.ID, "credits");
-    Identifier coinsId = Identifier.of(GuiShopEconomyProvider.ID, "coins");
-    Identifier cardId = Identifier.of(GuiShopEconomyProvider.ID, "card");
-    Identifier pouchId = Identifier.of(GuiShopEconomyProvider.ID, "pouch");
-
-    @BeforeEach
-    void setup() {
-        GUIShopTest.initMinecraft();
-
-        currencies.put(creditsId.getPath(), new EconomyConfig.CurrencyDefinition(
-            "Credits", "$", "", 2, new ItemStack(GuiShopEconomyCurrency.DEFAULT_ICON)
-        ));
-        currencies.put(coinsId.getPath(), new EconomyConfig.CurrencyDefinition(
-            "Coins", "", " Coins", 0, new ItemStack(Items.GOLD_NUGGET)
-        ));
-
-        accounts.put(cardId.getPath(), new EconomyConfig.AccountDefinition(
-            creditsId.getPath(),
-            "Credit card",
-            new ItemStack(Items.PAPER)
-        ));
-        accounts.put(pouchId.getPath(), new EconomyConfig.AccountDefinition(
-            coinsId.getPath(),
-            "Pouch",
-            new ItemStack(Items.BROWN_BUNDLE)
-        ));
-
-        GUIShop.economyConfig = new EconomyConfig();
-        GUIShop.economyConfig.economy = new EconomyConfig.EconomyProviderDefinition(currencies, accounts);
-        GUIShop.databaseManager = fakeDb;
-    }
+public class GuiShopEconomyAccountTest extends EconomyTest {
 
     @Test
     void idReturnsConstructorValue() {
         GuiShopEconomyAccount account = new GuiShopEconomyAccount(
-            cardId, accounts.get(cardId.getPath()), UUID.randomUUID()
+            economy.accountCardId, economy.accounts.get(economy.accountCardId.getPath()), UUID.randomUUID()
         );
-        assertEquals(cardId, account.id());
+        assertEquals(economy.accountCardId, account.id());
 
         GuiShopEconomyAccount account2 = new GuiShopEconomyAccount(
-            pouchId, accounts.get(pouchId.getPath()), UUID.randomUUID()
+            economy.accountPouchId, economy.accounts.get(economy.accountPouchId.getPath()), UUID.randomUUID()
         );
-        assertEquals(pouchId, account2.id());
+        assertEquals(economy.accountPouchId, account2.id());
     }
 
     @Test
     void ownerReturnsGivenUUID() {
         UUID uuid = UUID.randomUUID();
         GuiShopEconomyAccount account = new GuiShopEconomyAccount(
-            cardId, accounts.get(cardId.getPath()), uuid
+            economy.accountCardId, economy.accounts.get(economy.accountCardId.getPath()), uuid
         );
         assertEquals(uuid, account.owner());
     }
@@ -84,27 +39,27 @@ public class GuiShopEconomyAccountTest {
     @Test
     void nameReturnsDefinitionName() {
         GuiShopEconomyAccount account = new GuiShopEconomyAccount(
-            cardId, accounts.get(cardId.getPath()), UUID.randomUUID()
+            economy.accountCardId, economy.accounts.get(economy.accountCardId.getPath()), UUID.randomUUID()
         );
         assertEquals(Text.of("Credit card"), account.name());
 
         GuiShopEconomyAccount account2 = new GuiShopEconomyAccount(
-            pouchId, accounts.get(pouchId.getPath()), UUID.randomUUID()
+            economy.accountPouchId, economy.accounts.get(economy.accountPouchId.getPath()), UUID.randomUUID()
         );
         assertEquals(Text.of("Pouch"), account2.name());
     }
 
     @Test
     void accountIconReturnsDefinitionIcon() {
-        EconomyConfig.AccountDefinition config = accounts.get(cardId.getPath());
+        EconomyConfig.AccountDefinition config = economy.accounts.get(economy.accountCardId.getPath());
         GuiShopEconomyAccount account = new GuiShopEconomyAccount(
-            cardId, config, UUID.randomUUID()
+            economy.accountCardId, config, UUID.randomUUID()
         );
         assertEquals(config.icon, account.accountIcon());
 
-        EconomyConfig.AccountDefinition config2 = accounts.get(pouchId.getPath());
+        EconomyConfig.AccountDefinition config2 = economy.accounts.get(economy.accountPouchId.getPath());
         GuiShopEconomyAccount account2 = new GuiShopEconomyAccount(
-            pouchId, config2, UUID.randomUUID()
+            economy.accountPouchId, config2, UUID.randomUUID()
         );
         assertEquals(config2.icon, account2.accountIcon());
     }
@@ -112,41 +67,41 @@ public class GuiShopEconomyAccountTest {
     @Test
     void providerReturnsGuiShopEconomyProvider() {
         GuiShopEconomyAccount account = new GuiShopEconomyAccount(
-            cardId, accounts.get(cardId.getPath()), UUID.randomUUID()
+            economy.accountCardId, economy.accounts.get(economy.accountCardId.getPath()), UUID.randomUUID()
         );
         assertSame(GuiShopEconomyProvider.INSTANCE, account.provider());
     }
 
     @Test
     void currencyReturnsResolvedCurrency() {
-        EconomyConfig.CurrencyDefinition config = currencies.get(creditsId.getPath());
+        EconomyConfig.CurrencyDefinition config = economy.currencies.get(economy.currencyCreditsId.getPath());
         GuiShopEconomyAccount account = new GuiShopEconomyAccount(
-            cardId, accounts.get(cardId.getPath()), UUID.randomUUID()
+            economy.accountCardId, economy.accounts.get(economy.accountCardId.getPath()), UUID.randomUUID()
         );
-        assertEquals(creditsId, account.currency().id());
+        assertEquals(economy.currencyCreditsId, account.currency().id());
         assertEquals(Text.of(config.name), account.currency().name());
 
-        EconomyConfig.CurrencyDefinition config2 = currencies.get(coinsId.getPath());
+        EconomyConfig.CurrencyDefinition config2 = economy.currencies.get(economy.currencyCoinsId.getPath());
         GuiShopEconomyAccount account2 = new GuiShopEconomyAccount(
-            pouchId, accounts.get(pouchId.getPath()), UUID.randomUUID()
+            economy.accountPouchId, economy.accounts.get(economy.accountPouchId.getPath()), UUID.randomUUID()
         );
-        assertEquals(coinsId, account2.currency().id());
+        assertEquals(economy.currencyCoinsId, account2.currency().id());
         assertEquals(Text.of(config2.name), account2.currency().name());
     }
 
     @Test
     void balanceReturnsValueFromDatabase() {
         UUID playerUuid = UUID.randomUUID();
-        fakeDb.setBalance(creditsId.toString(), playerUuid.toString(), 123);
-        fakeDb.setBalance(coinsId.toString(), playerUuid.toString(), 456);
+        fakeDb.setBalance(economy.currencyCreditsId.toString(), playerUuid.toString(), 123);
+        fakeDb.setBalance(economy.currencyCoinsId.toString(), playerUuid.toString(), 456);
 
         GuiShopEconomyAccount account1 = new GuiShopEconomyAccount(
-            cardId, accounts.get(cardId.getPath()), playerUuid
+            economy.accountCardId, economy.accounts.get(economy.accountCardId.getPath()), playerUuid
         );
         assertEquals(123, account1.balance());
 
         GuiShopEconomyAccount account2 = new GuiShopEconomyAccount(
-            pouchId, accounts.get(pouchId.getPath()), playerUuid
+            economy.accountPouchId, economy.accounts.get(economy.accountPouchId.getPath()), playerUuid
         );
         assertEquals(456, account2.balance());
     }
@@ -155,25 +110,25 @@ public class GuiShopEconomyAccountTest {
     void setBalanceUpdatesDatabase() {
         UUID playerUuid = UUID.randomUUID();
         GuiShopEconomyAccount account = new GuiShopEconomyAccount(
-            cardId, accounts.get(cardId.getPath()), playerUuid
+            economy.accountCardId, economy.accounts.get(economy.accountCardId.getPath()), playerUuid
         );
         GuiShopEconomyAccount account2 = new GuiShopEconomyAccount(
-            pouchId, accounts.get(pouchId.getPath()), playerUuid
+            economy.accountPouchId, economy.accounts.get(economy.accountPouchId.getPath()), playerUuid
         );
 
         account.setBalance(500);
         account2.setBalance(30);
 
-        assertEquals(500, fakeDb.getBalance(creditsId.toString(), playerUuid.toString()));
-        assertEquals(30, fakeDb.getBalance(coinsId.toString(), playerUuid.toString()));
+        assertEquals(500, fakeDb.getBalance(economy.currencyCreditsId.toString(), playerUuid.toString()));
+        assertEquals(30, fakeDb.getBalance(economy.currencyCoinsId.toString(), playerUuid.toString()));
     }
 
     @Test
     void canIncreaseBalanceSucceedsWhenBelowMax() {
         UUID playerUuid = UUID.randomUUID();
-        fakeDb.setBalance(creditsId.toString(), playerUuid.toString(), 200);
+        fakeDb.setBalance(economy.currencyCreditsId.toString(), playerUuid.toString(), 200);
         GuiShopEconomyAccount account = new GuiShopEconomyAccount(
-            cardId, accounts.get(cardId.getPath()), playerUuid
+            economy.accountCardId, economy.accounts.get(economy.accountCardId.getPath()), playerUuid
         );
 
         EconomyTransaction tx = account.canIncreaseBalance(500);
@@ -188,9 +143,9 @@ public class GuiShopEconomyAccountTest {
     @Test
     void canIncreaseBalanceFailsWhenExceedingMaxInt() {
         UUID playerUuid = UUID.randomUUID();
-        fakeDb.setBalance(creditsId.toString(), playerUuid.toString(), Integer.MAX_VALUE - 1);
+        fakeDb.setBalance(economy.currencyCreditsId.toString(), playerUuid.toString(), Integer.MAX_VALUE - 1);
         GuiShopEconomyAccount account = new GuiShopEconomyAccount(
-            cardId, accounts.get(cardId.getPath()), playerUuid
+            economy.accountCardId, economy.accounts.get(economy.accountCardId.getPath()), playerUuid
         );
 
         EconomyTransaction tx = account.canIncreaseBalance(2);
@@ -205,9 +160,9 @@ public class GuiShopEconomyAccountTest {
     @Test
     void canDecreaseBalanceFailsWhenGoingNegative() {
         UUID playerUuid = UUID.randomUUID();
-        fakeDb.setBalance(creditsId.toString(), playerUuid.toString(), 20);
+        fakeDb.setBalance(economy.currencyCreditsId.toString(), playerUuid.toString(), 20);
         GuiShopEconomyAccount account = new GuiShopEconomyAccount(
-            cardId, accounts.get(cardId.getPath()), playerUuid
+            economy.accountCardId, economy.accounts.get(economy.accountCardId.getPath()), playerUuid
         );
 
         EconomyTransaction tx = account.canDecreaseBalance(21);
@@ -222,9 +177,9 @@ public class GuiShopEconomyAccountTest {
     @Test
     void canDecreaseBalanceSucceedsWhenEnoughBalance() {
         UUID playerUuid = UUID.randomUUID();
-        fakeDb.setBalance(creditsId.toString(), playerUuid.toString(), 100);
+        fakeDb.setBalance(economy.currencyCreditsId.toString(), playerUuid.toString(), 100);
         GuiShopEconomyAccount account = new GuiShopEconomyAccount(
-            cardId, accounts.get(cardId.getPath()), playerUuid
+            economy.accountCardId, economy.accounts.get(economy.accountCardId.getPath()), playerUuid
         );
 
         EconomyTransaction tx = account.canDecreaseBalance(40);
