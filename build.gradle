@@ -1,6 +1,10 @@
 plugins {
 	id 'fabric-loom' version '1.14-SNAPSHOT'
 	id 'maven-publish'
+	id 'jacoco'
+}
+jacoco {
+	toolVersion = "0.8.11"
 }
 
 version = project.mod_version
@@ -100,6 +104,7 @@ processResources {
 
 test {
     useJUnitPlatform()
+	finalizedBy jacocoTestReport
 
     testLogging {
         events = ["passed", "skipped", "failed"]
@@ -119,6 +124,15 @@ test {
             throw new GradleException("No tests were executed! Check your test configuration.")
         }
     }
+
+}
+
+jacocoTestReport {
+	dependsOn test
+	reports {
+		html.required = true
+		xml.required = true
+	}
 }
 
 tasks.withType(JavaCompile).configureEach {
