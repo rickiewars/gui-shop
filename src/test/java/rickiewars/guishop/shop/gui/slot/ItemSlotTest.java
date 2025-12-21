@@ -232,7 +232,7 @@ public class ItemSlotTest extends EconomyTest {
         assertEquals(matchingItem, player.getCursorStack().getItem());
 
         assertEquals(
-            "Cursor item does not match shop item",
+            "Stack does not match shop item",
             player.getReceivedMessages().getLast().getString()
         );
     }
