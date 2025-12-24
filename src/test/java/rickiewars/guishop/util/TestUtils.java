@@ -1,7 +1,11 @@
 package rickiewars.guishop.util;
 
+import net.minecraft.component.type.ItemEnchantmentsComponent;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.registry.BuiltinRegistries;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.Identifier;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.database.DatabaseManager;
@@ -110,6 +114,17 @@ public class TestUtils {
         GUIShop.minecraftServer = new TestServer();
 
         return details;
+    }
+
+    static public ItemEnchantmentsComponent buildEnchantmentsComponent(Map<RegistryKey<Enchantment>, Integer> enchantments) {
+        var builder = new ItemEnchantmentsComponent.Builder(ItemEnchantmentsComponent.DEFAULT);
+        var lookup = BuiltinRegistries.createWrapperLookup();
+
+        enchantments.forEach((enchantment, level) -> {
+            builder.add(lookup.getEntryOrThrow(enchantment), level);
+        });
+
+        return builder.build();
     }
 
 }

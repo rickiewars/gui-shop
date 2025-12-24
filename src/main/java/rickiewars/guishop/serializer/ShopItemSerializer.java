@@ -36,6 +36,9 @@ public class ShopItemSerializer implements JsonSerializer<ShopItem>, JsonDeseria
                     : Identifier.of(GuiShopEconomyProvider.ID, currencyIdStr);
         }
 
+        // TODO: Put under test. If DynamicRegistryManager does not work, try:
+        //      net.minecraft.registry.BuiltinRegistries.createWrapperLookup().getOps(JsonOps.INSTANCE)
+
         ComponentChanges componentChanges = ComponentChanges.CODEC.parse(
             DynamicRegistryManager.of(Registries.REGISTRIES).getOps(JsonOps.INSTANCE), jsonShop.get("components")
         ).resultOrPartial().orElse(null);
