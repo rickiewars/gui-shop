@@ -24,6 +24,10 @@ public class ShopSerializer implements JsonSerializer<Shop>, JsonDeserializer<Sh
         }
 
         String shopName = jsonShop.get("shopName").getAsString();
+        Identifier icon = jsonShop.has("icon")
+            ? Identifier.of(jsonShop.get("icon").getAsString())
+            : Identifier.ofVanilla("chest");
+
         for(int i = 0; i < jsonItems.size(); i++){
             ShopItem item = jsonDeserializationContext.deserialize(jsonItems.get(i), ShopItem.class);
             items[i] = item;
@@ -34,16 +38,18 @@ public class ShopSerializer implements JsonSerializer<Shop>, JsonDeserializer<Sh
             shopItems.addLast(item);
         }
 
-        return new Shop(shopName, shopItems, defaultCurrencyId);
+        return new Shop(shopName, shopItems, defaultCurrencyId, icon);
     }
 
     @Override
     public JsonElement serialize(Shop shop, Type type, JsonSerializationContext jsonSerializationContext) {
         JsonElement items = jsonSerializationContext.serialize(shop.getItems().toArray());
         JsonElement shopName = new JsonPrimitive(shop.getName());
+        JsonElement iconId = new JsonPrimitive(shop.iconId().toString());
 
         JsonObject jsonShop = new JsonObject();
         jsonShop.add("shopName", shopName);
+        jsonShop.add("icon", iconId);
         if (shop.hasDefaultCurrency()) {
             JsonElement defaultCurrencyId = new JsonPrimitive(shop.getDefaultCurrencyId().toString());
             jsonShop.add("defaultCurrency", defaultCurrencyId);

@@ -39,7 +39,20 @@ public class TestUtils {
         );
     }
 
+    static public Shop testShop(String name, Identifier currencyId, int itemCount) {
+        return testShop(
+            name,
+            List.of("minecraft:stone"),
+            currencyId,
+            itemCount
+        );
+    }
+
     static public Shop testShop(List<String> itemIdSequence, Identifier currencyId, int itemCount) {
+        return testShop("Test Shop", itemIdSequence, currencyId, itemCount);
+    }
+
+    static public Shop testShop(String name, List<String> itemIdSequence, Identifier currencyId, int itemCount) {
         List<ShopItem> shopItems = new ArrayList<>();
         int sequenceLength = itemIdSequence.size();
 
@@ -54,7 +67,7 @@ public class TestUtils {
                 null
             ));
         }
-        return new Shop("Test Shop", shopItems, currencyId);
+        return new Shop(name, shopItems, currencyId);
     }
 
     static public class EconomyDetails {

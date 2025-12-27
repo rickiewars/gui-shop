@@ -39,11 +39,10 @@ public class ItemSlotTest extends EconomyTest {
         ), economy.currencyCreditsId,5);
         player.addDefaultAccount(shop.getDefaultCurrencyId());
 
-        controller = new TestMenuController();
+        controller = new TestMenuController(player);
         menu = new ShopMenu(shop, player);
-
-        ctx = new MenuContext(controller, player, menu);
-        ctx.open();
+        controller.open(menu);
+        ctx = controller.context;
     }
 
     // -------------------------------------------------------------------------

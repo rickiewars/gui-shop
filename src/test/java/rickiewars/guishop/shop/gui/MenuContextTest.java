@@ -4,7 +4,6 @@ import net.minecraft.item.Items;
 import net.minecraft.text.Text;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.EconomyTest;
-import rickiewars.guishop.api.gui.MenuContext;
 import rickiewars.guishop.api.gui.impl.TestMenuController;
 import rickiewars.guishop.api.minecraft.impl.TestPlayer;
 import rickiewars.guishop.shop.Shop;
@@ -16,7 +15,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
-class BaseMenuContextTest extends EconomyTest {
+class MenuContextTest extends EconomyTest {
 
     @Test
     void ShopMenuPaginationDoesNotOverflow() {
@@ -24,11 +23,10 @@ class BaseMenuContextTest extends EconomyTest {
         Shop shop = TestUtils.testShop(economy.currencyCreditsId, 3 * 45);
         player.addDefaultAccount(shop.getDefaultCurrencyId());
 
-        TestMenuController controller = new TestMenuController();
+        TestMenuController controller = new TestMenuController(player);
         ShopMenu menu = new ShopMenu(shop, player);
-
-        MenuContext ctx = new MenuContext(controller, player, menu);
-        ctx.open();
+        controller.open(menu);
+        var ctx = controller.context;
 
         ctx.goToPage(5);
         assertEquals(3, ctx.page());
@@ -43,11 +41,10 @@ class BaseMenuContextTest extends EconomyTest {
         Shop shop = TestUtils.testShop(economy.currencyCreditsId, 3 * 45);
         player.addDefaultAccount(shop.getDefaultCurrencyId());
 
-        TestMenuController controller = new TestMenuController();
+        TestMenuController controller = new TestMenuController(player);
         ShopMenu menu = new ShopMenu(shop, player);
-
-        MenuContext ctx = new MenuContext(controller, player, menu);
-        ctx.open();
+        controller.open(menu);
+        var ctx = controller.context;
 
         ctx.goToPage(2);
         assertEquals(2, ctx.page());
@@ -64,11 +61,11 @@ class BaseMenuContextTest extends EconomyTest {
         Shop shop = TestUtils.testShop(economy.currencyCreditsId, 3 * 45);
         player.addDefaultAccount(shop.getDefaultCurrencyId());
 
-        TestMenuController controller = new TestMenuController();
+        TestMenuController controller = new TestMenuController(player);
         ShopMenu menu = new ShopMenu(shop, player);
+        controller.open(menu);
+        var ctx = controller.context;
 
-        MenuContext ctx = new MenuContext(controller, player, menu);
-        ctx.open();
         ctx.goToPage(2);
 
         var balanceIndex = menu.config().indexOf(ShopMenu.SlotType.BALANCE).orElseThrow();
@@ -90,11 +87,9 @@ class BaseMenuContextTest extends EconomyTest {
         Shop shop = TestUtils.testShop(economy.currencyCreditsId, 2 * 45);
         player.addDefaultAccount(shop.getDefaultCurrencyId());
 
-        TestMenuController controller = new TestMenuController();
+        TestMenuController controller = new TestMenuController(player);
         ShopMenu menu = new ShopMenu(shop, player);
-
-        MenuContext ctx = new MenuContext(controller, player, menu);
-        ctx.open();
+        controller.open(menu);
 
         var previousPageIndex = menu.config().indexOf(ShopMenu.SlotType.PREVIOUS_PAGE).orElseThrow();
         var pageIndicatorIndex = menu.config().indexOf(ShopMenu.SlotType.PAGE_INDICATOR).orElseThrow();
@@ -111,11 +106,11 @@ class BaseMenuContextTest extends EconomyTest {
         Shop shop = TestUtils.testShop(economy.currencyCreditsId, 3 * 45);
         player.addDefaultAccount(shop.getDefaultCurrencyId());
 
-        TestMenuController controller = new TestMenuController();
+        TestMenuController controller = new TestMenuController(player);
         ShopMenu menu = new ShopMenu(shop, player);
+        controller.open(menu);
+        var ctx = controller.context;
 
-        MenuContext ctx = new MenuContext(controller, player, menu);
-        ctx.open();
         ctx.goToPage(3);
 
         var previousPageIndex = menu.config().indexOf(ShopMenu.SlotType.PREVIOUS_PAGE).orElseThrow();
@@ -133,11 +128,11 @@ class BaseMenuContextTest extends EconomyTest {
         Shop shop = TestUtils.testShop(economy.currencyCreditsId, 3 * 45);
         player.addDefaultAccount(shop.getDefaultCurrencyId());
 
-        TestMenuController controller = new TestMenuController();
+        TestMenuController controller = new TestMenuController(player);
         ShopMenu menu = new ShopMenu(shop, player);
+        controller.open(menu);
+        var ctx = controller.context;
 
-        MenuContext ctx = new MenuContext(controller, player, menu);
-        ctx.open();
         ctx.goToPage(2);
 
         controller.slots.clear();
@@ -155,11 +150,11 @@ class BaseMenuContextTest extends EconomyTest {
         Shop shop = TestUtils.testShop(economy.currencyCreditsId, 45 + 2);
         player.addDefaultAccount(shop.getDefaultCurrencyId());
 
-        TestMenuController controller = new TestMenuController();
+        TestMenuController controller = new TestMenuController(player);
         ShopMenu menu = new ShopMenu(shop, player);
+        controller.open(menu);
+        var ctx = controller.context;
 
-        MenuContext ctx = new MenuContext(controller, player, menu);
-        ctx.open();
         ctx.goToPage(2);
 
         controller.slots.clear();

@@ -18,6 +18,8 @@ import rickiewars.guishop.util.CommonMethods;
 
 public class SellCommand {
 	public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
+
+
 		dispatcher.register(CommandManager.literal("sell")
 				.requires(GuiShopPermission.SELL.require())
 				.then(CommandManager.literal("hand")

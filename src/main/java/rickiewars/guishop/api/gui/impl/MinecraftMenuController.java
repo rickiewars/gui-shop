@@ -8,23 +8,53 @@ import rickiewars.guishop.api.gui.Menu;
 import rickiewars.guishop.api.gui.MenuContext;
 import rickiewars.guishop.api.gui.MenuController;
 import rickiewars.guishop.api.gui.MenuSlot;
+import rickiewars.guishop.api.minecraft.impl.MinecraftPlayer;
 
-public class MinecraftMenuController extends SimpleGui implements MenuController {
-    public MinecraftMenuController(Menu menu, ServerPlayerEntity player, boolean manipulatePlayerSlots) {
-        super(menu.config().handlerType(), player, manipulatePlayerSlots);
+public class MinecraftMenuController implements MenuController {
+    SimpleGui gui;
+    MenuContext context;
+    final ServerPlayerEntity player;
+
+    public MinecraftMenuController(ServerPlayerEntity player) {
+        this.player = player;
     }
 
     @Override
-    public void setSlot(MenuContext context, int index, MenuSlot slot) {
-        super.setSlot(index, buildElement(slot, context));
+    public boolean open(Menu menu) {
+        if (gui != null) {
+            gui.close();
+        }
+
+        this.gui = new SimpleGui(
+            menu.config().handlerType(),
+            player,
+            false
+        );
+        this.context = new MenuContext(this, new MinecraftPlayer(player), menu);
+        return gui.open();
+    }
+
+    @Override
+    public void setSlot(int index, MenuSlot slot) {
+        gui.setSlot(index, buildElement(slot));
+    }
+
+    @Override
+    public void clearSlot(int index) {
+        gui.clearSlot(index);
     }
 
     @Override
     public void close() {
-        super.close();
+        gui.close();
     }
 
-    private GuiElementBuilder buildElement(MenuSlot slot, MenuContext context) {
+    @Override
+    public void setTitle(Text title) {
+        gui.setTitle(title);
+    }
+
+    private GuiElementBuilder buildElement(MenuSlot slot) {
         GuiElementBuilder b = GuiElementBuilder.from(slot.icon());
 
         Text name = slot.name();

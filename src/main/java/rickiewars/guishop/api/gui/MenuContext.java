@@ -24,7 +24,7 @@ public class MenuContext {
         refresh();
     }
 
-    public boolean open() { return controller.open(); }
+    public boolean open(Menu menu) { return controller.open(menu); }
     public void close() { controller.close(); }
 
     public void refresh() {
@@ -50,7 +50,7 @@ public class MenuContext {
         int maxContent = cfg.availableSlots();
         for (int i = 0; i < maxContent; i++) {
             MenuSlot slot = i < slots.size() ? slots.get(i) : empty;
-            if (slot != null) controller.setSlot(this, i, slot);
+            if (slot != null) controller.setSlot(i, slot);
         }
     }
 
@@ -61,7 +61,7 @@ public class MenuContext {
 
         fixed.forEach((index, slot) -> {
             if (index >= 0 && index < cfg.totalSlots()) {
-                controller.setSlot(this, index, slot);
+                controller.setSlot(index, slot);
             }
         });
     }

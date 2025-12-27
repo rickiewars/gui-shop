@@ -1,10 +1,12 @@
 package rickiewars.guishop.shop;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import rickiewars.guishop.economy.EconomyUtils;
+import rickiewars.guishop.util.CommonMethods;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -17,6 +19,7 @@ public class Shop {
     private final List<ShopItem> items;
     @Nullable
     private final Identifier defaultCurrencyId;
+    private final Identifier icon;
 
     public String getName() {
         return name;
@@ -59,9 +62,25 @@ public class Shop {
     }
 
     public Shop(String name, List<ShopItem> items, @Nullable Identifier defaultCurrencyId) {
+        this(name, items, defaultCurrencyId, null);
+    }
+
+    public Shop(String name, List<ShopItem> items, @Nullable Identifier defaultCurrencyId, @Nullable Identifier icon) {
         this.name = name;
         this.items = items;
         this.defaultCurrencyId = defaultCurrencyId;
+        this.icon = icon != null ? icon : Identifier.ofVanilla("chest");
+    }
+
+    public Identifier iconId() {
+        return icon;
+    }
+
+    public ItemStack getIcon() {
+        return new ItemStack(CommonMethods.getItem(
+            icon.toString(),
+            Items.CHEST
+        ));
     }
 
     @Override

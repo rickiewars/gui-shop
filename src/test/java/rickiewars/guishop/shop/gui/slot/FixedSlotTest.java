@@ -4,7 +4,6 @@ import eu.pb4.sgui.api.ClickType;
 import net.minecraft.text.Text;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.EconomyTest;
-import rickiewars.guishop.api.gui.MenuContext;
 import rickiewars.guishop.api.gui.impl.TestMenuController;
 import rickiewars.guishop.api.minecraft.impl.TestPlayer;
 import rickiewars.guishop.shop.Shop;
@@ -23,11 +22,10 @@ public class FixedSlotTest extends EconomyTest {
         Shop shop = TestUtils.testShop(economy.currencyCreditsId, 1);
         player.addDefaultAccount(shop.getDefaultCurrencyId());
 
-        TestMenuController controller = new TestMenuController();
+        TestMenuController controller = new TestMenuController(player);
         ShopMenu menu = new ShopMenu(shop, player);
-
-        MenuContext ctx = new MenuContext(controller, player, menu);
-        ctx.open();
+        controller.open(menu);
+        var ctx = controller.context;
 
         assertTrue(controller.opened);
 
@@ -43,11 +41,10 @@ public class FixedSlotTest extends EconomyTest {
         Shop shop = TestUtils.testShop(economy.currencyCreditsId, 3 * 45);
         player.addDefaultAccount(shop.getDefaultCurrencyId());
 
-        TestMenuController controller = new TestMenuController();
+        TestMenuController controller = new TestMenuController(player);
         ShopMenu menu = new ShopMenu(shop, player);
-
-        MenuContext ctx = new MenuContext(controller, player, menu);
-        ctx.open();
+        controller.open(menu);
+        var ctx = controller.context;
 
         var slotIndex = menu.config().indexOf(ShopMenu.SlotType.PAGE_INDICATOR).orElseThrow();
 
@@ -73,11 +70,11 @@ public class FixedSlotTest extends EconomyTest {
         Shop shop = TestUtils.testShop(economy.currencyCreditsId, 3 * 45);
         player.addDefaultAccount(shop.getDefaultCurrencyId());
 
-        TestMenuController controller = new TestMenuController();
+        TestMenuController controller = new TestMenuController(player);
         ShopMenu menu = new ShopMenu(shop, player);
+        controller.open(menu);
+        var ctx = controller.context;
 
-        MenuContext ctx = new MenuContext(controller, player, menu);
-        ctx.open();
         ctx.goToPage(3);
 
         var slotIndex = menu.config().indexOf(ShopMenu.SlotType.PREVIOUS_PAGE).orElseThrow();
@@ -97,11 +94,10 @@ public class FixedSlotTest extends EconomyTest {
         Shop shop = TestUtils.testShop(economy.currencyCreditsId, 3 * 45);
         player.addDefaultAccount(shop.getDefaultCurrencyId());
 
-        TestMenuController controller = new TestMenuController();
+        TestMenuController controller = new TestMenuController(player);
         ShopMenu menu = new ShopMenu(shop, player);
-
-        MenuContext ctx = new MenuContext(controller, player, menu);
-        ctx.open();
+        controller.open(menu);
+        var ctx = controller.context;
 
         var slotIndex = menu.config().indexOf(ShopMenu.SlotType.NEXT_PAGE).orElseThrow();
 
@@ -120,11 +116,9 @@ public class FixedSlotTest extends EconomyTest {
         Shop shop = TestUtils.testShop(economy.currencyCreditsId, 15);
         player.addDefaultAccount(shop.getDefaultCurrencyId());
 
-        TestMenuController controller = new TestMenuController();
+        TestMenuController controller = new TestMenuController(player);
         ShopMenu menu = new ShopMenu(shop, player);
-
-        MenuContext ctx = new MenuContext(controller, player, menu);
-        ctx.open();
+        controller.open(menu);
 
         var balanceSlot = menu.config().indexOf(ShopMenu.SlotType.BALANCE).orElseThrow();
 

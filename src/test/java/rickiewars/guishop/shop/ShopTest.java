@@ -49,7 +49,8 @@ class ShopTest extends MinecraftTest {
         shop = new Shop(
             "TestShop",
             List.of(stoneItem, dirtItem),
-            defaultCurrency
+            defaultCurrency,
+            Identifier.ofVanilla("ender_chest")
         );
     }
 
@@ -134,5 +135,18 @@ class ShopTest extends MinecraftTest {
         assertEquals(2, items.size());
         assertTrue(items.contains(stoneItem));
         assertTrue(items.contains(dirtItem));
+    }
+
+    @Test
+    void iconResolvesToItemStack() {
+        assertEquals(Items.ENDER_CHEST, shop.getIcon().getItem());
+
+        Shop shopWithoutIcon = new Shop(
+            "ShopWithIcon",
+            List.of(stoneItem),
+            null
+        );
+
+        assertEquals(Items.CHEST, shopWithoutIcon.getIcon().getItem());
     }
 }

@@ -1,6 +1,5 @@
 package rickiewars.guishop.shop.gui;
 
-import eu.pb4.common.economy.api.EconomyAccount;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.text.Text;
 import rickiewars.guishop.api.gui.Menu;
@@ -8,58 +7,57 @@ import rickiewars.guishop.api.gui.MenuConfig;
 import rickiewars.guishop.api.gui.MenuSlot;
 import rickiewars.guishop.api.minecraft.IPlayer;
 import rickiewars.guishop.shop.Shop;
-import rickiewars.guishop.shop.ShopItem;
-import rickiewars.guishop.shop.gui.slot.*;
+import rickiewars.guishop.shop.gui.slot.ExitSlot;
+import rickiewars.guishop.shop.gui.slot.NavigationSlot;
+import rickiewars.guishop.shop.gui.slot.PageIndicatorSlot;
+import rickiewars.guishop.shop.gui.slot.ShopEntrySlot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ShopMenu implements Menu {
-    private final Shop shop;
+public class SelectShopMenu implements Menu {
+    private final MenuConfig<SlotType> config;
+    private final List<Shop> shops;
     private final IPlayer player;
 
-    private static final MenuConfig<SlotType> config = buildConfig();
-
     public enum SlotType {
-        BALANCE,
         PREVIOUS_PAGE,
-        NEXT_PAGE,
         PAGE_INDICATOR,
+        NEXT_PAGE,
         EXIT,
         EMPTY
     }
 
-    public ShopMenu(Shop shop, IPlayer player) {
-        this.shop = shop;
+    public SelectShopMenu(List<Shop> shops, IPlayer player) {
+        this.shops = shops;
         this.player = player;
+        this.config = buildConfig(shops.size());
     }
 
     @Override
     public Text title() {
-        EconomyAccount account = player.getAccount(shop.getDefaultCurrencyId());
-        String balance = account.formattedBalance().getLiteralString();
-        return Text.of(shop.getName() + " (Balance: " + balance + ")");
-    }
-
-    @Override
-    public int getPageCount() {
-        return (int) Math.ceil(shop.getItems().size() / (double) config.availableSlots());
+        return Text.of("Select Shop");
     }
 
     @Override
     public List<MenuSlot> getPageContent(int page) {
         int pageSize = config.availableSlots();
         int start = (page - 1) * pageSize;
-        int itemCount = shop.getItems().size();
         List<MenuSlot> result = new ArrayList<>();
 
-        for (int i = start; i < Math.min(start + pageSize, itemCount); i++) {
-            result.add(shopItemSlot(shop.getItems().get(i)));
+        for (int i = start; i < Math.min(start + pageSize, shops.size()); i++) {
+            Shop shop = shops.get(i);
+            result.add(new ShopEntrySlot(shop, player));
         }
 
         return result;
+    }
+
+    @Override
+    public int getPageCount() {
+        return (int) Math.ceil(shops.size() / (double) config.availableSlots());
     }
 
     @Override
@@ -71,7 +69,6 @@ public class ShopMenu implements Menu {
             var slotType = config.fixedSlots().get(i);
             if (slotType == null) continue;
             result.put(i, switch (slotType) {
-                case BALANCE -> balanceSlot(this.player);
                 case PREVIOUS_PAGE -> page <= 1
                     ? emptySlot()
                     : previousPageSlot(page);
@@ -94,11 +91,7 @@ public class ShopMenu implements Menu {
 
     @Override
     public MenuSlot emptySlot() {
-        return new EmptySlot(shop);
-    }
-
-    private MenuSlot balanceSlot(IPlayer player) {
-        return new BalanceSlot(player, shop.getDefaultCurrencyId());
+        return null;
     }
 
     private MenuSlot previousPageSlot(int page) {
@@ -117,22 +110,22 @@ public class ShopMenu implements Menu {
         return new ExitSlot();
     }
 
-    private MenuSlot shopItemSlot(ShopItem item) {
-        return new ShopItemSlot(shop, item);
-    }
-
-    private static MenuConfig<SlotType> buildConfig() {
-        int lastDynamicSlot = 5 * 9 - 1;
-        return new MenuConfig<>(ScreenHandlerType.GENERIC_9X6, Map.of(
-            lastDynamicSlot + 1, SlotType.BALANCE,
-            lastDynamicSlot + 2, SlotType.EMPTY,
-            lastDynamicSlot + 3, SlotType.EMPTY,
-            lastDynamicSlot + 4, SlotType.PREVIOUS_PAGE,
-            lastDynamicSlot + 5, SlotType.PAGE_INDICATOR,
-            lastDynamicSlot + 6, SlotType.NEXT_PAGE,
-            lastDynamicSlot + 7, SlotType.EMPTY,
-            lastDynamicSlot + 8, SlotType.EMPTY,
-            lastDynamicSlot + 9, SlotType.EXIT
-        ));
+    private MenuConfig<SlotType> buildConfig(int entryCount) {
+        int lastDynamicSlot = 9 - 1;
+        return entryCount > 8
+            ? new MenuConfig<>(ScreenHandlerType.GENERIC_9X2, Map.of(
+                lastDynamicSlot + 1, SlotType.EMPTY,
+                lastDynamicSlot + 2, SlotType.EMPTY,
+                lastDynamicSlot + 3, SlotType.EMPTY,
+                lastDynamicSlot + 4, SlotType.PREVIOUS_PAGE,
+                lastDynamicSlot + 5, SlotType.PAGE_INDICATOR,
+                lastDynamicSlot + 6, SlotType.NEXT_PAGE,
+                lastDynamicSlot + 7, SlotType.EMPTY,
+                lastDynamicSlot + 8, SlotType.EMPTY,
+                lastDynamicSlot + 9, SlotType.EXIT
+            ))
+            : new MenuConfig<>(ScreenHandlerType.GENERIC_9X1, Map.of(
+                lastDynamicSlot, SlotType.EXIT
+            ));
     }
 }

@@ -34,7 +34,11 @@ public class GUIShopListCommand {
             StringBuilder msgBldr = new StringBuilder();
 
             for(Shop shop: GUIShop.config.shops){
-                msgBldr.append(shop.getName()).append("\n");
+                msgBldr.append(shop.getName());
+                if (shop.getItems().isEmpty()) {
+                    msgBldr.append(" (Out of stock)");
+                }
+                msgBldr.append("\n");
             }
             String msg = StringUtils.chomp(msgBldr.toString());
 
