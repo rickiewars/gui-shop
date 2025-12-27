@@ -252,5 +252,143 @@ public class TransactionTest extends EconomyTest {
         assertSame(cursor, result);
         assertEquals(1_000, player.getAccount(economy.currencyCreditsId).balance());
     }
+
+    // -------------------------------------------------------------------------
+    // Error handling
+    // -------------------------------------------------------------------------
+
+    @Test
+    void buyThrowsErrorIfNotEnoughMoney() {
+        player.getInventory().offerOrDrop(
+            new ItemStack(item, 5)
+        );
+        player.getAccount(economy.currencyCreditsId).setBalance(1);
+
+        var ex = assertThrows(
+            IllegalStateException.class, () -> transaction.buyToInventory(
+                shopItem,
+                1
+            ));
+        assertEquals("Not enough money", ex.getMessage());
+        assertEquals(1, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(5, player.getInventory().count(item));
+    }
+
+    @Test
+    void buyToInventoryThrowsErrorIfNotBuyable() {
+        player.getInventory().offerOrDrop(
+            new ItemStack(item, 5)
+        );
+
+        var nonBuyableItem = new ShopItem(
+            "Non-buyable Item",
+            "minecraft:stone",
+            -1,
+            10,
+            null,
+            null,
+            null
+        );
+
+        var ex = assertThrows(
+            IllegalStateException.class, () -> transaction.buyToInventory(
+                nonBuyableItem,
+                1
+            ));
+        assertEquals("Not buyable", ex.getMessage());
+        assertEquals(5, player.getInventory().count(item));
+    }
+
+    @Test
+    void buyToItemStackThrowsErrorIfNotBuyable() {
+        ItemStack cursor = new ItemStack(
+            Registries.ITEM.get(Identifier.of("minecraft:stone")),
+            5
+        );
+
+        var nonBuyableItem = new ShopItem(
+            "Non-buyable Item",
+            "minecraft:stone",
+            -1,
+            10,
+            null,
+            null,
+            null
+        );
+
+        var shop = new Shop("Test Shop", List.of(
+            nonBuyableItem
+        ), economy.currencyCreditsId);
+
+        var tx = new Transaction(player, shop);
+
+        var ex = assertThrows(
+            IllegalStateException.class, () -> tx.buyToItemStack(
+                nonBuyableItem,
+                cursor,
+                1
+            ));
+        assertEquals("Not buyable", ex.getMessage());
+        assertEquals(5, cursor.getCount());
+    }
+
+    @Test
+    void sellFromInventoryThrowsErrorIfNotSellable() {
+        player.getInventory().offerOrDrop(
+            new ItemStack(item, 5)
+        );
+
+        var nonSellableItem = new ShopItem(
+            "Non-sellable Item",
+            "minecraft:stone",
+            10,
+            -1,
+            null,
+            null,
+            null
+        );
+
+        var ex = assertThrows(
+            IllegalStateException.class, () -> transaction.sellFromInventory(
+                nonSellableItem,
+                1
+            ));
+
+        assertEquals("Not sellable", ex.getMessage());
+        assertEquals(5, player.getInventory().count(item));
+    }
+
+    @Test
+    void sellFromItemStackThrowsErrorIfNotSellable() {
+        ItemStack cursor = new ItemStack(
+            Registries.ITEM.get(Identifier.of("minecraft:stone")),
+            5
+        );
+
+        var nonSellableItem = new ShopItem(
+            "Non-sellable Item",
+            "minecraft:stone",
+            10,
+            -1,
+            null,
+            null,
+            null
+        );
+
+        var shop = new Shop("Test Shop", List.of(
+            nonSellableItem
+        ), economy.currencyCreditsId);
+
+        var tx = new Transaction(player, shop);
+
+        var ex = assertThrows(
+            IllegalStateException.class, () -> tx.sellFromItemStack(
+                cursor,
+                1
+            ));
+
+        assertEquals("Not sellable", ex.getMessage());
+        assertEquals(5, cursor.getCount());
+    }
 }
 

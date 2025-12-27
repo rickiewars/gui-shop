@@ -22,6 +22,7 @@ public class Transaction {
 
     public void buyToInventory(ShopItem item, int amount) {
         if (amount <= 0) return;
+        if (item.buyItemPrice() < 0) throw new IllegalStateException("Not buyable");
 
         int bought = pay(item, amount);
         ItemStack stack = createStack(item);
@@ -31,6 +32,7 @@ public class Transaction {
 
     public ItemStack buyToItemStack(ShopItem item, ItemStack itemStack, int amount) {
         if (amount <= 0) return itemStack;
+        if (item.buyItemPrice() < 0) throw new IllegalStateException("Not buyable");
 
         ItemStack base = createStack(item);
         int existing = 0;
@@ -54,6 +56,7 @@ public class Transaction {
 
     public void sellFromInventory(ShopItem item, int amount) {
         if (amount <= 0) return;
+        if (item.sellItemPrice() < 0) throw new IllegalStateException("Not sellable");
 
         int removed = player.getInventory().remove(
             getItem(item),
@@ -68,6 +71,7 @@ public class Transaction {
 
         ShopItem shopItem = shop.findItem(itemStack);
         if (shopItem == null) return itemStack;
+        if (shopItem.sellItemPrice() < 0) throw new IllegalStateException("Not sellable");
 
         int toSell = Math.min(amount, itemStack.getCount());
         earn(shopItem, toSell);
@@ -77,8 +81,6 @@ public class Transaction {
     }
 
     private int pay(ShopItem item, int amount) {
-        if (item.buyItemPrice() < 0) throw new IllegalStateException("Not buyable");
-
         EconomyAccount acc = player.getAccount(shop.getCurrencyId(item));
         int canAfford = Math.min(
             (int) (acc.balance() / item.buyItemPrice()),
@@ -93,8 +95,6 @@ public class Transaction {
     }
 
     private void earn(ShopItem item, int amount) {
-        if (item.sellItemPrice() < 0) throw new IllegalStateException("Not sellable");
-
         EconomyAccount acc = player.getAccount(shop.getCurrencyId(item));
         acc.increaseBalance(item.sellItemPrice() * amount);
     }
