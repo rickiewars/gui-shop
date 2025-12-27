@@ -2,16 +2,16 @@ package rickiewars.guishop.api.gui.impl;
 
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.SimpleGui;
-import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import rickiewars.guishop.api.gui.Menu;
 import rickiewars.guishop.api.gui.MenuContext;
 import rickiewars.guishop.api.gui.MenuController;
 import rickiewars.guishop.api.gui.MenuSlot;
 
 public class MinecraftMenuController extends SimpleGui implements MenuController {
-    public MinecraftMenuController(ScreenHandlerType<?> type, ServerPlayerEntity player, boolean manipulatePlayerSlots) {
-        super(type, player, manipulatePlayerSlots);
+    public MinecraftMenuController(Menu menu, ServerPlayerEntity player, boolean manipulatePlayerSlots) {
+        super(menu.config().handlerType(), player, manipulatePlayerSlots);
     }
 
     @Override

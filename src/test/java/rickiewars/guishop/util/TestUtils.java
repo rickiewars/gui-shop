@@ -11,7 +11,6 @@ import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.database.DatabaseManager;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyProvider;
-import rickiewars.guishop.api.gui.MenuConfig;
 import rickiewars.guishop.api.minecraft.impl.TestServer;
 import rickiewars.guishop.config.EconomyConfig;
 import rickiewars.guishop.shop.Shop;
@@ -56,21 +55,6 @@ public class TestUtils {
             ));
         }
         return new Shop("Test Shop", shopItems, currencyId);
-    }
-
-    static public MenuConfig menuConfig(int rows, int cols) {
-        assert cols >= 5 : "MenuConfig requires at least 5 columns for control buttons";
-        final int LAST_DYNAMIC_SLOT = rows * cols - 1;
-        return new MenuConfig(
-            rows + 1,
-            cols,
-            LAST_DYNAMIC_SLOT + 1,
-            LAST_DYNAMIC_SLOT + 2,
-            LAST_DYNAMIC_SLOT + 3,
-            LAST_DYNAMIC_SLOT + 4,
-            LAST_DYNAMIC_SLOT + 5,
-            true
-        );
     }
 
     static public class EconomyDetails {

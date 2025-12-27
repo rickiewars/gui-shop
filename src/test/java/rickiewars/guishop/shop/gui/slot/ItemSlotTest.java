@@ -8,12 +8,11 @@ import net.minecraft.registry.Registries;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.EconomyTest;
-import rickiewars.guishop.api.gui.MenuConfig;
+import rickiewars.guishop.api.gui.MenuContext;
 import rickiewars.guishop.api.gui.impl.TestMenuController;
 import rickiewars.guishop.api.minecraft.impl.TestPlayer;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.gui.ShopMenu;
-import rickiewars.guishop.shop.gui.ShopMenuContext;
 import rickiewars.guishop.util.TestUtils;
 
 import java.util.List;
@@ -23,8 +22,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ItemSlotTest extends EconomyTest {
     TestMenuController controller;
-    MenuConfig menuConfig;
-    ShopMenuContext ctx;
+    MenuContext ctx;
+    ShopMenu menu;
     TestPlayer player;
     Item matchingItem;
     int matchingItemIndex = 0;
@@ -41,10 +40,9 @@ public class ItemSlotTest extends EconomyTest {
         player.addDefaultAccount(shop.getDefaultCurrencyId());
 
         controller = new TestMenuController();
-        menuConfig = TestUtils.menuConfig(1, 5);
-        ShopMenu menu = new ShopMenu(shop, player, menuConfig);
+        menu = new ShopMenu(shop, player);
 
-        ctx = new ShopMenuContext(controller, player, menu);
+        ctx = new MenuContext(controller, player, menu);
         ctx.open();
     }
 
@@ -371,30 +369,32 @@ public class ItemSlotTest extends EconomyTest {
 
         player.getAccount(economy.currencyCreditsId).setBalance(10000);
 
-        controller.clearSlot(menuConfig.balanceSlot());
-        assertNull(controller.slots.get(menuConfig.balanceSlot()));
+        var slotIndex = menu.config().indexOf(ShopMenu.SlotType.BALANCE).orElseThrow();
+
+        controller.clearSlot(slotIndex);
+        assertNull(controller.slots.get(slotIndex));
         controller.slots.get(matchingItemIndex).onClick(ctx, ClickType.MOUSE_RIGHT_SHIFT);
-        assertNotNull(controller.slots.get(menuConfig.balanceSlot()));
+        assertNotNull(controller.slots.get(slotIndex));
 
-        controller.clearSlot(menuConfig.balanceSlot());
-        assertNull(controller.slots.get(menuConfig.balanceSlot()));
+        controller.clearSlot(slotIndex);
+        assertNull(controller.slots.get(slotIndex));
         controller.slots.get(matchingItemIndex).onClick(ctx, ClickType.MOUSE_RIGHT);
-        assertNotNull(controller.slots.get(menuConfig.balanceSlot()));
+        assertNotNull(controller.slots.get(slotIndex));
 
-        controller.clearSlot(menuConfig.balanceSlot());
-        assertNull(controller.slots.get(menuConfig.balanceSlot()));
+        controller.clearSlot(slotIndex);
+        assertNull(controller.slots.get(slotIndex));
         controller.slots.get(matchingItemIndex).onClick(ctx, ClickType.MOUSE_LEFT_SHIFT);
-        assertNotNull(controller.slots.get(menuConfig.balanceSlot()));
+        assertNotNull(controller.slots.get(slotIndex));
 
-        controller.clearSlot(menuConfig.balanceSlot());
-        assertNull(controller.slots.get(menuConfig.balanceSlot()));
+        controller.clearSlot(slotIndex);
+        assertNull(controller.slots.get(slotIndex));
         controller.slots.get(matchingItemIndex).onClick(ctx, ClickType.MOUSE_LEFT);
-        assertNotNull(controller.slots.get(menuConfig.balanceSlot()));
+        assertNotNull(controller.slots.get(slotIndex));
 
-        controller.clearSlot(menuConfig.balanceSlot());
-        assertNull(controller.slots.get(menuConfig.balanceSlot()));
+        controller.clearSlot(slotIndex);
+        assertNull(controller.slots.get(slotIndex));
         controller.slots.get(matchingItemIndex).onClick(ctx, ClickType.MOUSE_MIDDLE);
-        assertNotNull(controller.slots.get(menuConfig.balanceSlot()));
+        assertNotNull(controller.slots.get(slotIndex));
     }
 
 }

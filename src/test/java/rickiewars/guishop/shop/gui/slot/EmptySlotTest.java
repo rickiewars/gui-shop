@@ -7,13 +7,12 @@ import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.EconomyTest;
-import rickiewars.guishop.api.gui.MenuConfig;
+import rickiewars.guishop.api.gui.MenuContext;
 import rickiewars.guishop.api.gui.impl.TestMenuController;
 import rickiewars.guishop.api.minecraft.impl.TestPlayer;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
 import rickiewars.guishop.shop.gui.ShopMenu;
-import rickiewars.guishop.shop.gui.ShopMenuContext;
 import rickiewars.guishop.util.TestUtils;
 
 import java.util.UUID;
@@ -29,10 +28,9 @@ public class EmptySlotTest extends EconomyTest {
         player.addDefaultAccount(shop.getDefaultCurrencyId());
 
         TestMenuController controller = new TestMenuController();
-        MenuConfig menuConfig = TestUtils.menuConfig(1, 5);
-        ShopMenu menu = new ShopMenu(shop, player, menuConfig);
+        ShopMenu menu = new ShopMenu(shop, player);
 
-        ShopMenuContext ctx = new ShopMenuContext(controller, player, menu);
+        MenuContext ctx = new MenuContext(controller, player, menu);
         ctx.open();
 
         ShopItem shopItem = shop.getItems().getFirst();
@@ -55,10 +53,9 @@ public class EmptySlotTest extends EconomyTest {
         player.addDefaultAccount(shop.getDefaultCurrencyId());
 
         TestMenuController controller = new TestMenuController();
-        MenuConfig menuConfig = TestUtils.menuConfig(1, 5);
-        ShopMenu menu = new ShopMenu(shop, player, menuConfig);
+        ShopMenu menu = new ShopMenu(shop, player);
 
-        ShopMenuContext ctx = new ShopMenuContext(controller, player, menu);
+        MenuContext ctx = new MenuContext(controller, player, menu);
         ctx.open();
 
         ShopItem shopItem = shop.getItems().getFirst();
@@ -81,26 +78,27 @@ public class EmptySlotTest extends EconomyTest {
         player.addDefaultAccount(shop.getDefaultCurrencyId());
 
         TestMenuController controller = new TestMenuController();
-        MenuConfig menuConfig = TestUtils.menuConfig(1, 5);
-        ShopMenu menu = new ShopMenu(shop, player, menuConfig);
+        ShopMenu menu = new ShopMenu(shop, player);
 
-        ShopMenuContext ctx = new ShopMenuContext(controller, player, menu);
+        MenuContext ctx = new MenuContext(controller, player, menu);
         ctx.open();
 
         ShopItem shopItem = shop.getItems().getFirst();
         Item item = Registries.ITEM.get(Identifier.of(shopItem.itemId()));
         player.setCursorStack(new ItemStack(item, 10));
 
-        controller.clearSlot(menuConfig.balanceSlot());
-        assertNull(controller.slots.get(menuConfig.balanceSlot()));
+        var balanceSlot = menu.config().indexOf(ShopMenu.SlotType.BALANCE).orElseThrow();
+
+        controller.clearSlot(balanceSlot);
+        assertNull(controller.slots.get(balanceSlot));
 
         controller.slots.get(1).onClick(ctx, ClickType.MOUSE_RIGHT);
-        assertNotNull(controller.slots.get(menuConfig.balanceSlot()));
+        assertNotNull(controller.slots.get(balanceSlot));
 
-        controller.clearSlot(menuConfig.balanceSlot());
-        assertNull(controller.slots.get(menuConfig.balanceSlot()));
+        controller.clearSlot(balanceSlot);
+        assertNull(controller.slots.get(balanceSlot));
 
         controller.slots.get(1).onClick(ctx, ClickType.MOUSE_LEFT);
-        assertNotNull(controller.slots.get(menuConfig.balanceSlot()));
+        assertNotNull(controller.slots.get(balanceSlot));
     }
 }

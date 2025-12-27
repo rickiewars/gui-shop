@@ -2,9 +2,16 @@ package rickiewars.guishop.api.gui;
 
 import net.minecraft.text.Text;
 
+import java.util.List;
+import java.util.Map;
+
 public interface Menu {
     Text title();
-    MenuPage getPage(int page);
+    List<MenuSlot> getPageContent(int page);
     int getPageCount();
-    MenuConfig config();
+
+    Map<Integer, MenuSlot> getFixedSlots(int page);
+
+    MenuConfig<?> config();
+    MenuSlot emptySlot();
 }

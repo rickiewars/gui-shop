@@ -43,7 +43,7 @@ public class EmptySlot implements MenuSlot {
                 );
                 ctx.player().setCursorStack(result);
 
-                ctx.refreshBalance();
+                ctx.partialRefresh();
             }
         } catch (IllegalStateException e) {
             ctx.player().sendMessage(

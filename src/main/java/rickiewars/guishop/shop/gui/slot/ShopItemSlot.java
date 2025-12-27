@@ -88,7 +88,7 @@ public class ShopItemSlot implements MenuSlot {
                     );
                 }
             }
-            ctx.refreshBalance();
+            ctx.partialRefresh();
 
         } catch (IllegalStateException e) {
             ctx.player().sendMessage(
