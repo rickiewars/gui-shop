@@ -19,7 +19,8 @@ import java.util.Map;
 public class ShopMenu implements Menu {
     private final Shop shop;
     private final IPlayer player;
-    private final MenuConfig<SlotType> config;
+
+    private static final MenuConfig<SlotType> config = buildConfig();
 
     public enum SlotType {
         BALANCE,
@@ -33,7 +34,6 @@ public class ShopMenu implements Menu {
     public ShopMenu(Shop shop, IPlayer player) {
         this.shop = shop;
         this.player = player;
-        this.config = buildConfig();
     }
 
     @Override
