@@ -86,42 +86,31 @@ public class ConfigManager {
 
     /**
      * Load the configuration data from guishop.json
-     * @return true if successful, false otherwise
      */
-    public static boolean loadConfig(){
-        boolean success;
+    public static void loadConfig() throws IOException {
         boolean configUpdated = false;
-        try {
-            File configDir = Paths.get("", "config").toFile();
-            File configFile = new File(configDir, Config.FILE_NAME);
 
-            GUIShop.LOGGER.info("Loading config");
-            Config config = getConfigData(configFile);
-            GUIShop.LOGGER.info("Config loaded");
+        File configDir = Paths.get("", "config").toFile();
+        File configFile = new File(configDir, Config.FILE_NAME);
 
+        GUIShop.LOGGER.info("Loading config");
+        Config config = getConfigData(configFile);
+        GUIShop.LOGGER.info("Config loaded");
 
-            if (!config.economyProvidersConfigured()) {
-                configUpdated = true;
-                GUIShop.LOGGER.info(
-                        "No economy providers have been configured. Adding the built-in economy provider."
-                );
-                config.configureDefaultEconomyProvider();
-            }
-
-            GUIShop.config = config;
-
-            if (configUpdated) {
-                ShopFileHandler fileHandler = new ShopFileHandler();
-                fileHandler.saveToFile();
-            }
-
-            success = true;
-
-        } catch (IOException e){
-            success = false;
+        if (!config.economyProvidersConfigured()) {
+            configUpdated = true;
+            GUIShop.LOGGER.info(
+                    "No economy providers have been configured. Adding the built-in economy provider."
+            );
+            config.configureDefaultEconomyProvider();
         }
 
-        return success;
+        GUIShop.config = config;
+
+        if (configUpdated) {
+            ShopFileHandler fileHandler = new ShopFileHandler();
+            fileHandler.saveToFile();
+        }
     }
 
     /**

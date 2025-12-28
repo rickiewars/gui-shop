@@ -46,8 +46,11 @@ public class GUIShop implements ModInitializer {
 	}
 
 	private static void loadConfig() {
-		if(!ConfigManager.loadConfig())
-			throw new RuntimeException("Could not load config");
+		try {
+			ConfigManager.loadConfig();
+		} catch (IOException e) {
+			throw new RuntimeException("Could not load config file", e);
+		}
 	}
 
 	private static void loadEconomyConfig() {

@@ -19,11 +19,10 @@ import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 import rickiewars.guishop.command.GuiShopPermission;
 import rickiewars.guishop.command.suggestions.CurrencySuggestionProvider;
 import rickiewars.guishop.command.suggestions.ShopNameSuggestionProvider;
+import rickiewars.guishop.errors.CommandErrors;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
 import rickiewars.guishop.util.CommonMethods;
-
-import java.util.Objects;
 
 public class GUIShopAddHeldItemCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
@@ -43,6 +42,9 @@ public class GUIShopAddHeldItemCommand {
     }
 
     public static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        var player = context.getSource().getPlayer();
+        if (player == null) throw CommandErrors.NEED_PLAYER.create();
+
         String shopName = StringArgumentType.getString(context, "shopName");
         String itemName = StringArgumentType.getString(context, "itemName");
         long buyItemPrice = LongArgumentType.getLong(context, "buyItemPrice");
@@ -53,29 +55,14 @@ public class GUIShopAddHeldItemCommand {
             currency = IdentifierArgumentType.getIdentifier(context, "currency");
         } catch (IllegalArgumentException ignored) {}
 
-
         Shop foundShop = CommonMethods.getShopByName(shopName);
-        if (foundShop == null) {
-            context.getSource().sendFeedback(() -> Text.literal(String.format("Shop %s not found", shopName)).formatted(Formatting.RED), false);
-            return -1;
-        }
+        if (foundShop == null) throw CommandErrors.SHOP_NOT_FOUND.create(shopName);
 
-        ItemStack heldItem;
-        try {
-            heldItem = Objects.requireNonNull(context.getSource().getPlayer()).getMainHandStack();
-        } catch (NullPointerException npe) {
-            context.getSource().sendFeedback(() -> Text.literal("You must can only run this command as a player").formatted(Formatting.RED), false);
-            return -1;
-        }
-        if (heldItem.isEmpty()) {
-            context.getSource().sendFeedback(() -> Text.literal("You must be holding an item to add it to the shop").formatted(Formatting.RED), false);
-            return -1;
-        }
+        ItemStack heldItem = player.getMainHandStack();
+        if (heldItem.isEmpty()) throw CommandErrors.HAND_EMPTY.create();
 
         String itemId = Registries.ITEM.getId(heldItem.getItem()).toString();
-
         ComponentChanges heldItemComponentChanges = heldItem.getComponentChanges();
-
         foundShop.getItems().add(new ShopItem(
                 itemName,
                 itemId,
@@ -86,7 +73,6 @@ public class GUIShopAddHeldItemCommand {
                 heldItemComponentChanges
         ));
         context.getSource().sendFeedback(() -> Text.literal("Item successfully added").formatted(Formatting.GREEN), false);
-
         return 0;
     }
 }

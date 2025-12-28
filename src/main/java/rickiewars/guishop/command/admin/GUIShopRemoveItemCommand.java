@@ -3,6 +3,7 @@ package rickiewars.guishop.command.admin;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -10,8 +11,8 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import rickiewars.guishop.command.GuiShopPermission;
 import rickiewars.guishop.command.suggestions.ShopNameSuggestionProvider;
+import rickiewars.guishop.errors.CommandErrors;
 import rickiewars.guishop.shop.Shop;
-import rickiewars.guishop.shop.ShopItem;
 import rickiewars.guishop.util.CommonMethods;
 
 public class GUIShopRemoveItemCommand {
@@ -25,31 +26,22 @@ public class GUIShopRemoveItemCommand {
                         .executes(GUIShopRemoveItemCommand::run)))));
     }
 
-    public static int run(CommandContext<ServerCommandSource> context){
+    public static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         String shopName = StringArgumentType.getString(context, "shopName");
         String itemName = StringArgumentType.getString(context, "itemName");
-        ShopItem foundItem = null;
 
         Shop foundShop = CommonMethods.getShopByName(shopName);
+        if (foundShop == null) throw CommandErrors.SHOP_NOT_FOUND.create(shopName);
 
-        if(foundShop != null){
-            for(ShopItem item: foundShop.getItems()){
-                if(item.itemName().equals(itemName)){
-                    foundItem = item;
-                    break;
-                }
-            }
+        var item = foundShop.getItems().stream().filter(
+            i -> i.itemName().equals(itemName)
+        ).findFirst();
+        if (item.isEmpty()) throw CommandErrors.ITEM_NOT_FOUND.create(itemName);
 
-            if(foundItem != null){
-                foundShop.getItems().remove(foundItem);
-                context.getSource().sendFeedback(()-> Text.literal("Item successfully removed").formatted(Formatting.GREEN), false);
-            } else
-                context.getSource().sendFeedback(()-> Text.literal("Item not found").formatted(Formatting.RED), false);
-
-        } else
-            context.getSource().sendFeedback(()-> Text.literal("Shop not found").formatted(Formatting.RED), false);
-
-
+        foundShop.getItems().remove(item.get());
+        context.getSource().sendFeedback(()-> Text.literal(
+            "Item successfully removed"
+        ).formatted(Formatting.GREEN), false);
         return 0;
     }
 }

@@ -21,7 +21,7 @@ public class CurrencySuggestionProvider  implements SuggestionProvider<ServerCom
                     || currency.id().getPath().toLowerCase().startsWith(input)
                     || currency.name().getString().toLowerCase().startsWith(input)
             ){
-                builder.suggest(currency.id().toString());
+                builder.suggest(currency.id().toString(), currency.name());
             }
         });
         return builder.buildFuture();

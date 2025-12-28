@@ -132,4 +132,7 @@ public class CommonMethods {
         return stack;
     }
 
+    public static void getCurrency() {
+
+    }
 }

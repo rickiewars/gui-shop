@@ -3,13 +3,12 @@ package rickiewars.guishop.command.economy;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.tree.LiteralCommandNode;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import eu.pb4.common.economy.api.CommonEconomy;
 import eu.pb4.common.economy.api.EconomyAccount;
 import eu.pb4.common.economy.api.EconomyCurrency;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.IdentifierArgumentType;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -22,6 +21,7 @@ import rickiewars.guishop.command.economy.subcommands.GUIShopBalanceRemoveComman
 import rickiewars.guishop.command.economy.subcommands.GUIShopBalanceSendCommand;
 import rickiewars.guishop.command.economy.subcommands.GuiShopBalanceCommands;
 import rickiewars.guishop.command.suggestions.CurrencySuggestionProvider;
+import rickiewars.guishop.errors.CommandErrors;
 
 import java.util.Collection;
 
@@ -44,7 +44,7 @@ public class GUIShopBalanceCommand extends GuiShopBalanceCommands {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
         if (!GUIShop.economyConfig.economyCommandsEnabled()) return;
 
-        LiteralCommandNode<ServerCommandSource> guishopNode = dispatcher.register(
+        dispatcher.register(
             CommandManager.literal("guishop").then(getBalanceNode("balance"))
         );
 
@@ -57,18 +57,13 @@ public class GUIShopBalanceCommand extends GuiShopBalanceCommands {
         }
     }
 
-    private static int showAllBalances(CommandContext<ServerCommandSource> context) {
-        if (! (context.getSource().getEntity() instanceof PlayerEntity)) {
-            context.getSource().sendFeedback(() -> Text.literal("You must be a player to run this command").formatted(Formatting.RED), false);
-            return -1;
-        }
-        ServerPlayerEntity player = (ServerPlayerEntity) context.getSource().getEntity();
+    private static int showAllBalances(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        ServerPlayerEntity player = context.getSource().getPlayer();
+        if (player == null) throw CommandErrors.NEED_PLAYER.create();
 
         Collection<EconomyCurrency> currencies = CommonEconomy.getCurrencies(context.getSource().getServer());
-        if (currencies.isEmpty()) {
-            context.getSource().sendFeedback(() -> Text.literal("No currencies found").formatted(Formatting.RED), false);
-            return -1;
-        }
+        if (currencies.isEmpty()) throw CommandErrors.NO_CURRENCIES.create();
+
         currencies.forEach(currency -> {
             EconomyAccount account = currency.provider().getDefaultAccount(player, currency);
             if (account == null) return;
@@ -82,24 +77,14 @@ public class GUIShopBalanceCommand extends GuiShopBalanceCommands {
         return 0;
     }
 
-    private static int run(CommandContext<ServerCommandSource> context) {
-        if (! (context.getSource().getEntity() instanceof PlayerEntity)) {
-            context.getSource().sendFeedback(() -> Text.literal("You must be a player to run this command").formatted(Formatting.RED), false);
-            return -1;
-        }
-        ServerPlayerEntity player = (ServerPlayerEntity) context.getSource().getEntity();
-        EconomyCurrency currency = getCurrency(context);
-        if (currency == null) {
-            context.getSource().sendFeedback(() -> Text.literal("Currency not found").formatted(Formatting.RED), false);
-            return -1;
-        }
+    private static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        ServerPlayerEntity player = context.getSource().getPlayer();
+        if (player == null) throw CommandErrors.NEED_PLAYER.create();
 
+        EconomyCurrency currency = GuiShopBalanceCommands.getCurrency(context);
         // TODO: Maybe in future allow for multiple accounts per currency. A lot of the groundwork is already done.
         EconomyAccount account = currency.provider().getDefaultAccount(player, currency);
-        if (account == null) {
-            context.getSource().sendFeedback(() -> Text.literal("Account not found").formatted(Formatting.RED), false);
-            return -1;
-        }
+        if (account == null) throw CommandErrors.ACCOUNT_NOT_FOUND.create(player.getName());
 
         context.getSource().sendFeedback(() -> Text.literal(String.format(
             "Balance for %s: %s",

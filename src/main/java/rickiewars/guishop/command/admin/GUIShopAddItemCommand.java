@@ -7,7 +7,6 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.IdentifierArgumentType;
-import net.minecraft.command.argument.ItemStackArgument;
 import net.minecraft.command.argument.ItemStackArgumentType;
 import net.minecraft.component.ComponentChanges;
 import net.minecraft.registry.Registries;
@@ -20,6 +19,7 @@ import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 import rickiewars.guishop.command.GuiShopPermission;
 import rickiewars.guishop.command.suggestions.CurrencySuggestionProvider;
 import rickiewars.guishop.command.suggestions.ShopNameSuggestionProvider;
+import rickiewars.guishop.errors.CommandErrors;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
 import rickiewars.guishop.util.CommonMethods;
@@ -43,10 +43,12 @@ public class GUIShopAddItemCommand {
                                         )))))))));
     }
 
-    public static int run(CommandContext<ServerCommandSource> context) {
+    public static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        var itemStackArgument = ItemStackArgumentType.getItemStackArgument(context, "item");
+        var itemStack = itemStackArgument.createStack(1, false);
+
         String shopName = StringArgumentType.getString(context, "shopName");
         String itemName = StringArgumentType.getString(context, "itemName");
-        ItemStackArgument itemStackArgument = ItemStackArgumentType.getItemStackArgument(context, "item");
         long buyItemPrice = LongArgumentType.getLong(context, "buyItemPrice");
         long sellItemPrice = LongArgumentType.getLong(context, "sellItemPrice");
 
@@ -61,21 +63,11 @@ public class GUIShopAddItemCommand {
         } catch (IllegalArgumentException ignored) {}
 
         Shop foundShop = CommonMethods.getShopByName(shopName);
-        if (foundShop == null) {
-            context.getSource().sendFeedback(() -> Text.literal(String.format("Shop %s not found", shopName)).formatted(Formatting.RED), false);
-            return -1;
-        }
+        if (foundShop == null) throw CommandErrors.SHOP_NOT_FOUND.create(shopName);
 
-        String registryItemId = Registries.ITEM.getId(itemStackArgument.getItem()).toString();
-
+        String registryItemId = Registries.ITEM.getId(itemStack.getItem()).toString();
         String[] description = descriptionLine.split("\\\\");
-
-        ComponentChanges componentChanges;
-        try {
-            componentChanges = itemStackArgument.createStack(1, false).getComponentChanges();
-        } catch (CommandSyntaxException e) {
-            throw new RuntimeException("Error getting component changes from item", e);
-        }
+        ComponentChanges componentChanges = itemStack.getComponentChanges();
 
         foundShop.getItems().add(new ShopItem(itemName, registryItemId, buyItemPrice, sellItemPrice, currency, description, componentChanges));
         context.getSource().sendFeedback(() -> Text.literal("Item successfully added").formatted(Formatting.GREEN), false);

@@ -3,6 +3,7 @@ package rickiewars.guishop.command.player;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -16,6 +17,7 @@ import rickiewars.guishop.api.gui.MenuController;
 import rickiewars.guishop.api.gui.impl.MinecraftMenuController;
 import rickiewars.guishop.api.minecraft.impl.MinecraftPlayer;
 import rickiewars.guishop.command.GuiShopPermission;
+import rickiewars.guishop.errors.CommandErrors;
 import rickiewars.guishop.shop.gui.SelectShopMenu;
 
 import java.net.URI;
@@ -85,7 +87,7 @@ public class GUIShopMainCommand {
         return 0;
     }
 
-    public static int run(CommandContext<ServerCommandSource> context){
+    public static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         var player = context.getSource().getPlayer();
         if (player == null) return runHelp(context);
 
@@ -93,15 +95,7 @@ public class GUIShopMainCommand {
             (shop) -> !shop.getItems().isEmpty()
         ).toList();
 
-        if (shops.isEmpty()) {
-            context.getSource().sendFeedback(
-                () -> Text.literal(
-                    "There are no shops available at the moment. Please contact an administrator."
-                ).formatted(Formatting.RED),
-                false
-            );
-            return -1;
-        }
+        if (shops.isEmpty()) throw CommandErrors.NO_SHOPS_AVAILABLE.create();
 
         Menu menu = new SelectShopMenu(shops, new MinecraftPlayer(player));
         MenuController controller = new MinecraftMenuController(player);

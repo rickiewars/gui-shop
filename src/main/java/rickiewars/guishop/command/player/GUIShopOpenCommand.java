@@ -9,15 +9,16 @@ import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import rickiewars.guishop.api.gui.impl.MinecraftMenuController;
 import rickiewars.guishop.api.minecraft.impl.MinecraftPlayer;
 import rickiewars.guishop.command.GuiShopPermission;
 import rickiewars.guishop.command.suggestions.ShopNameSuggestionProvider;
+import rickiewars.guishop.errors.CommandErrors;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.gui.ShopMenu;
 import rickiewars.guishop.util.CommonMethods;
+
+import java.util.Optional;
 
 public class GUIShopOpenCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment){
@@ -35,33 +36,23 @@ public class GUIShopOpenCommand {
     public static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         String shopName = StringArgumentType.getString(context, "shopName");
         Shop selectedShop = CommonMethods.getShopByName(shopName);
+        ServerPlayerEntity player = getPlayer(context)
+            .orElse(context.getSource().getPlayer());
 
-        if(selectedShop != null){
-            if(!selectedShop.getItems().isEmpty()){
-                ServerPlayerEntity player;
-                try {
-                    player = EntityArgumentType.getPlayer(context, "playerName");
-                } catch (Exception _e) {
-                    player = context.getSource().getPlayer();
-                }
+        if (player == null) throw CommandErrors.NEED_PLAYER.create();
+        if(selectedShop == null) throw CommandErrors.SHOP_NOT_FOUND.create(shopName);
+        if(selectedShop.getItems().isEmpty()) throw CommandErrors.SHOP_NOT_AVAILABLE.create(shopName);
 
-                if (player == null) {
-                    context.getSource().sendFeedback(() -> Text.literal(
-                        "If the command is run from the console, you must specify a player!"
-                    ).formatted(Formatting.RED), false);
-                    return -1;
-                }
+        var menu = new ShopMenu(selectedShop, new MinecraftPlayer(player));
+        var controller = new MinecraftMenuController(player);
+        return controller.open(menu) ? 0 : -1;
+    }
 
-                var menu = new ShopMenu(selectedShop, new MinecraftPlayer(player));
-                var controller = new MinecraftMenuController(player);
-                return controller.open(menu) ? 0 : -1;
-            }else{
-                context.getSource().sendFeedback(()->Text.literal("The shop does not contain any items").formatted(Formatting.RED), false);
-                return -1;
-            }
-
-        }else
-            context.getSource().sendFeedback(()-> Text.literal("Shop not found").formatted(Formatting.RED), false);
-        return 0;
+    private static Optional<ServerPlayerEntity> getPlayer(CommandContext<ServerCommandSource> context) {
+        try {
+            return Optional.ofNullable(EntityArgumentType.getPlayer(context, "playerName"));
+        } catch (IllegalArgumentException | CommandSyntaxException e) {
+            return Optional.empty();
+        }
     }
 }

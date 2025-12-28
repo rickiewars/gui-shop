@@ -5,6 +5,7 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.text.Text;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.util.CommonMethods;
 
@@ -18,7 +19,9 @@ public class ShopNameSuggestionProvider implements SuggestionProvider<ServerComm
         List<Shop> shops = CommonMethods.getAllShops();
         for (Shop shop : shops) {
             if (shop.getName().toLowerCase().startsWith(input)) {
-                builder.suggest(shop.getName());
+                builder.suggest(shop.getName(), Text.of(
+                    shop.getItems().size() + " items (" + shop.getDefaultCurrencyId() + ")"
+                ));
             }
         }
         return builder.buildFuture();

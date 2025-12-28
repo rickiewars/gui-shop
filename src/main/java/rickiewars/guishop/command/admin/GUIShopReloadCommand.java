@@ -7,8 +7,11 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.command.GuiShopPermission;
 import rickiewars.guishop.config.ConfigManager;
+
+import java.io.IOException;
 
 public class GUIShopReloadCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment){
@@ -19,10 +22,12 @@ public class GUIShopReloadCommand {
     }
 
     public static int run(CommandContext<ServerCommandSource> context){
-        if (ConfigManager.loadConfig()) {
-            context.getSource().sendFeedback(() -> Text.literal("Reloaded config!").formatted(Formatting.GREEN), false);
-        } else {
+        try {
+            ConfigManager.loadConfig();
+        } catch (IOException e) {
             context.getSource().sendError(Text.literal("Error accrued while reloading config!").formatted(Formatting.RED));
+            GUIShop.LOGGER.error("Could not load config file", e);
+            return -1;
         }
 
         return 0;
