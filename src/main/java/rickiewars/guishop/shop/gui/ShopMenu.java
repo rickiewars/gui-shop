@@ -98,7 +98,7 @@ public class ShopMenu implements Menu {
     }
 
     private MenuSlot balanceSlot(IPlayer player) {
-        return new BalanceSlot(player, shop.getDefaultCurrencyId());
+        return new BalanceSlot(player, shop);
     }
 
     private MenuSlot previousPageSlot(int page) {

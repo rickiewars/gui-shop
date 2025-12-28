@@ -7,9 +7,11 @@ import rickiewars.guishop.EconomyTest;
 import rickiewars.guishop.api.gui.impl.TestMenuController;
 import rickiewars.guishop.api.minecraft.impl.TestPlayer;
 import rickiewars.guishop.shop.Shop;
+import rickiewars.guishop.shop.ShopItem;
 import rickiewars.guishop.shop.gui.ShopMenu;
 import rickiewars.guishop.util.TestUtils;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -111,7 +113,7 @@ public class FixedSlotTest extends EconomyTest {
     }
 
     @Test
-    void BalanceSlotRendersBalance() {
+    void BalanceSlotRendersDefaultCurrencyBalance() {
         TestPlayer player = new TestPlayer(UUID.randomUUID());
         Shop shop = TestUtils.testShop(economy.currencyCreditsId, 15);
         player.addDefaultAccount(shop.getDefaultCurrencyId());
@@ -123,14 +125,73 @@ public class FixedSlotTest extends EconomyTest {
         var balanceSlot = menu.config().indexOf(ShopMenu.SlotType.BALANCE).orElseThrow();
 
         assertEquals(
-            "Your balance: $0.00",
+            "Your balance",
             controller.slots.get(balanceSlot).name().getString()
         );
 
-        player.getAccount(economy.currencyCreditsId).setBalance(525);
+        assertEquals(1,controller.slots.get(balanceSlot).lore().size());
         assertEquals(
-            "Your balance: $5.25",
-            controller.slots.get(balanceSlot).name().getString()
+            "Credits: $0.00",
+            controller.slots.get(balanceSlot).lore().getFirst().getString()
+        );
+
+        player.getAccount(economy.currencyCreditsId).setBalance(525);
+        assertEquals(1,controller.slots.get(balanceSlot).lore().size());
+        assertEquals(
+            "Credits: $5.25",
+            controller.slots.get(balanceSlot).lore().getFirst().getString()
+        );
+    }
+
+    @Test
+    void BalanceSlotRendersBalancesFromOtherCurrenciesUsedInShop() {
+        TestPlayer player = new TestPlayer(UUID.randomUUID());
+
+        var currencyId1 = economy.currencyCreditsId;
+        var currencyId2 = economy.currencyCoinsId;
+
+        var shop = new Shop("Test shop", List.of(
+            new ShopItem(
+                "Item 1",
+                "minecraft:stone",
+                10,
+                10,
+                currencyId1,
+                new String[0],
+                null
+            ),
+            new ShopItem(
+                "Item 2",
+                "minecraft:stone",
+                10,
+                10,
+                currencyId2,
+                new String[0],
+                null
+            )
+        ), currencyId2);
+
+        player.addDefaultAccount(currencyId1);
+        player.addDefaultAccount(currencyId2);
+
+        TestMenuController controller = new TestMenuController(player);
+        ShopMenu menu = new ShopMenu(shop, player);
+        controller.open(menu);
+
+        var balanceSlot = menu.config().indexOf(ShopMenu.SlotType.BALANCE).orElseThrow();
+
+        player.getAccount(currencyId1).setBalance(525);
+        player.getAccount(currencyId2).setBalance(123);
+
+        assertEquals(2,controller.slots.get(balanceSlot).lore().size());
+
+        assertEquals(
+            "Coins: 123 Coins",
+            controller.slots.get(balanceSlot).lore().getFirst().getString()
+        );
+        assertEquals(
+            "Credits: $5.25",
+            controller.slots.get(balanceSlot).lore().getLast().getString()
         );
     }
 }

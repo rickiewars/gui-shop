@@ -46,6 +46,20 @@ public class Shop {
         return getDefaultCurrencyId();
     }
 
+    public List<Identifier> getAllCurrencyIds() {
+        var currencyIds = new LinkedList<Identifier>();
+        currencyIds.add(getDefaultCurrencyId());
+
+        for (ShopItem item : items) {
+            Identifier currencyId = getCurrencyId(item);
+            if (currencyId != defaultCurrencyId && !currencyIds.contains(currencyId)) {
+                currencyIds.add(currencyId);
+            }
+        }
+
+        return currencyIds;
+    }
+
     public Identifier getDefaultCurrencyId() {
         if (hasDefaultCurrency()) {
             return defaultCurrencyId;
