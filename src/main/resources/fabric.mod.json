@@ -5,8 +5,8 @@
 	"name": "GUI Shop",
 	"description": "A server side mod for admin GUI shops via command",
 	"authors": [
-		"UnsafeDodo",
-		"Rickiewars"
+		"Rickiewars",
+		"UnsafeDodo"
 	],
 	"contact": {
 		"homepage": "https://github.com/rickiewars/gui-shop",
