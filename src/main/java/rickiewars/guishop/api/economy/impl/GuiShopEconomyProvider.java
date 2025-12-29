@@ -41,7 +41,7 @@ public class GuiShopEconomyProvider implements EconomyProvider {
         return new GuiShopEconomyAccount(
                 Identifier.of(GuiShopEconomyProvider.ID, accountId),
                 GUIShop.economyConfig.economy.accounts.get(accountId),
-                gameProfile.getId()
+                gameProfile.id()
         );
     }
 
@@ -51,12 +51,11 @@ public class GuiShopEconomyProvider implements EconomyProvider {
         if (GUIShop.economyConfig.economy.accounts.isEmpty()) return Collections.emptySet();
 
         Collection<EconomyAccount> accounts = new ArrayList<>();
-        GUIShop.economyConfig.economy.accounts.forEach((accountId, accountDefinition) -> {
-            accounts.add(new GuiShopEconomyAccount(
+        GUIShop.economyConfig.economy.accounts.forEach(
+            (accountId, accountDefinition) -> accounts.add(new GuiShopEconomyAccount(
                 Identifier.of(GuiShopEconomyProvider.ID, accountId),
-                accountDefinition, gameProfile.getId()
-            ));
-        });
+                accountDefinition, gameProfile.id()
+            )));
 
         return accounts;
     }
@@ -78,12 +77,11 @@ public class GuiShopEconomyProvider implements EconomyProvider {
         if (GUIShop.economyConfig.economy.currencies.isEmpty()) return Collections.emptySet();
 
         Collection<EconomyCurrency> currencies = new ArrayList<>();
-        GUIShop.economyConfig.economy.currencies.forEach((currencyId, currencyDefinition) -> {
-            currencies.add(new GuiShopEconomyCurrency(
+        GUIShop.economyConfig.economy.currencies.forEach(
+            (currencyId, currencyDefinition) -> currencies.add(new GuiShopEconomyCurrency(
                 Identifier.of(GuiShopEconomyProvider.ID, currencyId),
                 currencyDefinition
-            ));
-        });
+            )));
 
         return currencies;
     }

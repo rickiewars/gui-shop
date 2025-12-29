@@ -67,7 +67,7 @@ public class MinecraftPlayer implements IPlayer {
 
     @Override
     public RegistryKey<World> getWorldId() {
-        return player.getWorld().getRegistryKey();
+        return player.getEntityWorld().getRegistryKey();
     }
 
     @Override

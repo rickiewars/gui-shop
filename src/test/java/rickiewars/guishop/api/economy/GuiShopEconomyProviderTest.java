@@ -147,7 +147,7 @@ public class GuiShopEconomyProviderTest extends MinecraftTest {
 
         assertNotNull(acc);
         assertEquals(Identifier.of(GuiShopEconomyProvider.ID, "wallet"), acc.id());
-        assertEquals(profile.getId(), acc.owner());
+        assertEquals(profile.id(), acc.owner());
 
         assertEquals(curId, acc.currency().id());
     }
