@@ -3,13 +3,13 @@
 	"id": "gui-shop",
 	"version": "${version}",
 	"name": "GUI Shop",
-	"description": "A server side mod for admin GUI shops via command",
+	"description": "A server side shop mod with a built in economy system.",
 	"authors": [
 		"Rickiewars",
 		"UnsafeDodo"
 	],
 	"contact": {
-		"homepage": "https://github.com/rickiewars/gui-shop",
+		"homepage": "https://modrinth.com/mod/rwc-gui-shop",
 		"sources": "https://github.com/rickiewars/gui-shop"
 	},
 	"license": "MIT",

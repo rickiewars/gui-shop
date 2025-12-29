@@ -25,7 +25,10 @@ public class EconomyUtils {
     }
 
     public static EconomyAccount getDefaultAccount(ServerPlayerEntity player, Identifier currencyId) {
-        EconomyCurrency currency = CommonEconomy.getCurrency(player.server, currencyId);
+        EconomyCurrency currency = CommonEconomy.getCurrency(
+            GUIShop.minecraftServer.getInstance(),
+            currencyId
+        );
         if (currency == null) {
             throw new NoSuchElementException(
                     "Could not find currency"

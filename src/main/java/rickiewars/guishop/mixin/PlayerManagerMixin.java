@@ -24,7 +24,9 @@ public class PlayerManagerMixin {
         String uuid = player.getUuid().toString();
         String name = player.getName().toString();
 
-        CommonEconomy.getCurrencies(player.server).forEach(currency -> {
+        CommonEconomy.getCurrencies(
+            GUIShop.minecraftServer.getInstance()
+        ).forEach(currency -> {
             dm.updateAccount(currency.id().toString(), uuid, name);
         });
     }
