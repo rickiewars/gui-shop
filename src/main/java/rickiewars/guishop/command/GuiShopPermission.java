@@ -6,8 +6,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Predicate;
 
-// TODO: Check if setting permission level to 0 interferes with permission mods or have any other side effects
-
 /**
  * Vanilla permission levels:
  * 0: Normal player
@@ -34,7 +32,8 @@ public enum GuiShopPermission {
     BALANCE("guishop.balance", 2),
     BALANCE_ADD("guishop.balance.add", 3),
     BALANCE_REMOVE("guishop.balance.remove", 3),
-    BALANCE_SEND("guishop.balance.send", 2);
+    BALANCE_SEND("guishop.balance.send", 2),
+    TEST("guishop.test", 3);
 
 
 
