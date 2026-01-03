@@ -69,7 +69,7 @@ public class GUIShopBalanceCommand extends GuiShopBalanceCommands {
             if (account == null) return;
             context.getSource().sendFeedback(() -> Text.literal(String.format(
                 "Balance for %s: %s",
-                currency.id(),
+                currency.name(),
                 currency.formatValue(account.balance(), false)
             )).formatted(Formatting.GREEN), false);
         });
@@ -88,7 +88,7 @@ public class GUIShopBalanceCommand extends GuiShopBalanceCommands {
 
         context.getSource().sendFeedback(() -> Text.literal(String.format(
             "Balance for %s: %s",
-            currency.id(),
+            currency.name(),
             currency.formatValue(account.balance(), false))
         ).formatted(Formatting.GREEN), false);
         return 0;
