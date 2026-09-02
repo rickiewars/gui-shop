@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import rickiewars.guishop.EconomyTest;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyAccount;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyProvider;
-import rickiewars.guishop.config.EconomyConfig;
+import rickiewars.guishop.config.GuiShopConfig;
 
 import java.util.UUID;
 
@@ -51,17 +51,17 @@ public class GuiShopEconomyAccountTest extends EconomyTest {
 
     @Test
     void accountIconReturnsDefinitionIcon() {
-        EconomyConfig.AccountDefinition config = economy.accounts.get(economy.accountCardId.getPath());
+        GuiShopConfig.AccountDefinition config = economy.accounts.get(economy.accountCardId.getPath());
         GuiShopEconomyAccount account = new GuiShopEconomyAccount(
             economy.accountCardId, config, UUID.randomUUID()
         );
-        assertEquals(config.icon, account.accountIcon());
+        assertEquals(config.icon, net.minecraft.registry.Registries.ITEM.getId(account.accountIcon().getItem()));
 
-        EconomyConfig.AccountDefinition config2 = economy.accounts.get(economy.accountPouchId.getPath());
+        GuiShopConfig.AccountDefinition config2 = economy.accounts.get(economy.accountPouchId.getPath());
         GuiShopEconomyAccount account2 = new GuiShopEconomyAccount(
             economy.accountPouchId, config2, UUID.randomUUID()
         );
-        assertEquals(config2.icon, account2.accountIcon());
+        assertEquals(config2.icon, net.minecraft.registry.Registries.ITEM.getId(account2.accountIcon().getItem()));
     }
 
     @Test
@@ -74,14 +74,14 @@ public class GuiShopEconomyAccountTest extends EconomyTest {
 
     @Test
     void currencyReturnsResolvedCurrency() {
-        EconomyConfig.CurrencyDefinition config = economy.currencies.get(economy.currencyCreditsId.getPath());
+        GuiShopConfig.CurrencyDefinition config = economy.currencies.get(economy.currencyCreditsId.getPath());
         GuiShopEconomyAccount account = new GuiShopEconomyAccount(
             economy.accountCardId, economy.accounts.get(economy.accountCardId.getPath()), UUID.randomUUID()
         );
         assertEquals(economy.currencyCreditsId, account.currency().id());
         assertEquals(Text.of(config.name), account.currency().name());
 
-        EconomyConfig.CurrencyDefinition config2 = economy.currencies.get(economy.currencyCoinsId.getPath());
+        GuiShopConfig.CurrencyDefinition config2 = economy.currencies.get(economy.currencyCoinsId.getPath());
         GuiShopEconomyAccount account2 = new GuiShopEconomyAccount(
             economy.accountPouchId, economy.accounts.get(economy.accountPouchId.getPath()), UUID.randomUUID()
         );

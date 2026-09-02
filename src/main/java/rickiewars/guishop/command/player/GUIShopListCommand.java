@@ -32,11 +32,11 @@ public class GUIShopListCommand {
     }
 
     public static int runAllShops(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        if(GUIShop.config.shops.isEmpty()) throw CommandErrors.NO_SHOPS_AVAILABLE.create();
+        if(GUIShop.shops.isEmpty()) throw CommandErrors.NO_SHOPS_AVAILABLE.create();
 
         StringBuilder msgBldr = new StringBuilder();
-        for(Shop shop: GUIShop.config.shops){
-            msgBldr.append(shop.getName());
+        for(Shop shop: GUIShop.shops){
+            msgBldr.append(shop.getDisplayName());
             if (shop.getItems().isEmpty()) {
                 msgBldr.append(" (Out of stock)");
             }
@@ -57,11 +57,11 @@ public class GUIShopListCommand {
         if (foundShop == null) throw CommandErrors.SHOP_NOT_FOUND.create(shopName);
 
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("\n").append(foundShop.getName()).append(" items list:\n\n");
+        stringBuilder.append("\n").append(foundShop.getDisplayName()).append(" items list:\n\n");
         for(ShopItem item: foundShop.getItems()){
-            stringBuilder.append("Item name: ").append(item.itemName()).append(", ")
-                .append("Buy price: ").append(item.formatCurrency(item.buyItemPrice())).append(", ")
-                .append("Sell price: ").append(item.formatCurrency(item.sellItemPrice())).append("\n\n");
+            stringBuilder.append("Item name: ").append(item.displayName()).append(", ")
+                .append("Buy price: ").append(item.formatCurrency(item.buyPrice())).append(", ")
+                .append("Sell price: ").append(item.formatCurrency(item.sellPrice())).append("\n\n");
         }
 
         String msg = StringUtils.chomp(stringBuilder.toString());

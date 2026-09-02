@@ -1,8 +1,8 @@
 package rickiewars.guishop.serializer;
 
 import com.google.gson.*;
-import rickiewars.guishop.config.EconomyConfig.DatabaseConfig;
-import rickiewars.guishop.config.EconomyConfig.DatabaseConfig.DatabaseType;
+import rickiewars.guishop.config.GuiShopConfig.DatabaseConfig;
+import rickiewars.guishop.config.GuiShopConfig.DatabaseConfig.DatabaseType;
 
 import java.lang.reflect.Type;
 

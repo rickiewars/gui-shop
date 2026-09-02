@@ -2,7 +2,7 @@ package rickiewars.guishop.api.database.impl;
 
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.database.DatabaseManager;
-import rickiewars.guishop.config.EconomyConfig;
+import rickiewars.guishop.config.GuiShopConfig;
 import rickiewars.guishop.util.CommonMethods;
 
 import java.io.File;
@@ -12,7 +12,7 @@ import java.util.*;
 public class SQLiteDatabaseManager implements DatabaseManager {
     private final String url;
 
-    public SQLiteDatabaseManager(EconomyConfig config) {
+    public SQLiteDatabaseManager(GuiShopConfig config) {
         if (config.database == null
             || config.database.fileLocation == null
             || config.database.fileLocation.isEmpty()
@@ -289,7 +289,7 @@ public class SQLiteDatabaseManager implements DatabaseManager {
     }
     private static void throwNotFoundError(String currency, String uuid) throws NoSuchElementException {
         throw new NoSuchElementException(
-                "Could not find account for " + CommonMethods.translatePlayer(UUID.fromString(uuid))
+                "Could not find account for " + CommonMethods.identifyPlayer(UUID.fromString(uuid))
                 + " using the currency " + currency
         );
     }

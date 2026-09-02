@@ -8,13 +8,12 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.IdentifierArgumentType;
 import net.minecraft.command.argument.ItemStackArgumentType;
-import net.minecraft.component.ComponentChanges;
-import net.minecraft.registry.Registries;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 import rickiewars.guishop.command.GuiShopPermission;
 import rickiewars.guishop.command.suggestions.CurrencySuggestionProvider;
@@ -23,6 +22,8 @@ import rickiewars.guishop.errors.CommandErrors;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
 import rickiewars.guishop.util.CommonMethods;
+
+import java.util.List;
 
 public class GUIShopAddItemCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment){
@@ -65,11 +66,10 @@ public class GUIShopAddItemCommand {
         Shop foundShop = CommonMethods.getShopByName(shopName);
         if (foundShop == null) throw CommandErrors.SHOP_NOT_FOUND.create(shopName);
 
-        String registryItemId = Registries.ITEM.getId(itemStack.getItem()).toString();
-        String[] description = descriptionLine.split("\\\\");
-        ComponentChanges componentChanges = itemStack.getComponentChanges();
+        List<String> description = List.of(descriptionLine.split("\\\\"));
 
-        foundShop.getItems().add(new ShopItem(itemName, registryItemId, buyItemPrice, sellItemPrice, currency, description, componentChanges));
+        foundShop.getItems().add(new ShopItem(itemName, itemStack.copyWithCount(1), buyItemPrice, sellItemPrice, currency, description));
+        GUIShop.shopStore.writeShop(foundShop);
         context.getSource().sendFeedback(() -> Text.literal("Item successfully added").formatted(Formatting.GREEN), false);
 
         return 0;

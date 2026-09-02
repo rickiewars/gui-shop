@@ -7,6 +7,7 @@ import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
+import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.minecraft.IPlayer;
 import rickiewars.guishop.api.minecraft.impl.MinecraftPlayer;
 import rickiewars.guishop.command.GuiShopPermission;
@@ -14,7 +15,6 @@ import rickiewars.guishop.economy.Transaction;
 import rickiewars.guishop.errors.CommandErrors;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
-import rickiewars.guishop.util.CommonMethods;
 
 public class SellCommand {
 	public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
@@ -35,9 +35,9 @@ public class SellCommand {
 
 		if (itemStack.isEmpty()) throw CommandErrors.HAND_EMPTY.create();
 
-		for (Shop shop : CommonMethods.getAllShops()) {
+		for (Shop shop : GUIShop.shops) {
 			for (ShopItem shopItem : shop.getItems()) {
-				if (shopItem.matches(itemStack) && shopItem.sellItemPrice() > 0) {
+				if (shopItem.resembles(itemStack) && shopItem.sellPrice() >= 0) {
 					Transaction tx = new Transaction(player, shop);
 					ItemStack returnedStack = tx.sellFromItemStack(itemStack, itemStack.getCount());
 					player.setMainHandStack(returnedStack);

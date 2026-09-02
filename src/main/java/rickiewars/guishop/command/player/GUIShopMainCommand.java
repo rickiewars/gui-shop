@@ -91,7 +91,7 @@ public class GUIShopMainCommand {
         var player = context.getSource().getPlayer();
         if (player == null) return runHelp(context);
 
-        var shops = GUIShop.config.shops.stream().filter(
+        var shops = GUIShop.shops.stream().filter(
             (shop) -> !shop.getItems().isEmpty()
         ).toList();
 

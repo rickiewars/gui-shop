@@ -1,34 +1,35 @@
 package rickiewars.guishop.serializer;
 
 import com.google.gson.*;
-import net.minecraft.item.ItemStack;
+import net.minecraft.registry.Registries;
+import net.minecraft.util.Identifier;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
-import rickiewars.guishop.config.EconomyConfig.CurrencyDefinition;
-import rickiewars.guishop.util.CommonMethods;
+import rickiewars.guishop.config.GuiShopConfig.CurrencyDefinition;
 
 import java.lang.reflect.Type;
 
 public class CurrencyDefinitionSerializer implements JsonSerializer<CurrencyDefinition>, JsonDeserializer<CurrencyDefinition> {
-    private static final String DEFAULT_ICON_ID = CommonMethods.getItemId(GuiShopEconomyCurrency.DEFAULT_ICON);
-
     @Override
     public CurrencyDefinition deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
         JsonObject currency = jsonElement.getAsJsonObject();
 
         String iconString = currency.has("icon")
                 ? currency.get("icon").getAsString()
-                : DEFAULT_ICON_ID;
+                : GuiShopEconomyCurrency.DEFAULT_ICON_ID.toString();
+
+        Identifier icon = Identifier.of(iconString);
+        if (!Registries.ITEM.containsId(icon)) {
+            GUIShop.LOGGER.warn("Invalid item id for currency icon: " + iconString);
+            icon = GuiShopEconomyCurrency.DEFAULT_ICON_ID;
+        }
 
         return new CurrencyDefinition(
                 currency.get("name").getAsString(),
                 currency.get("prefix").getAsString(),
                 currency.get("suffix").getAsString(),
                 currency.has("decimalPlaces") ? currency.get("decimalPlaces").getAsInt() : 2,
-                new ItemStack(CommonMethods.getOptionalItem(iconString).orElseGet(() -> {
-                    GUIShop.LOGGER.warn("Invalid item id for account icon: " + iconString);
-                    return GuiShopEconomyCurrency.DEFAULT_ICON;
-                }))
+                icon
         );
     }
 
@@ -39,7 +40,7 @@ public class CurrencyDefinitionSerializer implements JsonSerializer<CurrencyDefi
         result.addProperty("prefix", currency.prefix);
         result.addProperty("suffix", currency.suffix);
         result.addProperty("decimalPlaces", currency.decimalPlaces);
-        result.addProperty("icon", CommonMethods.getItemId(currency.icon.getItem()));
+        result.addProperty("icon", currency.icon.toString());
 
         return result;
     }

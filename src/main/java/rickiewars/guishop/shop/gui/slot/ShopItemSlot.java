@@ -2,10 +2,8 @@ package rickiewars.guishop.shop.gui.slot;
 
 import eu.pb4.sgui.api.ClickType;
 import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
 import rickiewars.guishop.api.gui.MenuContext;
 import rickiewars.guishop.api.gui.MenuSlot;
 import rickiewars.guishop.economy.Transaction;
@@ -24,15 +22,11 @@ public class ShopItemSlot implements MenuSlot {
     }
 
     public ItemStack icon() {
-        ItemStack stack = new ItemStack(
-            Registries.ITEM.get(Identifier.of(item.itemId()))
-        );
-        stack.applyChanges(item.componentChanges());
-        return stack;
+        return item.stack().copy();
     }
 
     public Text name() {
-        return Text.literal(item.itemName());
+        return Text.literal(item.displayName());
     }
 
     public List<Text> lore() {
@@ -49,7 +43,7 @@ public class ShopItemSlot implements MenuSlot {
         ItemStack cursor = ctx.player().getCursorStack();
         boolean shift = click.shift;
         boolean hasCursor = !cursor.isEmpty();
-        boolean matches = hasCursor && item.matches(cursor);
+        boolean itemResemblesCursorItem = hasCursor && item.resembles(cursor);
 
         try {
             if (click.isMiddle) {
@@ -62,13 +56,13 @@ public class ShopItemSlot implements MenuSlot {
             }
             else if (click.isLeft) {
                 ItemStack result;
-                if (hasCursor && !matches) {
+                if (hasCursor && !itemResemblesCursorItem) {
                     // try selling entire cursor
                     result = tx.sellFromItemStack(cursor, cursor.getCount());
                 } else {
                     result = tx.buyToItemStack(
                         item,
-                        matches ? cursor : ItemStack.EMPTY,
+                        itemResemblesCursorItem ? cursor : ItemStack.EMPTY,
                         shift ? item.getMaxStackSize() : 1
                     );
                 }

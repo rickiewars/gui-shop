@@ -5,19 +5,21 @@ import eu.pb4.common.economy.api.EconomyProvider;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import rickiewars.guishop.config.EconomyConfig;
+import rickiewars.guishop.config.GuiShopConfig;
 import rickiewars.guishop.util.CommonMethods;
 
 public class GuiShopEconomyCurrency implements EconomyCurrency {
     public static Identifier DEFAULT_ID = Identifier.of(GuiShopEconomyProvider.ID, "credit");
     public static final Item DEFAULT_ICON = Items.DIAMOND;
+    public static final Identifier DEFAULT_ICON_ID = Registries.ITEM.getId(DEFAULT_ICON);
 
     private final Identifier id;
-    private final EconomyConfig.CurrencyDefinition currencyDefinition;
+    private final GuiShopConfig.CurrencyDefinition currencyDefinition;
 
-    public GuiShopEconomyCurrency(Identifier id, EconomyConfig.CurrencyDefinition currencyDefinition) {
+    public GuiShopEconomyCurrency(Identifier id, GuiShopConfig.CurrencyDefinition currencyDefinition) {
         this.id = id;
         this.currencyDefinition = currencyDefinition;
     }
@@ -86,6 +88,6 @@ public class GuiShopEconomyCurrency implements EconomyCurrency {
 
     @Override
     public ItemStack icon() {
-        return this.currencyDefinition.icon;
+        return new ItemStack(CommonMethods.getItem(this.currencyDefinition.icon.toString(), DEFAULT_ICON));
     }
 }

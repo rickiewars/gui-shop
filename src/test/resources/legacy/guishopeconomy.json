@@ -1,0 +1,41 @@
+{
+  "disabled": false,
+  "database": {
+    "type": "sqlite",
+    "fileLocation": "./world/guishop.sqlite"
+  },
+  "economy": {
+    "currencies": {
+      "coins": {
+        "name": "Coins",
+        "prefix": "",
+        "suffix": " coins",
+        "decimalPlaces": 0,
+        "icon": "minecraft:diamond"
+      },
+      "credit": {
+        "name": "Credits",
+        "prefix": "$",
+        "suffix": "",
+        "decimalPlaces": 2,
+        "icon": "minecraft:diamond"
+      }
+    },
+    "accounts": {
+      "pouch": {
+        "name": "Pouch",
+        "currency": "coins",
+        "icon": "minecraft:diamond"
+      },
+      "account": {
+        "name": "Account",
+        "currency": "credit",
+        "icon": "minecraft:diamond"
+      }
+    }
+  },
+  "command": {
+    "disabled": false,
+    "alias": "balance"
+  }
+}

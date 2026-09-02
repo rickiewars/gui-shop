@@ -11,7 +11,7 @@ import rickiewars.guishop.api.economy.impl.GuiShopEconomyAccount;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 import rickiewars.guishop.api.minecraft.IInventory;
 import rickiewars.guishop.api.minecraft.IPlayer;
-import rickiewars.guishop.config.EconomyConfig;
+import rickiewars.guishop.config.GuiShopConfig;
 
 import java.util.*;
 
@@ -35,10 +35,10 @@ public class TestPlayer implements IPlayer {
     public void addDefaultAccount(Identifier currencyId) {
         this.addAccount(currencyId, new GuiShopEconomyAccount(
             GuiShopEconomyAccount.DEFAULT_ID,
-            new EconomyConfig.AccountDefinition(
+            new GuiShopConfig.AccountDefinition(
                 currencyId.getPath(),
                 "account",
-                new ItemStack(GuiShopEconomyCurrency.DEFAULT_ICON)
+                GuiShopEconomyCurrency.DEFAULT_ICON_ID
             ),
             this.uuid
         ));

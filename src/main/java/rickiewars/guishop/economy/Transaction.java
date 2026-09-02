@@ -3,8 +3,8 @@ package rickiewars.guishop.economy;
 import eu.pb4.common.economy.api.EconomyAccount;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.Identifier;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import rickiewars.guishop.api.minecraft.IPlayer;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
@@ -22,7 +22,7 @@ public class Transaction {
 
     public void buyToInventory(ShopItem item, int amount) {
         if (amount <= 0) return;
-        if (item.buyItemPrice() < 0) throw new IllegalStateException("Not buyable");
+        if (item.buyPrice() < 0) throw new IllegalStateException("Not buyable");
 
         int bought = pay(item, amount);
         ItemStack stack = createStack(item);
@@ -32,12 +32,12 @@ public class Transaction {
 
     public ItemStack buyToItemStack(ShopItem item, ItemStack itemStack, int amount) {
         if (amount <= 0) return itemStack;
-        if (item.buyItemPrice() < 0) throw new IllegalStateException("Not buyable");
+        if (item.buyPrice() < 0) throw new IllegalStateException("Not buyable");
 
         ItemStack base = createStack(item);
         int existing = 0;
         if (!itemStack.isEmpty()) {
-            if (!item.matches(itemStack)) {
+            if (!item.resembles(itemStack)) {
                 throw new IllegalStateException("Stack does not match shop item");
             }
             existing = itemStack.getCount();
@@ -56,25 +56,27 @@ public class Transaction {
 
     public void sellFromInventory(ShopItem item, int amount) {
         if (amount <= 0) return;
-        if (item.sellItemPrice() < 0) throw new IllegalStateException("Not sellable");
+        if (item.sellPrice() < 0) throw new IllegalStateException("Not sellable");
 
         int removed = player.getInventory().remove(
             getItem(item),
             amount,
             item::matches
         );
-        if (removed > 0) earn(item, removed);
+        if (removed > 0) earn(item, item.sellPrice() * removed, false);
     }
 
     public ItemStack sellFromItemStack(ItemStack itemStack, int amount) {
         if (amount <= 0) return itemStack;
 
-        ShopItem shopItem = shop.findItem(itemStack);
+        ShopItem shopItem = shop.findHighestPayingItem(itemStack);
         if (shopItem == null) return itemStack;
-        if (shopItem.sellItemPrice() < 0) throw new IllegalStateException("Not sellable");
+        if (shopItem.sellPrice() < 0) throw new IllegalStateException("Not sellable");
 
         int toSell = Math.min(amount, itemStack.getCount());
-        earn(shopItem, toSell);
+        long payoutPerUnit = shop.getSellPricing().adjustedPayout(shopItem, itemStack);
+        boolean adjusted = payoutPerUnit != shopItem.sellPrice();
+        earn(shopItem, payoutPerUnit * toSell, adjusted);
 
         itemStack.setCount(itemStack.getCount() - toSell);
         return itemStack;
@@ -83,10 +85,10 @@ public class Transaction {
     private int pay(ShopItem item, int amount) {
         EconomyAccount acc = player.getAccount(shop.getCurrencyId(item));
         int canAfford = Math.min(
-            (int) (acc.balance() / item.buyItemPrice()),
+            (int) (acc.balance() / item.buyPrice()),
             amount
         );
-        long cost = item.buyItemPrice() * canAfford;
+        long cost = item.buyPrice() * canAfford;
 
         if (canAfford == 0 || acc.decreaseBalance(cost).isFailure()) {
             throw new IllegalStateException("Not enough money");
@@ -94,18 +96,21 @@ public class Transaction {
         return canAfford;
     }
 
-    private void earn(ShopItem item, int amount) {
+    private void earn(ShopItem item, long amount, boolean adjustedForCondition) {
         EconomyAccount acc = player.getAccount(shop.getCurrencyId(item));
-        acc.increaseBalance(item.sellItemPrice() * amount);
+        acc.increaseBalance(amount);
+
+        if (adjustedForCondition) {
+            player.sendMessage(Text.literal("Sold for " + item.formatCurrency(amount) + " (adjusted for condition)")
+                .formatted(Formatting.GRAY));
+        }
     }
 
     private ItemStack createStack(ShopItem item) {
-        ItemStack stack = new ItemStack(getItem(item));
-        if (item.hasComponentChanges()) stack.applyChanges(item.componentChanges());
-        return stack;
+        return item.stack().copy();
     }
 
     private Item getItem(ShopItem item) {
-        return Registries.ITEM.get(Identifier.of(item.itemId()));
+        return item.stack().getItem();
     }
 }

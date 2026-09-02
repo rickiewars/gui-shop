@@ -86,17 +86,33 @@ Open a shop and show it to a specific player: `/guishop open "Test shop" "Steve"
 You can also add items only to be bought or sold in a shop.
 Items with a buy price of -1 can only be sold and items with a sell price of -1 can only be bought.
 
-## Economy configuration
-Guishop has a built-in optional economy provider that can be configured in the `./config/guishopeconomy.json` file.
+## Configuration
 
+Everything GuiShop writes lives under `./config/gui-shop/`:
 
-### Economy provider configuration example
+```
+config/gui-shop/
+├── config.json              # economy, database, commands and sell pricing
+└── shops/
+    ├── spawn_shop.snbt      # one file per shop, named after the shop id
+    ├── farm_shop.snbt
+    └── backups/             # copies taken automatically before a shop is upgraded to a newer Minecraft version
+```
+
+Shops are no longer part of the main config file. Each shop is its own `.snbt` file, which is
+Minecraft's own item format, so item components survive a Minecraft update instead of having to be
+re-entered by hand.
+
+### Main configuration
+
+`./config/gui-shop/config.json`:
+
 ```json5
 {
-  "disabled": false,
+  "economyDisabled": false,
   "database": {
     "type": "sqlite",
-    "currency": "./config/guishop.sqlite"
+    "fileLocation": "./world/guishop.sqlite"
   },
   "economy": {
     "currencies": {
@@ -119,90 +135,164 @@ Guishop has a built-in optional economy provider that can be configured in the `
   "command": {
     "disabled": false,
     "alias": ""
-  }
-}
-```
-
-## Guishop configuration
-You can find the main config file in `./config/guishop.json`.
-
-In `economyProviders` you can specify the economy provider you want to use.
-This can be an external economy mod that uses the [Common Economy API](https://github.com/Patbox/common-economy-api)
-or the built-in economy provider configured in `guishopeconomy.json`.
-The object is a mapping usually `mod_id:currency_id` to a list of `account_id`'s.
-To use the build-in economy provider, prefix your configured currency with `guishop:`.
-
-In `shops` you can define your shops and their items.
-Both the items' names and descriptions support [Simplified Text Format](https://placeholders.pb4.eu/user/text-format/).
-You can both use the config file and in-game commands to add items to the shop.
-
-Just remember to:
-- reload the mod using `/guishop reload` after editing the config file,
-- save the in-game changes using `/guishop forcesave` to reflect them in the config file.
-- not to work in both the config file and in-game at the same time.
-  - If the in-game changes are saved, they will overwrite any changes made to the config file.
-  - If the config file is reloaded, it will overwrite any in-game changes.
-  - Be careful when making large-scale changes to the config file while the server is running
-    as the mod will automatically save in-game changes every 30 minutes.
-
-### JSON example
-```json5
-{
+  },
   "economyProviders": {
     "guishop:credit": [
       "account"
     ]
   },
-  "shops": [
+  "sellPricing": {
+    "firstUsePenalty": 0.15,
+    "minValueFraction": 0.05,
+    "damageCurveExponent": 3.0,
+    "repairCostPenaltyPerPoint": 0.02,
+    "customNamePenalty": 0.1,
+    "lorePenalty": 0.1
+  }
+}
+```
+
+`economyDisabled`, `database` and `economy` configure the **built-in** economy provider. Set
+`economyDisabled` to `true` if you only use another economy mod; the rest of that block is then
+ignored.
+
+`economyProviders` selects which economies the shops actually use. It maps `mod_id:currency_id` to a
+list of `account_id`s. That can be an external economy mod that uses the
+[Common Economy API](https://github.com/Patbox/common-economy-api), or the built-in provider, for
+the built-in one, prefix your configured currency with `guishop:`.
+
+`sellPricing` sets the server-wide defaults for what a used item is worth when a player sells it
+back. Any shop can override these individually, see below.
+
+### Sell pricing
+
+When a player sells an item back, GuiShop doesn't always pay the full `sellPrice`, it pays less if
+the item was damaged, repaired (which lowers max durability), renamed, or had its lore changed while
+the player owned it. This stops players from buying an item, using it for a while, and selling it
+back for the same price, and rewards selling items in near-mint condition.
+
+The payout is `sellPrice × multiplier`, where `multiplier` starts at `1.0` (full price) and gets
+multiplied down by each of these, in order:
+
+| Setting                      | What it controls                                                                                                                                     | Range     | Default |
+|-------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|---------|
+| `firstUsePenalty`             | Instant price drop the moment a tool/weapon/armor piece takes its very first point of damage, even a single hit.                                     | `0` - `1` | `0.15`  |
+| `damageCurveExponent`         | How the price keeps falling as the item wears down further. `1` = drops linearely. Below `1`, it drops fast at first then levels off once the item gets more damaged (like a new car losing value the moment you drive away from the dealership). Above `1`, it barely drops at first but falls off a cliff near the end of its durability. | `> 0`     | `3.0`   |
+| `repairCostPenaltyPerPoint`   | Extra price drop for every "repair cost" point an anvil repair or enchant has added while the player owned the item (anvils get pricier to use the more you use them).                                       | `0` - `1` | `0.02`  |
+| `customNamePenalty`           | Price drop if the player renamed the item (e.g. in an anvil).                                                                       | `0` - `1` | `0.10`  |
+| `lorePenalty`                 | Price drop if the player changed the item's lore text.                                                                              | `0` - `1` | `0.10`  |
+| `minValueFraction`            | Safety floor: no matter how worn, repaired, or renamed the item is, it will never sell for less than this fraction of `sellPrice`.                    | `0` - `1` | `0.05`  |
+
+Items that aren't damageable (blocks, food, etc.) always sell for full price unless they've been
+renamed or had their lore changed. `sellPrice: -1` (item can't be sold) and `sellPrice: 0` are
+unaffected by any of this, a `0` sell price always pays out `0`.
+
+Every shop entry can override any of these six settings just for that item, see
+[Shop files](#shop-files) below.
+
+<details>
+<summary>The math behind it</summary>
+
+An item that isn't sellable (`sellPrice: -1`) or whose `sellPrice` is `0` always pays out `0`.
+Otherwise:
+
+```
+adjustedPayout = max(round(sellPrice * multiplier), 1)
+multiplier     = max(damageMultiplier * repairMultiplier * nameMultiplier * loreMultiplier, minValueFraction)
+```
+
+`damageMultiplier` (`1.0` for non-damageable items, or if the item hasn't taken damage):
+
+```
+remainingDurabilityFraction = (maxDamage - damage) / maxDamage
+damageMultiplier = minValueFraction
+    + (1 - firstUsePenalty - minValueFraction) * remainingDurabilityFraction ^ damageCurveExponent
+```
+
+`repairMultiplier`:
+
+```
+delta = max(0, repairCost - originalRepairCost)
+repairMultiplier = max(minValueFraction, 1 - delta * repairCostPenaltyPerPoint)
+```
+
+`nameMultiplier` is `1 - customNamePenalty` if the item was renamed, else `1`.
+`loreMultiplier` is `1 - lorePenalty` if the item's lore was changed, else `1`.
+
+</details>
+
+### Shop files
+
+Each shop is one `.snbt` file in `./config/gui-shop/shops/`. The file name is the shop id; the
+`displayName` inside is what players see, so renaming a shop does not rename its file.
+
+```snbt
+{
+  DataVersion: 4671,
+  displayName: "Spawn Shop",
+  icon: "minecraft:chest",
+  defaultCurrency: "guishop:credit",
+  entries: [
     {
-      "shopName": "Shop number one",
-      "items": [
-        {
-          "name": "The boat",
-          "itemId": "minecraft:acacia_chest_boat",
-          "description": [
-            "This is a nice boat",
-            "Very beautiful"
-          ],
-          "buyPrice": 50,
-          "sellPrice": 25,
-          "currency": "guishop:credit",
-          "componentChanges": {}
-        },
-        {
-          "name": "Free BBQ Sword",
-          "itemId": "minecraft:diamond_sword",
-          "description": [],
-          "buyPrice": 0,
-          "sellPrice": -1,
-          "currency": "guishop:credit",
-          "components": {
-            "minecraft:enchantment_glint_override": true,
-            "minecraft:custom_name": "\"hello\""
-          }
-        },
-        {
-          "name": "Amethyst",
-          "itemId": "minecraft:large_amethyst_bud",
-          "description": [
-            "<red>Such a spectacular</red>",
-            "<purple>amethyst</purple>",
-            "<rainbow>SHINY</rainbow>"
-          ],
-          "buyPrice": 200,
-          "sellPrice": 100,
-          "currency": "guishop:credit",
-          "components": {}
-        }
-      ]
+      displayName: "The boat",
+      description: ["This is a nice boat", "Very beautiful"],
+      buyPrice: 50L,
+      sellPrice: 25L,
+      stack: {id: "minecraft:acacia_chest_boat"}
     },
     {
-      "shopName": "A second shop",
-      "items": []
+      displayName: "Free BBQ Sword",
+      buyPrice: 0L,
+      sellPrice: -1L,
+      currency: "guishop:credit",
+      stack: {
+        id: "minecraft:diamond_sword",
+        components: {
+          "minecraft:enchantments": {"minecraft:sharpness": 5},
+          "minecraft:custom_name": {text: "Hello", bold: true}
+        }
+      }
+    },
+    {
+      displayName: "Amethyst",
+      description: ["<red>Such a spectacular</red>", "<purple>amethyst</purple>", "<rainbow>SHINY</rainbow>"],
+      buyPrice: 200L,
+      sellPrice: 100L,
+      stack: {id: "minecraft:large_amethyst_bud"}
     }
   ]
 }
 ```
+
+- `DataVersion` is the Minecraft version the file was written for. Leave it alone, the mod stamps
+  it, and uses it to upgrade the file's items automatically after a Minecraft update, taking a copy
+  into `shops/backups/` first.
+- `stack` is a vanilla item stack, in exactly the shape the `/give` command uses.
+- `buyPrice` and `sellPrice` are longs (note the `L`). `-1` means the item cannot be bought, or
+  cannot be sold, respectively.
+- `currency` is optional per entry and falls back to the shop's `defaultCurrency`.
+- `description` is optional and is omitted entirely when empty.
+- `icon` is optional and defaults to `minecraft:chest`.
+- A shop may also carry its own `sellPricing` block, with the same keys as the one in `config.json`,
+  to override the server-wide defaults for that shop only.
+
+Both `displayName` and `description` support the
+[Simplified Text Format](https://placeholders.pb4.eu/user/text-format/).
+
+You can edit these files by hand or use the in-game commands. Just remember to:
+- reload the mod using `/guishop reload` after editing a shop file,
+- save in-game changes using `/guishop forcesave` to write them back to disk,
+- not work in the files and in-game at the same time.
+  - If in-game changes are saved, they overwrite any edits made to the files.
+  - If the files are reloaded, they overwrite any unsaved in-game changes.
+  - Be careful making large-scale edits while the server is running, since the mod saves in-game
+    changes automatically every 30 minutes.
+
+### Upgrading from an older GuiShop
+
+The old `./config/guishop.json` and `./config/guishopeconomy.json` are migrated automatically on
+first start: settings move into `config/gui-shop/config.json`, each shop becomes a `.snbt` file, and
+the originals are kept as `.pre-migration-backup` copies next to where they were.
 
 ## Supported Economies:
 From 1.4.5 and onwards, the mod supports any (combination of) economy mod that uses the [Common Economy API](https://github.com/Patbox/common-economy-api).
@@ -216,14 +306,6 @@ _(The multi-account per currency functionality has not been properly implemented
 
 - [ ] Consider what to do if a player is in spectator mode
   - Patbox recently added something for this in sgui
-- [ ] Add migration for config files
-  - Minecraft often changes how NBT data is stored.
-    For example, in 1.21.5, Mojang removed the `levels` parameter from the `minecraft:enchantments` component.
-    To advoid data loss on enchantments / custom names, we should add a migration to the config.
-  - [ ] Add version field to the config file
-  - [ ] Write migration for 1.21.4 -> 1.21.5
-    - [ ] `enchantments={levels:{sharpness:2}}` -> `enchantments={sharpness:2}`
-    - [ ] `{"text":"An unnecesary op shield","italic":false}` -> `{text:"An unnecesary op shield",italic:false}`
 
 **1.21.4**
 ```mclang

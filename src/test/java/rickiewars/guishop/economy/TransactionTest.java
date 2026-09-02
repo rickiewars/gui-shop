@@ -7,6 +7,7 @@ import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.EconomyTest;
+import rickiewars.guishop.api.economy.impl.GuiShopEconomyProvider;
 import rickiewars.guishop.api.minecraft.impl.TestPlayer;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
@@ -40,7 +41,7 @@ public class TransactionTest extends EconomyTest {
         player.getAccount(economy.currencyCreditsId).setBalance(1_000);
 
         shopItem = shop.getItems().getFirst();
-        item = Registries.ITEM.get(Identifier.of(shopItem.itemId()));
+        item = Registries.ITEM.get(shopItem.itemId());
 
         transaction = new Transaction(player, shop);
     }
@@ -206,6 +207,32 @@ public class TransactionTest extends EconomyTest {
         assertEquals(1_000, player.getAccount(economy.currencyCreditsId).balance());
     }
 
+    @Test
+    void sellFromInventoryDoesNotSellDamagedItem() {
+        Item pickaxe = Registries.ITEM.get(Identifier.of("minecraft:netherite_pickaxe"));
+        ShopItem pickaxeShopItem = new ShopItem(
+            "My faforite pickaxe",
+            new ItemStack(pickaxe),
+            10,
+            100,
+            economy.currencyCreditsId,
+            List.of()
+        );
+
+        ItemStack damaged = new ItemStack(pickaxe);
+        damaged.setDamage(125);
+        player.giveItem(damaged);
+
+        transaction.sellFromInventory(pickaxeShopItem, 1);
+
+        assertEquals(
+            1,
+            player.getInventory().count(pickaxe),
+            "I don't want to accedently sell my favorite pickaxe!"
+        );
+        assertEquals(1_000, player.getAccount(economy.currencyCreditsId).balance());
+    }
+
     // -------------------------------------------------------------------------
     // Sell from Item Stack
     // -------------------------------------------------------------------------
@@ -241,6 +268,34 @@ public class TransactionTest extends EconomyTest {
 
         assertSame(cursor, result);
         assertEquals(1_000, player.getAccount(economy.currencyCreditsId).balance());
+    }
+
+    @Test
+    void sellFromItemStackPaysAdjustedAmountForDamagedItem() {
+        if (eu.pb4.common.economy.api.CommonEconomy.getProvider(GuiShopEconomyProvider.ID) == null) {
+            GuiShopEconomyProvider.init();
+        }
+
+        Item pickaxe = Registries.ITEM.get(Identifier.of("minecraft:iron_pickaxe"));
+        ShopItem pickaxeShopItem = new ShopItem(
+            "Pickaxe",
+            new ItemStack(pickaxe),
+            10,
+            100,
+            economy.currencyCreditsId,
+            List.of()
+        );
+        var pickaxeShop = new Shop("pickaxe_shop", "Pickaxe Shop", List.of(pickaxeShopItem), economy.currencyCreditsId);
+        var tx = new Transaction(player, pickaxeShop);
+
+        ItemStack damaged = new ItemStack(pickaxe);
+        damaged.setDamage(125);
+
+        tx.sellFromItemStack(damaged, 1);
+
+        assertTrue(player.getAccount(economy.currencyCreditsId).balance() < 1_000 + pickaxeShopItem.sellPrice());
+        assertTrue(player.getReceivedMessages().stream()
+            .anyMatch(text -> text.getString().contains("adjusted for condition")));
     }
 
     @Test
@@ -282,12 +337,11 @@ public class TransactionTest extends EconomyTest {
 
         var nonBuyableItem = new ShopItem(
             "Non-buyable Item",
-            "minecraft:stone",
+            new ItemStack(Registries.ITEM.get(Identifier.of("minecraft:stone"))),
             -1,
             10,
             null,
-            null,
-            null
+            List.of()
         );
 
         var ex = assertThrows(
@@ -308,15 +362,14 @@ public class TransactionTest extends EconomyTest {
 
         var nonBuyableItem = new ShopItem(
             "Non-buyable Item",
-            "minecraft:stone",
+            new ItemStack(Registries.ITEM.get(Identifier.of("minecraft:stone"))),
             -1,
             10,
             null,
-            null,
-            null
+            List.of()
         );
 
-        var shop = new Shop("Test Shop", List.of(
+        var shop = new Shop("test_shop", "Test Shop", List.of(
             nonBuyableItem
         ), economy.currencyCreditsId);
 
@@ -340,12 +393,11 @@ public class TransactionTest extends EconomyTest {
 
         var nonSellableItem = new ShopItem(
             "Non-sellable Item",
-            "minecraft:stone",
+            new ItemStack(Registries.ITEM.get(Identifier.of("minecraft:stone"))),
             10,
             -1,
             null,
-            null,
-            null
+            List.of()
         );
 
         var ex = assertThrows(
@@ -359,7 +411,7 @@ public class TransactionTest extends EconomyTest {
     }
 
     @Test
-    void sellFromItemStackThrowsErrorIfNotSellable() {
+    void sellFromItemStackDoesNothingWhenListingIsNotSellable() {
         ItemStack cursor = new ItemStack(
             Registries.ITEM.get(Identifier.of("minecraft:stone")),
             5
@@ -367,28 +419,24 @@ public class TransactionTest extends EconomyTest {
 
         var nonSellableItem = new ShopItem(
             "Non-sellable Item",
-            "minecraft:stone",
+            new ItemStack(Registries.ITEM.get(Identifier.of("minecraft:stone"))),
             10,
             -1,
             null,
-            null,
-            null
+            List.of()
         );
 
-        var shop = new Shop("Test Shop", List.of(
+        var shop = new Shop("test_shop", "Test Shop", List.of(
             nonSellableItem
         ), economy.currencyCreditsId);
 
         var tx = new Transaction(player, shop);
 
-        var ex = assertThrows(
-            IllegalStateException.class, () -> tx.sellFromItemStack(
-                cursor,
-                1
-            ));
+        ItemStack result = tx.sellFromItemStack(cursor, 1);
 
-        assertEquals("Not sellable", ex.getMessage());
+        assertSame(cursor, result);
         assertEquals(5, cursor.getCount());
+        assertEquals(1_000, player.getAccount(economy.currencyCreditsId).balance());
     }
 }
 

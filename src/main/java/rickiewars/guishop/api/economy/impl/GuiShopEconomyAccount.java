@@ -7,27 +7,30 @@ import eu.pb4.common.economy.api.EconomyTransaction;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.database.DatabaseManager;
-import rickiewars.guishop.config.EconomyConfig;
+import rickiewars.guishop.config.GuiShopConfig;
+import rickiewars.guishop.util.CommonMethods;
 
 import java.util.UUID;
 
 public class GuiShopEconomyAccount implements EconomyAccount {
     public static Identifier DEFAULT_ID = Identifier.of(GuiShopEconomyProvider.ID,"account");
     public static final Item DEFAULT_ICON = Items.DIAMOND;
+    public static final Identifier DEFAULT_ICON_ID = Registries.ITEM.getId(DEFAULT_ICON);
     private final Identifier id;
     private final UUID uuid;
     private final String uuidString;
-    private final EconomyConfig.AccountDefinition accountDefinition;
+    private final GuiShopConfig.AccountDefinition accountDefinition;
 
     private DatabaseManager db() {
         return GUIShop.databaseManager;
     }
 
-    public GuiShopEconomyAccount(Identifier accountId, EconomyConfig.AccountDefinition accountDefinition, UUID uuid) {
+    public GuiShopEconomyAccount(Identifier accountId, GuiShopConfig.AccountDefinition accountDefinition, UUID uuid) {
         this.id = accountId;
         this.accountDefinition = accountDefinition;
         this.uuid = uuid;
@@ -128,6 +131,6 @@ public class GuiShopEconomyAccount implements EconomyAccount {
 
     @Override
     public ItemStack accountIcon() {
-        return accountDefinition.icon;
+        return new ItemStack(CommonMethods.getItem(accountDefinition.icon.toString(), DEFAULT_ICON));
     }
 }

@@ -5,7 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import rickiewars.guishop.api.database.impl.SQLiteDatabaseManager;
-import rickiewars.guishop.config.EconomyConfig;
+import rickiewars.guishop.config.GuiShopConfig;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -34,9 +34,9 @@ public class SQLiteDatabaseManagerTest {
         dbFile = Files.createTempFile("guishop-", ".sqlite").toFile();
         dbFile.deleteOnExit();
 
-        EconomyConfig cfg = new EconomyConfig();
-        cfg.database = new EconomyConfig.DatabaseConfig(
-            EconomyConfig.DatabaseConfig.DatabaseType.SQLITE,
+        GuiShopConfig cfg = new GuiShopConfig();
+        cfg.database = new GuiShopConfig.DatabaseConfig(
+            GuiShopConfig.DatabaseConfig.DatabaseType.SQLITE,
             dbFile.getAbsolutePath()
         );
 

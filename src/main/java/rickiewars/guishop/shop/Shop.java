@@ -2,9 +2,9 @@ package rickiewars.guishop.shop;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
+import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.economy.EconomyUtils;
 import rickiewars.guishop.util.CommonMethods;
 
@@ -15,33 +15,51 @@ import java.util.List;
  * A shop which holds a list of items
  */
 public class Shop {
-    private final String name;
+    private final String id;
+    private final String displayName;
     private final List<ShopItem> items;
     @Nullable
     private final Identifier defaultCurrencyId;
     private final Identifier icon;
+    private final SellPricing sellPricing;
 
-    public String getName() {
-        return name;
+    public String getId() {
+        return id;
+    }
+
+    public String getDisplayName() {
+        return displayName;
     }
 
     public List<ShopItem> getItems() {
         return items;
     }
 
-    public ShopItem findItem(ItemStack items) {
-        String itemId = Registries.ITEM.getId(items.getItem()).toString();
-        for (ShopItem shopItem : this.items) {
-            if (shopItem.itemId().equals(itemId) && shopItem.matches(items)) {
-                return shopItem;
+    public SellPricing getSellPricing() {
+        return sellPricing;
+    }
+
+    public ShopItem findHighestPayingItem(ItemStack stack) {
+        ShopItem best = null;
+        long bestPayout = Long.MIN_VALUE;
+
+        for (ShopItem item : items) {
+            if (item.sellPrice() == -1) continue;
+            if (!item.resembles(stack)) continue;
+
+            long payout = sellPricing.adjustedPayout(item, stack);
+            if (best == null || payout > bestPayout) {
+                best = item;
+                bestPayout = payout;
             }
         }
-        return null;
+
+        return best;
     }
 
     public Identifier getCurrencyId(ShopItem item) {
         if (item.hasCurrency()) {
-            return item.currencyId();
+            return item.resolvedCurrencyId();
         }
         return getDefaultCurrencyId();
     }
@@ -71,19 +89,25 @@ public class Shop {
         return defaultCurrencyId != null;
     }
 
-    public Shop(String name) {
-        this(name, new LinkedList<>(), null);
+    public Shop(String id, String displayName) {
+        this(id, displayName, new LinkedList<>(), null);
     }
 
-    public Shop(String name, List<ShopItem> items, @Nullable Identifier defaultCurrencyId) {
-        this(name, items, defaultCurrencyId, null);
+    public Shop(String id, String displayName, List<ShopItem> items, @Nullable Identifier defaultCurrencyId) {
+        this(id, displayName, items, defaultCurrencyId, null, null);
     }
 
-    public Shop(String name, List<ShopItem> items, @Nullable Identifier defaultCurrencyId, @Nullable Identifier icon) {
-        this.name = name;
+    public Shop(String id, String displayName, List<ShopItem> items, @Nullable Identifier defaultCurrencyId, @Nullable Identifier icon) {
+        this(id, displayName, items, defaultCurrencyId, icon, null);
+    }
+
+    public Shop(String id, String displayName, List<ShopItem> items, @Nullable Identifier defaultCurrencyId, @Nullable Identifier icon, @Nullable SellPricing sellPricing) {
+        this.id = id;
+        this.displayName = displayName;
         this.items = items;
         this.defaultCurrencyId = defaultCurrencyId;
         this.icon = icon != null ? icon : Identifier.ofVanilla("chest");
+        this.sellPricing = sellPricing != null ? sellPricing : GUIShop.config.sellPricing;
     }
 
     public Identifier iconId() {
@@ -97,18 +121,31 @@ public class Shop {
         ));
     }
 
+    /// Load-time sanity checks and logs warnings
+    public void validate() {
+        for (ShopItem item : items) {
+            if (item.buyPrice() < -1) {
+                GUIShop.LOGGER.warn("Shop '{}': item '{}' has an invalid buyPrice {} (must be -1 or >= 0)", id, item.displayName(), item.buyPrice());
+            }
+            if (item.sellPrice() < -1) {
+                GUIShop.LOGGER.warn("Shop '{}': item '{}' has an invalid sellPrice {} (must be -1 or >= 0)", id, item.displayName(), item.sellPrice());
+            }
+            if (item.buyPrice() >= 0 && item.sellPrice() >= 0 && item.sellPrice() > item.buyPrice()) {
+                GUIShop.LOGGER.warn("Shop '{}': item '{}' sells for more ({}) than it costs to buy ({}) -- money loop", id, item.displayName(), item.sellPrice(), item.buyPrice());
+            }
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Shop shop)) return false;
 
-        Shop shop = (Shop) o;
-
-        return name.equals(shop.name);
+        return id.equals(shop.id);
     }
 
     @Override
     public int hashCode() {
-        return name.hashCode();
+        return id.hashCode();
     }
 }

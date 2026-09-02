@@ -8,41 +8,42 @@ import rickiewars.guishop.api.database.DatabaseManager;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyProvider;
 import rickiewars.guishop.api.minecraft.IServer;
 import rickiewars.guishop.api.minecraft.impl.MinecraftServer;
-import rickiewars.guishop.config.Config;
+import rickiewars.guishop.api.minecraft.impl.VanillaItemCodec;
 import rickiewars.guishop.config.ConfigManager;
-import rickiewars.guishop.config.EconomyConfig;
-import rickiewars.guishop.util.EconomyFileHandler;
+import rickiewars.guishop.config.GuiShopConfig;
+import rickiewars.guishop.migration.LegacyConfigMigrator;
+import rickiewars.guishop.migration.LegacyMigrationCleanup;
+import rickiewars.guishop.migration.LegacyShopConverter;
+import rickiewars.guishop.serializer.SnbtShopStore;
+import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.util.Register;
-import rickiewars.guishop.util.ShopFileHandler;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 public class GUIShop implements ModInitializer {
 	public static final String MODID = "guishop";
     public static final Logger LOGGER = LoggerFactory.getLogger("gui-shop");
 
+	public static GuiShopConfig config = new GuiShopConfig();
+
 	/**
-	 * Holds the shops that are currently loaded
+	 * Holds the shops that are currently loaded. Populated at SERVER_STARTED, once dynamic
+	 * registries (needed to decode item components, e.g. enchantments) are available.
 	 */
-	public static Config config = new Config();
-	public static EconomyConfig economyConfig = new EconomyConfig();
+	public static List<Shop> shops = new LinkedList<>();
+
+	public static SnbtShopStore shopStore;
 
 	public static DatabaseManager databaseManager;
 
 	public static IServer minecraftServer;
 
 	static {
-		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
-			try {
-				onServerShutdown();
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		});
-		ServerLifecycleEvents.SERVER_STARTING.register(server -> {
-			minecraftServer = new MinecraftServer(server);
-			loadConfig();
-		});
+		ServerLifecycleEvents.SERVER_STOPPED.register(server -> onServerShutdown());
+		ServerLifecycleEvents.SERVER_STARTING.register(server -> minecraftServer = new MinecraftServer(server));
+		ServerLifecycleEvents.SERVER_STARTED.register(GUIShop::onServerStarted);
 	}
 
 	private static void loadConfig() {
@@ -53,44 +54,43 @@ public class GUIShop implements ModInitializer {
 		}
 	}
 
-	private static void loadEconomyConfig() {
-		if(!ConfigManager.loadEconomyConfig())
-			throw new RuntimeException("Could not load economy config");
+	private static void onServerStarted(net.minecraft.server.MinecraftServer server) {
+		VanillaItemCodec itemCodec = new VanillaItemCodec(server);
+
+		boolean configMigrationOk = LegacyConfigMigrator.migrateIfNeeded();
+		boolean shopConversionOk = LegacyShopConverter.convertIfNeeded(server, itemCodec);
+		LegacyMigrationCleanup.cleanupIfComplete(configMigrationOk, shopConversionOk);
+
+		if (!shopConversionOk) {
+			LOGGER.error("Shop conversion failed -- refusing to load shops this boot. Fix the reported error and restart.");
+			shops = new LinkedList<>();
+			return;
+		}
+
+		shopStore = new SnbtShopStore(itemCodec, ConfigManager.shopsDir());
+		shops = new LinkedList<>(shopStore.readAll());
+		shops.forEach(Shop::validate);
 	}
 
 	@Override
 	public void onInitialize() {
 		LOGGER.info("GUI Shop loaded!");
 
-		loadEconomyConfig();
+		if (!LegacyConfigMigrator.migrateIfNeeded()) {
+			throw new RuntimeException("Legacy config migration failed -- see log for details");
+		}
+
+		loadConfig();
 		Register.registerCommands();
 		GuiShopEconomyProvider.init();
-
-		ShopFileHandler fileHandler = new ShopFileHandler();
-		if (!fileHandler.initialize()) {
-			String msg = "Could not initialize shops-to-file save daemon";
-			System.out.println(msg);
-			LOGGER.info(msg);
-		}
-		// TODO: Consider if this is necessary
-		EconomyFileHandler ecoFileHandler = new EconomyFileHandler();
-		if (!ecoFileHandler.initialize()) {
-			String msg = "Could not initialize economy-to-file save daemon";
-			System.out.println(msg);
-			LOGGER.info(msg);
-		}
-
 	}
 
-	public static void onServerShutdown() throws IOException {
-		ShopFileHandler fileHandler = new ShopFileHandler();
-		fileHandler.saveToFile();
-		fileHandler.killTask();
-		LOGGER.info("Shops saved to file");
-
-		EconomyFileHandler ecoFileHandler = new EconomyFileHandler();
-		ecoFileHandler.saveToFile();
-		ecoFileHandler.killTask();
-		LOGGER.info("Economy saved to file");
+	public static void onServerShutdown() {
+		try {
+			ConfigManager.saveConfig();
+			LOGGER.info("Config saved to file");
+		} catch (IOException e) {
+			LOGGER.error("Could not save config on shutdown", e);
+		}
 	}
 }

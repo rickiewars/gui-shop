@@ -6,20 +6,18 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
+import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.shop.Shop;
-import rickiewars.guishop.util.CommonMethods;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class ShopNameSuggestionProvider implements SuggestionProvider<ServerCommandSource> {
     @Override
     public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) {
         String input = builder.getRemaining().toLowerCase();
-        List<Shop> shops = CommonMethods.getAllShops();
-        for (Shop shop : shops) {
-            if (shop.getName().toLowerCase().startsWith(input)) {
-                builder.suggest(shop.getName(), Text.of(
+        for (Shop shop : GUIShop.shops) {
+            if (shop.getDisplayName().toLowerCase().startsWith(input)) {
+                builder.suggest(shop.getDisplayName(), Text.of(
                     shop.getItems().size() + " items (" + shop.getDefaultCurrencyId() + ")"
                 ));
             }

@@ -41,7 +41,7 @@ public class SelectShopMenuTest extends EconomyTest {
         controller.simulateClick(0, ClickType.MOUSE_LEFT);
 
         assertTrue(controller.opened);
-        assertEquals(Text.of(shop1.getName() + " (Balance: " + balance + ")"), controller.title);
+        assertEquals(Text.of(shop1.getDisplayName() + " (Balance: " + balance + ")"), controller.title);
     }
 
     @Test
@@ -63,7 +63,7 @@ public class SelectShopMenuTest extends EconomyTest {
         controller.simulateClick(1, ClickType.MOUSE_LEFT);
 
         assertTrue(controller.opened);
-        assertEquals(Text.of(shop2.getName() + " (Balance: " + balance + ")"), controller.title);
+        assertEquals(Text.of(shop2.getDisplayName() + " (Balance: " + balance + ")"), controller.title);
     }
 
     @Test
@@ -81,8 +81,8 @@ public class SelectShopMenuTest extends EconomyTest {
         controller.open(menu);
 
         assertEquals(ScreenHandlerType.GENERIC_9X1, menu.config().handlerType());
-        assertEquals(Text.of(shops.getFirst().getName()), controller.slots.get(0).name());
-        assertEquals(Text.of(shops.getLast().getName()), controller.slots.get(7).name());
+        assertEquals(Text.of(shops.getFirst().getDisplayName()), controller.slots.get(0).name());
+        assertEquals(Text.of(shops.getLast().getDisplayName()), controller.slots.get(7).name());
         assertInstanceOf(ExitSlot.class, controller.slots.get(8));
     }
 
@@ -101,8 +101,8 @@ public class SelectShopMenuTest extends EconomyTest {
         controller.open(menu);
 
         assertEquals(ScreenHandlerType.GENERIC_9X2, menu.config().handlerType());
-        assertEquals(Text.of(shops.getFirst().getName()), controller.slots.get(0).name());
-        assertEquals(Text.of(shops.getLast().getName()), controller.slots.get(8).name());
+        assertEquals(Text.of(shops.getFirst().getDisplayName()), controller.slots.get(0).name());
+        assertEquals(Text.of(shops.getLast().getDisplayName()), controller.slots.get(8).name());
         var exitSlotIndex = menu.config().indexOf(SelectShopMenu.SlotType.EXIT).orElseThrow();
         assertInstanceOf(ExitSlot.class, controller.slots.get(exitSlotIndex));
     }

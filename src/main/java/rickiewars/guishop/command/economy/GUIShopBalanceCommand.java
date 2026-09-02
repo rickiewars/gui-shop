@@ -42,13 +42,13 @@ public class GUIShopBalanceCommand extends GuiShopBalanceCommands {
     }
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
-        if (!GUIShop.economyConfig.economyCommandsEnabled()) return;
+        if (!GUIShop.config.economyCommandsEnabled()) return;
 
         dispatcher.register(
             CommandManager.literal("guishop").then(getBalanceNode("balance"))
         );
 
-        String alias = GUIShop.economyConfig.command != null ? GUIShop.economyConfig.command.alias : "";
+        String alias = GUIShop.config.command != null ? GUIShop.config.command.alias : "";
         if (!alias.isEmpty()) {
             if (alias.startsWith("/")) alias = alias.substring(1);
 

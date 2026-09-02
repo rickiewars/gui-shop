@@ -12,7 +12,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import rickiewars.guishop.GUIShop;
-import rickiewars.guishop.config.EconomyConfig;
+import rickiewars.guishop.config.GuiShopConfig;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,23 +35,23 @@ public class GuiShopEconomyProvider implements EconomyProvider {
 
     @Override
     public @Nullable EconomyAccount getAccount(MinecraftServer minecraftServer, GameProfile gameProfile, String accountId) {
-        if (GUIShop.economyConfig.economy == null || GUIShop.economyConfig.disabled) return null;
-        if (!GUIShop.economyConfig.economy.accounts.containsKey(accountId)) return null;
+        if (GUIShop.config.economy == null || GUIShop.config.economyDisabled) return null;
+        if (!GUIShop.config.economy.accounts.containsKey(accountId)) return null;
 
         return new GuiShopEconomyAccount(
                 Identifier.of(GuiShopEconomyProvider.ID, accountId),
-                GUIShop.economyConfig.economy.accounts.get(accountId),
+                GUIShop.config.economy.accounts.get(accountId),
                 gameProfile.id()
         );
     }
 
     @Override
     public Collection<EconomyAccount> getAccounts(MinecraftServer minecraftServer, GameProfile gameProfile) {
-        if (GUIShop.economyConfig.economy == null || GUIShop.economyConfig.disabled) return Collections.emptySet();
-        if (GUIShop.economyConfig.economy.accounts.isEmpty()) return Collections.emptySet();
+        if (GUIShop.config.economy == null || GUIShop.config.economyDisabled) return Collections.emptySet();
+        if (GUIShop.config.economy.accounts.isEmpty()) return Collections.emptySet();
 
         Collection<EconomyAccount> accounts = new ArrayList<>();
-        GUIShop.economyConfig.economy.accounts.forEach(
+        GUIShop.config.economy.accounts.forEach(
             (accountId, accountDefinition) -> accounts.add(new GuiShopEconomyAccount(
                 Identifier.of(GuiShopEconomyProvider.ID, accountId),
                 accountDefinition, gameProfile.id()
@@ -62,22 +62,22 @@ public class GuiShopEconomyProvider implements EconomyProvider {
 
     @Override
     public @Nullable EconomyCurrency getCurrency(MinecraftServer minecraftServer, String currencyId) {
-        if (GUIShop.economyConfig.economy == null || GUIShop.economyConfig.disabled) return null;
-        if (!GUIShop.economyConfig.economy.currencies.containsKey(currencyId)) return null;
+        if (GUIShop.config.economy == null || GUIShop.config.economyDisabled) return null;
+        if (!GUIShop.config.economy.currencies.containsKey(currencyId)) return null;
 
         return new GuiShopEconomyCurrency(
                 Identifier.of(GuiShopEconomyProvider.ID, currencyId),
-                GUIShop.economyConfig.economy.currencies.get(currencyId)
+                GUIShop.config.economy.currencies.get(currencyId)
         );
     }
 
     @Override
     public Collection<EconomyCurrency> getCurrencies(MinecraftServer minecraftServer) {
-        if (GUIShop.economyConfig.economy == null || GUIShop.economyConfig.disabled) return Collections.emptySet();
-        if (GUIShop.economyConfig.economy.currencies.isEmpty()) return Collections.emptySet();
+        if (GUIShop.config.economy == null || GUIShop.config.economyDisabled) return Collections.emptySet();
+        if (GUIShop.config.economy.currencies.isEmpty()) return Collections.emptySet();
 
         Collection<EconomyCurrency> currencies = new ArrayList<>();
-        GUIShop.economyConfig.economy.currencies.forEach(
+        GUIShop.config.economy.currencies.forEach(
             (currencyId, currencyDefinition) -> currencies.add(new GuiShopEconomyCurrency(
                 Identifier.of(GuiShopEconomyProvider.ID, currencyId),
                 currencyDefinition
@@ -91,8 +91,8 @@ public class GuiShopEconomyProvider implements EconomyProvider {
     // Maybe in the future, I'll add a command for the player to choose a default account for a specific currency
     @Override
     public @Nullable String defaultAccount(MinecraftServer minecraftServer, GameProfile gameProfile, EconomyCurrency economyCurrency) {
-        if (GUIShop.economyConfig.economy == null || GUIShop.economyConfig.disabled) return null;
-        for (Map.Entry<String, EconomyConfig.AccountDefinition> entry : GUIShop.economyConfig.economy.accounts.entrySet()) {
+        if (GUIShop.config.economy == null || GUIShop.config.economyDisabled) return null;
+        for (Map.Entry<String, GuiShopConfig.AccountDefinition> entry : GUIShop.config.economy.accounts.entrySet()) {
             if (entry.getValue().currencyId.equals(economyCurrency.id())) {
                 return entry.getKey();
             }

@@ -25,7 +25,7 @@ public class ShopEntrySlot implements MenuSlot {
     }
 
     public Text name() {
-        return Text.literal(shop.getName());
+        return Text.literal(shop.getDisplayName());
     }
 
     public List<Text> lore() {

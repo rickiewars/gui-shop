@@ -1,13 +1,10 @@
 package rickiewars.guishop.shop;
 
-import net.minecraft.component.ComponentChanges;
 import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.CustomModelDataComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.Rarity;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.MinecraftTest;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
@@ -18,175 +15,151 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ShopItemTest extends MinecraftTest {
 
+    private ShopItem item(ItemStack stack) {
+        return new ShopItem("Test Item", stack, 100, 50, null, List.of("A blade"));
+    }
+
     // ----------------------------------------------------------
-    // Basic construction tests
+    // Basic construction / accessors
     // ----------------------------------------------------------
 
     @Test
     void shopItemStoresBasicFields() {
-        ShopItem item = new ShopItem(
-            "Test Sword",
-            "minecraft:diamond_sword",
-            100,
-            50,
-            null,
-            new String[]{"A blade"},
-            null
-        );
+        ShopItem item = item(new ItemStack(Items.DIAMOND_SWORD));
 
-        assertEquals("Test Sword", item.itemName());
-        assertEquals("minecraft:diamond_sword", item.itemId());
-        assertEquals(100, item.buyItemPrice());
-        assertEquals(50, item.sellItemPrice());
-        assertArrayEquals(new String[]{"A blade"}, item.description());
+        assertEquals("Test Item", item.displayName());
+        assertEquals(Identifier.ofVanilla("diamond_sword"), item.itemId());
+        assertEquals(100, item.buyPrice());
+        assertEquals(50, item.sellPrice());
+        assertEquals(List.of("A blade"), item.description());
         assertFalse(item.hasCurrency());
         assertFalse(item.hasComponentChanges());
-        assertEquals(GuiShopEconomyCurrency.DEFAULT_ID, item.currencyId());
+        assertEquals(GuiShopEconomyCurrency.DEFAULT_ID, item.resolvedCurrencyId());
     }
 
     @Test
     void shopItemStoresCurrency() {
         Identifier currency = Identifier.of("guishop:credit");
-
-        ShopItem item = new ShopItem(
-            "Credit Item",
-            "minecraft:stone",
-            10,
-            5,
-            currency,
-            new String[]{"Simple item"},
-            null
-        );
+        ShopItem item = new ShopItem("Credit Item", new ItemStack(Items.STONE), 10, 5, currency, List.of());
 
         assertTrue(item.hasCurrency());
-        assertEquals(currency, item.currencyId());
+        assertEquals(currency, item.resolvedCurrencyId());
+        assertEquals(currency, item.explicitCurrencyId());
     }
 
     @Test
-    void shopItemStoresComponentChanges() {
-        ItemStack stack = new ItemStack(Items.APPLE);
-        stack.set(DataComponentTypes.CUSTOM_NAME, Text.literal("Golden Apple"));
-        ComponentChanges changes = stack.getComponentChanges();
-
-        ShopItem item = new ShopItem(
-            "Special Apple",
-            "minecraft:apple",
-            10,
-            3,
-            null,
-            new String[]{"Magical"},
-            changes
-        );
-
-        assertTrue(item.hasComponentChanges());
-        assertEquals(
-            changes.get(DataComponentTypes.CUSTOM_NAME),
-            item.componentChanges().get(DataComponentTypes.CUSTOM_NAME)
-        );
+    void isListableFalseOnlyWhenNeitherBuyableNorSellable() {
+        assertTrue(new ShopItem("A", new ItemStack(Items.STONE), 10, -1, null, List.of()).isListable());
+        assertTrue(new ShopItem("A", new ItemStack(Items.STONE), -1, 10, null, List.of()).isListable());
+        assertFalse(new ShopItem("A", new ItemStack(Items.STONE), -1, -1, null, List.of()).isListable());
     }
 
     // ----------------------------------------------------------
-    // matches(ItemStack)
+    // equals/hashCode -- ItemStack-safe, patch-shape-independent
     // ----------------------------------------------------------
 
     @Test
-    void matchesFailsWhenItemIdDiffers() {
-        ShopItem shopItem = new ShopItem(
-            "Stone",
-            "minecraft:stone",
-            1, 0,
-            null,
-            new String[]{},
-            null
-        );
+    void equalsUsesEffectiveComponentsNotPatchShape() {
+        // Two stacks that end up with the same effective components via different patches
+        // must be considered equal.
+        ItemStack a = new ItemStack(Items.APPLE);
+        a.set(DataComponentTypes.CUSTOM_NAME, Text.literal("Shiny"));
 
-        ItemStack matching = new ItemStack(Items.STONE);
-        ItemStack nonMatching = new ItemStack(Items.DIRT);
+        ItemStack b = new ItemStack(Items.APPLE);
+        b.set(DataComponentTypes.CUSTOM_NAME, Text.literal("Shiny"));
 
-        assertTrue(shopItem.matches(matching));
-        assertFalse(shopItem.matches(nonMatching));
+        ShopItem itemA = new ShopItem("Apple", a, 10, 5, null, List.of());
+        ShopItem itemB = new ShopItem("Apple", b, 10, 5, null, List.of());
+
+        assertEquals(itemA, itemB);
+        assertEquals(itemA.hashCode(), itemB.hashCode());
     }
 
     @Test
-    void matchesIgnoresNameChanges() {
-        ItemStack changed = new ItemStack(Items.IRON_SWORD);
-        changed.set(DataComponentTypes.CUSTOM_NAME, Text.literal("Knight Blade"));
+    void equalsFalseWhenComponentsDiffer() {
+        ItemStack a = new ItemStack(Items.APPLE);
+        ItemStack b = new ItemStack(Items.APPLE);
+        b.set(DataComponentTypes.CUSTOM_NAME, Text.literal("Different"));
 
-        ComponentChanges required = changed.getComponentChanges();
+        ShopItem itemA = new ShopItem("Apple", a, 10, 5, null, List.of());
+        ShopItem itemB = new ShopItem("Apple", b, 10, 5, null, List.of());
 
-        ShopItem item = new ShopItem(
-            "Knight Sword",
-            "minecraft:iron_sword",
-            50, 25,
-            null,
-            new String[]{"Strong"},
-            required
-        );
+        assertNotEquals(itemA, itemB);
+    }
 
-        ItemStack itemStack = new ItemStack(Items.IRON_SWORD);
-        itemStack.set(DataComponentTypes.CUSTOM_NAME, Text.literal("My custom Knight Blade"));
+    // ----------------------------------------------------------
+    // resembles(ItemStack) -- deny-by-default (Strict unless Graded/Flat)
+    // ----------------------------------------------------------
 
-        assertTrue(item.matches(itemStack));
+    @Test
+    void resemblesFailsWhenItemDiffers() {
+        ShopItem stone = item(new ItemStack(Items.STONE));
+        assertTrue(stone.resembles(new ItemStack(Items.STONE)));
+        assertFalse(stone.resembles(new ItemStack(Items.DIRT)));
     }
 
     @Test
-    void matchesFailsWhenRarityDiffers() {
-        // Create required componentChanges: RARITY is one of the relevant types
-        ItemStack rareSword = new ItemStack(Items.IRON_SWORD);
-        rareSword.set(DataComponentTypes.RARITY, Rarity.EPIC);
+    void resemblesIgnoresDamageAndRepairCostDifferences() {
+        ItemStack listing = new ItemStack(Items.DIAMOND_SWORD);
+        ShopItem shopItem = item(listing);
 
-        ComponentChanges required = rareSword.getComponentChanges();
+        ItemStack damaged = new ItemStack(Items.DIAMOND_SWORD);
+        damaged.setDamage(500);
+        damaged.set(DataComponentTypes.REPAIR_COST, 3);
 
-        ShopItem item = new ShopItem(
-            "Rare Sword",
-            "minecraft:iron_sword",
-            100, 50,
-            null,
-            new String[]{"Valuable"},
-            required
-        );
-
-        // Matching sword: same rarity
-        ItemStack matching = new ItemStack(Items.IRON_SWORD);
-        matching.set(DataComponentTypes.RARITY, Rarity.EPIC);
-
-        // Non-matching: different rarity
-        ItemStack nonMatching = new ItemStack(Items.IRON_SWORD);
-        nonMatching.set(DataComponentTypes.RARITY, Rarity.COMMON);
-
-        assertTrue(item.matches(matching),
-            "Sword with same rarity should match");
-
-        assertFalse(item.matches(nonMatching),
-            "Sword with different rarity should NOT match based on relevant component type");
+        assertTrue(shopItem.resembles(damaged), "Graded components must not block a sale");
     }
 
     @Test
-    void matchesFailsWhenCustomModelDataDiffers() {
-        ItemStack template = new ItemStack(Items.DIAMOND_SWORD);
-        template.set(DataComponentTypes.CUSTOM_MODEL_DATA, CustomModelDataComponent.DEFAULT);
+    void resemblesIgnoresCustomNameAndLoreDifferences() {
+        ShopItem shopItem = item(new ItemStack(Items.DIAMOND_SWORD));
 
-        ComponentChanges required = template.getComponentChanges();
+        ItemStack renamed = new ItemStack(Items.DIAMOND_SWORD);
+        renamed.set(DataComponentTypes.CUSTOM_NAME, Text.literal("My Sword"));
 
-        ShopItem item = new ShopItem(
-            "Model Sword",
-            "minecraft:diamond_sword",
-            100, 50,
-            null,
-            new String[]{"Unique look"},
-            required
-        );
+        assertTrue(shopItem.resembles(renamed), "Flat-penalty components must not block a sale");
+    }
 
-        ItemStack matching = new ItemStack(Items.DIAMOND_SWORD);
-        matching.set(DataComponentTypes.CUSTOM_MODEL_DATA, CustomModelDataComponent.DEFAULT);
+    @Test
+    void resemblesFailsOnAddedEnchantment() {
+        ShopItem shopItem = item(new ItemStack(Items.DIAMOND_SWORD));
 
-        ItemStack nonMatching = new ItemStack(Items.DIAMOND_SWORD);
-        nonMatching.set(DataComponentTypes.CUSTOM_MODEL_DATA, new CustomModelDataComponent(List.of(1.2f), List.of(), List.of(), List.of()));
+        ItemStack enchanted = new ItemStack(Items.DIAMOND_SWORD);
+        enchanted.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true);
 
-        assertTrue(item.matches(matching),
-            "Extra irrelevant components must NOT break matching");
+        assertFalse(shopItem.resembles(enchanted), "Strict components must block a sale on any difference");
+    }
 
-        assertFalse(item.matches(nonMatching),
-            "Different relevant component type (custom model data) must break matching");
+    @Test
+    void resemblesFailsWhenCustomDataDiffers() {
+        ShopItem shopItem = item(new ItemStack(Items.POTION));
+
+        net.minecraft.nbt.NbtCompound customData = new net.minecraft.nbt.NbtCompound();
+        customData.putString("marker", "x");
+        ItemStack stamped = new ItemStack(Items.POTION);
+        stamped.set(DataComponentTypes.CUSTOM_DATA, net.minecraft.component.type.NbtComponent.of(customData));
+
+        assertFalse(shopItem.resembles(stamped));
+    }
+
+    // ----------------------------------------------------------
+    // matches(ItemStack) -- Strict AND Graded/Flat identical
+    // ----------------------------------------------------------
+
+    @Test
+    void matchesRejectsDamagedItemThatResemblesAccepts() {
+        ShopItem shopItem = item(new ItemStack(Items.DIAMOND_SWORD));
+
+        ItemStack damaged = new ItemStack(Items.DIAMOND_SWORD);
+        damaged.setDamage(10);
+
+        assertTrue(shopItem.resembles(damaged));
+        assertFalse(shopItem.matches(damaged));
+    }
+
+    @Test
+    void matchesAcceptsPristineMatch() {
+        ShopItem shopItem = item(new ItemStack(Items.DIAMOND_SWORD));
+        assertTrue(shopItem.matches(new ItemStack(Items.DIAMOND_SWORD)));
     }
 }

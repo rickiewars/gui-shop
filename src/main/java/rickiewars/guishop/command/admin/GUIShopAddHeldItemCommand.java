@@ -7,14 +7,13 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.IdentifierArgumentType;
-import net.minecraft.component.ComponentChanges;
 import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 import rickiewars.guishop.command.GuiShopPermission;
 import rickiewars.guishop.command.suggestions.CurrencySuggestionProvider;
@@ -23,6 +22,8 @@ import rickiewars.guishop.errors.CommandErrors;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
 import rickiewars.guishop.util.CommonMethods;
+
+import java.util.List;
 
 public class GUIShopAddHeldItemCommand {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
@@ -61,17 +62,15 @@ public class GUIShopAddHeldItemCommand {
         ItemStack heldItem = player.getMainHandStack();
         if (heldItem.isEmpty()) throw CommandErrors.HAND_EMPTY.create();
 
-        String itemId = Registries.ITEM.getId(heldItem.getItem()).toString();
-        ComponentChanges heldItemComponentChanges = heldItem.getComponentChanges();
         foundShop.getItems().add(new ShopItem(
                 itemName,
-                itemId,
+                heldItem.copyWithCount(1),
                 buyItemPrice,
                 sellItemPrice,
                 currency,
-                new String[]{},
-                heldItemComponentChanges
+                List.of()
         ));
+        GUIShop.shopStore.writeShop(foundShop);
         context.getSource().sendFeedback(() -> Text.literal("Item successfully added").formatted(Formatting.GREEN), false);
         return 0;
     }

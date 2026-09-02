@@ -2,10 +2,8 @@ package rickiewars.guishop.shop;
 
 import eu.pb4.common.economy.api.CommonEconomy;
 import eu.pb4.common.economy.api.EconomyCurrency;
-import net.minecraft.component.ComponentChanges;
 import net.minecraft.component.ComponentType;
 import net.minecraft.component.DataComponentTypes;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.MutableText;
@@ -22,110 +20,96 @@ import java.util.*;
  * An item that can be bought or sold in a shop
  */
 public record ShopItem(
-        String itemName,
-        String itemId,
-        long buyItemPrice,
-        long sellItemPrice,
+        String displayName,
+        ItemStack stack,
+        long buyPrice,
+        long sellPrice,
         @Nullable
-        Identifier currencyId,
-        String[] description,
-        ComponentChanges componentChanges
+        Identifier explicitCurrencyId,
+        List<String> description
 ) {
+    private static final Set<ComponentType<?>> GRADED_COMPONENTS = Set.of(
+            DataComponentTypes.DAMAGE,
+            DataComponentTypes.REPAIR_COST
+    );
+    private static final Set<ComponentType<?>> FLAT_COMPONENTS = Set.of(
+            DataComponentTypes.CUSTOM_NAME,
+            DataComponentTypes.LORE
+    );
+
     /// Check if the ShopItem has component changes like Enchantments, a custom name or description
     public boolean hasComponentChanges() {
-        return !(Objects.isNull(componentChanges) || componentChanges.isEmpty());
+        return !stack.getComponentChanges().isEmpty();
+    }
+
+    public Identifier itemId() {
+        return Registries.ITEM.getId(stack.getItem());
+    }
+
+    public int getMaxStackSize() {
+        return stack.getMaxCount();
+    }
+
+    /// A listing that can neither be bought nor sold should not appear in the shop GUI at all.
+    public boolean isListable() {
+        return buyPrice != -1 || sellPrice != -1;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof ShopItem other)) return false;
 
-        ShopItem shopItem = (ShopItem) o;
-
-        if (shopItem.buyItemPrice != buyItemPrice) return false;
-        if (shopItem.sellItemPrice != sellItemPrice) return false;
-        if (!itemName.equals(shopItem.itemName)) return false;
-        if (!itemId.equals(shopItem.itemId)) return false;
-
-        // Compare descriptions
-        if (description.length != shopItem.description.length) return false;
-        for (int i = 0; i < description.length; i++) {
-            if (!description[i].equals(shopItem.description[i])) {
-                return false;
-            }
-        }
-        return true;
+        return buyPrice == other.buyPrice
+                && sellPrice == other.sellPrice
+                && displayName.equals(other.displayName)
+                && Objects.equals(explicitCurrencyId, other.explicitCurrencyId)
+                && description.equals(other.description)
+                && ItemStack.areItemsAndComponentsEqual(stack, other.stack);
     }
-
-    /// Compare the ShopItem with an actual Minecraft ItemStack
-    public boolean matches(ItemStack other) {
-        if (!matches(other.getItem())) return false;
-
-        ComponentChanges otherComponentChanges = other.getComponentChanges();
-
-        boolean currentHasComponentChanges = !(Objects.isNull(componentChanges) || componentChanges.isEmpty());
-        boolean otherHasComponentChanges = !(Objects.isNull(otherComponentChanges) || otherComponentChanges.isEmpty());
-
-        if (!currentHasComponentChanges && !otherHasComponentChanges) return true;
-        if (!currentHasComponentChanges || !otherHasComponentChanges) return false;
-
-        var damage = componentChanges.get(DataComponentTypes.DAMAGE);
-        if (damage != null && damage.isPresent()) {
-            if (other.getDamage() < damage.get()) return false;
-        }
-        var maxDamage = componentChanges.get(DataComponentTypes.DAMAGE);
-        if (maxDamage != null && maxDamage.isPresent()) {
-            if (other.getMaxDamage() < maxDamage.get()) return false;
-        }
-
-        // Only compare the relevant components
-        ComponentType<?>[] relevantComponentTypes = new ComponentType[]{
-                DataComponentTypes.CUSTOM_MODEL_DATA,
-                DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE,
-                DataComponentTypes.ENCHANTMENTS,
-                DataComponentTypes.STORED_ENCHANTMENTS,
-                DataComponentTypes.ATTRIBUTE_MODIFIERS,
-                DataComponentTypes.UNBREAKABLE,
-                DataComponentTypes.RARITY,
-                DataComponentTypes.FOOD,
-                DataComponentTypes.DAMAGE_RESISTANT,
-                DataComponentTypes.TOOL,
-                DataComponentTypes.DYED_COLOR,
-                DataComponentTypes.TRIM,
-        };
-        for (ComponentType<?> type : relevantComponentTypes) {
-            if (!Objects.equals(componentChanges.get(type), otherComponentChanges.get(type))) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /// Compare the ShopItem with another ShopItem based on an actual Minecraft ItemStack
-    public boolean matches(Item other) {
-        return Registries.ITEM.getId(other).toString().equals(itemId);
-    }
-
 
     @Override
     public int hashCode() {
-        int result = itemName != null ? itemName.hashCode() : 0;
-        result = 31 * result + (itemId != null ? itemId.hashCode() : 0);
-        result = 31 * result + (buyItemPrice != 0 ? Long.hashCode(buyItemPrice) : 0);
-        result = 31 * result + (sellItemPrice != 0 ? Long.hashCode(sellItemPrice) : 0);
-        result = 31 * result + Arrays.hashCode(description);
-        result = 31 * result + (componentChanges != null ? componentChanges.hashCode() : 0);
+        int result = displayName.hashCode();
+        result = 31 * result + Long.hashCode(buyPrice);
+        result = 31 * result + Long.hashCode(sellPrice);
+        result = 31 * result + Objects.hashCode(explicitCurrencyId);
+        result = 31 * result + description.hashCode();
+        result = 31 * result + ItemStack.hashCode(stack);
         return result;
+    }
+
+    /// Strict-policy match used to decide sale eligibility: every component must be identical
+    /// except DAMAGE/REPAIR_COST (graded) and CUSTOM_NAME/LORE (flat), which are priced instead
+    /// of being allowed to block a sale outright.
+    public boolean resembles(ItemStack other) {
+        if (!stack.getItem().equals(other.getItem())) return false;
+
+        ItemStack a = stack.copy();
+        ItemStack b = other.copy();
+        for (ComponentType<?> type : GRADED_COMPONENTS) {
+            a.remove(type);
+            b.remove(type);
+        }
+        for (ComponentType<?> type : FLAT_COMPONENTS) {
+            a.remove(type);
+            b.remove(type);
+        }
+        return ItemStack.areItemsAndComponentsEqual(a, b);
+    }
+
+    /// Strict match AND every graded/flat component identical to the listing too. Used only for
+    /// bulk "search the whole inventory" selling, where a single flat price must apply to every
+    /// stack matched, see Shop/Transaction for why this must never allow a discounted item through.
+    public boolean matches(ItemStack other) {
+        return resembles(other) && ItemStack.areItemsAndComponentsEqual(stack, other);
     }
 
     public List<Text> getDescriptionAsText() {
         LinkedList<Text> resultDescription = new LinkedList<>();
 
         for (String line : description) {
-            Text insertion = Text.literal(line);
-            resultDescription.addLast(insertion);
+            resultDescription.addLast(Text.literal(line));
         }
         return resultDescription;
     }
@@ -133,9 +117,9 @@ public record ShopItem(
     public Text getLoreBuyPrice() {
         MutableText priceText = Text.literal("");
 
-        if (buyItemPrice > 0) {
+        if (buyPrice >= 0) {
             priceText.append(Text.literal("Left click to buy for ").formatted(Formatting.GREEN)
-                .append(Text.literal(formatCurrency(buyItemPrice)).formatted(Formatting.YELLOW)));
+                .append(Text.literal(formatCurrency(buyPrice)).formatted(Formatting.YELLOW)));
         }
 
         return priceText;
@@ -144,9 +128,9 @@ public record ShopItem(
     public Text getLoreSellPrice() {
         MutableText priceText = Text.literal("");
 
-        if (sellItemPrice > 0) {
+        if (sellPrice >= 0) {
             priceText.append(Text.literal("Right click to sell for ").formatted(Formatting.RED)
-                .append(Text.literal(formatCurrency(sellItemPrice)).formatted(Formatting.YELLOW)));
+                .append(Text.literal(formatCurrency(sellPrice)).formatted(Formatting.YELLOW)));
         }
 
         return priceText;
@@ -156,16 +140,15 @@ public record ShopItem(
         return Text.literal("Hold shift to trade up to a stack of items").formatted(Formatting.AQUA);
     }
 
-    @Override
-    public Identifier currencyId() {
-        if (currencyId == null) {
+    public Identifier resolvedCurrencyId() {
+        if (explicitCurrencyId == null) {
             return EconomyUtils.getFirstCurrencyId();
         }
-        return currencyId;
+        return explicitCurrencyId;
     }
 
     public EconomyCurrency currency() {
-        Identifier currencyId = currencyId();
+        Identifier currencyId = resolvedCurrencyId();
         for (EconomyCurrency currency : CommonEconomy.getCurrencies(GUIShop.minecraftServer.getInstance())) {
             if (currency.id().equals(currencyId)) {
                 return currency;
@@ -180,12 +163,6 @@ public record ShopItem(
     }
 
     public boolean hasCurrency() {
-        return currencyId != null;
-    }
-
-    public int getMaxStackSize() {
-        Item item = Registries.ITEM.get(Identifier.of(itemId));
-        return item.getMaxCount();
+        return explicitCurrencyId != null;
     }
 }
-

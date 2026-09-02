@@ -1,26 +1,25 @@
 package rickiewars.guishop.api.economy;
 
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.MinecraftTest;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyProvider;
-import rickiewars.guishop.config.EconomyConfig;
+import rickiewars.guishop.config.GuiShopConfig;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 public class GuiShopEconomyCurrencyTest extends MinecraftTest {
 
-    private EconomyConfig.CurrencyDefinition def(int decimals, String prefix, String suffix) {
-        return new EconomyConfig.CurrencyDefinition(
+    private GuiShopConfig.CurrencyDefinition def(int decimals, String prefix, String suffix) {
+        return new GuiShopConfig.CurrencyDefinition(
             "Coins",
             prefix,
             suffix,
             decimals,
-            new ItemStack(Items.GOLD_NUGGET)
+            Identifier.ofVanilla("gold_nugget")
         );
     }
 
@@ -44,21 +43,20 @@ public class GuiShopEconomyCurrencyTest extends MinecraftTest {
 
     @Test
     void iconReturnsDefinitionIcon() {
-        EconomyConfig.CurrencyDefinition d = def(0, "$", "");
-        ItemStack stack = new ItemStack(Items.GOLD_NUGGET);
-        d.icon = stack;
+        GuiShopConfig.CurrencyDefinition d = def(0, "$", "");
+        d.icon = Identifier.ofVanilla("gold_nugget");
 
         GuiShopEconomyCurrency currency = new GuiShopEconomyCurrency(
             Identifier.of("x", "y"),
             d
         );
 
-        assertEquals(stack, currency.icon());
+        assertEquals(Items.GOLD_NUGGET, currency.icon().getItem());
     }
 
     @Test
     void providerReturnsGuiShopEconomyProviderInstance() {
-        EconomyConfig.CurrencyDefinition d = def(0, "", "");
+        GuiShopConfig.CurrencyDefinition d = def(0, "", "");
 
         GuiShopEconomyCurrency currency = new GuiShopEconomyCurrency(
             Identifier.of("test", "coins"),

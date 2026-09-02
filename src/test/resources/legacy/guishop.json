@@ -1,0 +1,972 @@
+{
+  "economyProviders": {
+    "guishop:credit": [
+      "account"
+    ],
+    "guishop:coins": [
+      "pouch"
+    ]
+  },
+  "shops": [
+    {
+      "shopName": "Example Shop",
+      "icon": "minecraft:chest",
+      "items": [
+        {
+          "name": "123",
+          "itemId": "minecraft:diamond",
+          "description": [],
+          "buyPrice": 5,
+          "sellPrice": 5,
+          "currency": "guishop:credit",
+          "components": {}
+        }
+      ]
+    },
+    {
+      "shopName": "Example Shop 2",
+      "icon": "minecraft:diamond",
+      "items": [
+        {
+          "name": "123",
+          "itemId": "minecraft:diamond",
+          "description": [],
+          "buyPrice": 5,
+          "sellPrice": 5,
+          "currency": "guishop:credit",
+          "components": {}
+        }
+      ]
+    },
+    {
+      "shopName": "Example Shop 3",
+      "icon": "minecraft:ender_chest",
+      "items": [
+        {
+          "name": "123",
+          "itemId": "minecraft:diamond",
+          "description": [],
+          "buyPrice": 5,
+          "sellPrice": 5,
+          "currency": "guishop:credit",
+          "components": {}
+        }
+      ]
+    },
+    {
+      "shopName": "Example Shop",
+      "icon": "minecraft:enchanting_table",
+      "items": [
+        {
+          "name": "123",
+          "itemId": "minecraft:diamond",
+          "description": [],
+          "buyPrice": 5,
+          "sellPrice": 5,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 1",
+          "itemId": "minecraft:stone",
+          "description": [],
+          "buyPrice": 1,
+          "sellPrice": 1,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 2",
+          "itemId": "minecraft:cobblestone",
+          "description": [],
+          "buyPrice": 2,
+          "sellPrice": 1,
+          "currency": "guishop:coins",
+          "components": {}
+        },
+        {
+          "name": "Item 3",
+          "itemId": "minecraft:dirt",
+          "description": [],
+          "buyPrice": 3,
+          "sellPrice": 1,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 4",
+          "itemId": "minecraft:sand",
+          "description": [],
+          "buyPrice": 4,
+          "sellPrice": 2,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 5",
+          "itemId": "minecraft:gravel",
+          "description": [],
+          "buyPrice": 5,
+          "sellPrice": 2,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 6",
+          "itemId": "minecraft:oak_log",
+          "description": [],
+          "buyPrice": 6,
+          "sellPrice": 3,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 7",
+          "itemId": "minecraft:spruce_log",
+          "description": [],
+          "buyPrice": 7,
+          "sellPrice": 3,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 8",
+          "itemId": "minecraft:birch_log",
+          "description": [],
+          "buyPrice": 8,
+          "sellPrice": 4,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 9",
+          "itemId": "minecraft:jungle_log",
+          "description": [],
+          "buyPrice": 9,
+          "sellPrice": 4,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 10",
+          "itemId": "minecraft:acacia_log",
+          "description": [],
+          "buyPrice": 10,
+          "sellPrice": 5,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 11",
+          "itemId": "minecraft:dark_oak_log",
+          "description": [],
+          "buyPrice": 11,
+          "sellPrice": 5,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 12",
+          "itemId": "minecraft:oak_planks",
+          "description": [],
+          "buyPrice": 12,
+          "sellPrice": 6,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 13",
+          "itemId": "minecraft:stick",
+          "description": [],
+          "buyPrice": 13,
+          "sellPrice": 6,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 14",
+          "itemId": "minecraft:torch",
+          "description": [],
+          "buyPrice": 14,
+          "sellPrice": 7,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 15",
+          "itemId": "minecraft:coal",
+          "description": [],
+          "buyPrice": 15,
+          "sellPrice": 7,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 16",
+          "itemId": "minecraft:charcoal",
+          "description": [],
+          "buyPrice": 16,
+          "sellPrice": 8,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 17",
+          "itemId": "minecraft:iron_ingot",
+          "description": [],
+          "buyPrice": 17,
+          "sellPrice": 8,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 18",
+          "itemId": "minecraft:gold_ingot",
+          "description": [],
+          "buyPrice": 18,
+          "sellPrice": 9,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 19",
+          "itemId": "minecraft:copper_ingot",
+          "description": [],
+          "buyPrice": 19,
+          "sellPrice": 9,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 20",
+          "itemId": "minecraft:redstone",
+          "description": [],
+          "buyPrice": 20,
+          "sellPrice": 10,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 21",
+          "itemId": "minecraft:lapis_lazuli",
+          "description": [],
+          "buyPrice": 21,
+          "sellPrice": 10,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 22",
+          "itemId": "minecraft:diamond",
+          "description": [],
+          "buyPrice": 22,
+          "sellPrice": 11,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 23",
+          "itemId": "minecraft:emerald",
+          "description": [],
+          "buyPrice": 23,
+          "sellPrice": 11,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 24",
+          "itemId": "minecraft:quartz",
+          "description": [],
+          "buyPrice": 24,
+          "sellPrice": 12,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 25",
+          "itemId": "minecraft:amethyst_shard",
+          "description": [],
+          "buyPrice": 25,
+          "sellPrice": 12,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 26",
+          "itemId": "minecraft:obsidian",
+          "description": [],
+          "buyPrice": 26,
+          "sellPrice": 13,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 27",
+          "itemId": "minecraft:flint",
+          "description": [],
+          "buyPrice": 27,
+          "sellPrice": 13,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 28",
+          "itemId": "minecraft:string",
+          "description": [],
+          "buyPrice": 28,
+          "sellPrice": 14,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 29",
+          "itemId": "minecraft:feather",
+          "description": [],
+          "buyPrice": 29,
+          "sellPrice": 14,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 30",
+          "itemId": "minecraft:leather",
+          "description": [],
+          "buyPrice": 30,
+          "sellPrice": 15,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 31",
+          "itemId": "minecraft:paper",
+          "description": [],
+          "buyPrice": 31,
+          "sellPrice": 15,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 32",
+          "itemId": "minecraft:book",
+          "description": [],
+          "buyPrice": 32,
+          "sellPrice": 16,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 33",
+          "itemId": "minecraft:glass",
+          "description": [],
+          "buyPrice": 33,
+          "sellPrice": 16,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 34",
+          "itemId": "minecraft:glass_pane",
+          "description": [],
+          "buyPrice": 34,
+          "sellPrice": 17,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 35",
+          "itemId": "minecraft:ladder",
+          "description": [],
+          "buyPrice": 35,
+          "sellPrice": 17,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 36",
+          "itemId": "minecraft:chest",
+          "description": [],
+          "buyPrice": 36,
+          "sellPrice": 18,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 37",
+          "itemId": "minecraft:barrel",
+          "description": [],
+          "buyPrice": 37,
+          "sellPrice": 18,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 38",
+          "itemId": "minecraft:furnace",
+          "description": [],
+          "buyPrice": 38,
+          "sellPrice": 19,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 39",
+          "itemId": "minecraft:blast_furnace",
+          "description": [],
+          "buyPrice": 39,
+          "sellPrice": 19,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 40",
+          "itemId": "minecraft:smoker",
+          "description": [],
+          "buyPrice": 40,
+          "sellPrice": 20,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 41",
+          "itemId": "minecraft:anvil",
+          "description": [],
+          "buyPrice": 41,
+          "sellPrice": 20,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 42",
+          "itemId": "minecraft:hopper",
+          "description": [],
+          "buyPrice": 42,
+          "sellPrice": 21,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 43",
+          "itemId": "minecraft:minecart",
+          "description": [],
+          "buyPrice": 43,
+          "sellPrice": 21,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 44",
+          "itemId": "minecraft:rail",
+          "description": [],
+          "buyPrice": 44,
+          "sellPrice": 22,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 45",
+          "itemId": "minecraft:powered_rail",
+          "description": [],
+          "buyPrice": 45,
+          "sellPrice": 22,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 46",
+          "itemId": "minecraft:bucket",
+          "description": [],
+          "buyPrice": 46,
+          "sellPrice": 23,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 47",
+          "itemId": "minecraft:water_bucket",
+          "description": [],
+          "buyPrice": 47,
+          "sellPrice": 23,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 48",
+          "itemId": "minecraft:lava_bucket",
+          "description": [],
+          "buyPrice": 48,
+          "sellPrice": 24,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 49",
+          "itemId": "minecraft:bread",
+          "description": [],
+          "buyPrice": 49,
+          "sellPrice": 24,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 50",
+          "itemId": "minecraft:apple",
+          "description": [],
+          "buyPrice": 50,
+          "sellPrice": 25,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 51",
+          "itemId": "minecraft:cooked_beef",
+          "description": [],
+          "buyPrice": 51,
+          "sellPrice": 25,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 52",
+          "itemId": "minecraft:cooked_chicken",
+          "description": [],
+          "buyPrice": 52,
+          "sellPrice": 26,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 53",
+          "itemId": "minecraft:baked_potato",
+          "description": [],
+          "buyPrice": 53,
+          "sellPrice": 26,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 54",
+          "itemId": "minecraft:carrot",
+          "description": [],
+          "buyPrice": 54,
+          "sellPrice": 27,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 55",
+          "itemId": "minecraft:potato",
+          "description": [],
+          "buyPrice": 55,
+          "sellPrice": 27,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 56",
+          "itemId": "minecraft:beetroot",
+          "description": [],
+          "buyPrice": 56,
+          "sellPrice": 28,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 57",
+          "itemId": "minecraft:wheat",
+          "description": [],
+          "buyPrice": 57,
+          "sellPrice": 28,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 58",
+          "itemId": "minecraft:sugar_cane",
+          "description": [],
+          "buyPrice": 58,
+          "sellPrice": 29,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 59",
+          "itemId": "minecraft:pumpkin",
+          "description": [],
+          "buyPrice": 59,
+          "sellPrice": 29,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 60",
+          "itemId": "minecraft:melon",
+          "description": [],
+          "buyPrice": 60,
+          "sellPrice": 30,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 61",
+          "itemId": "minecraft:egg",
+          "description": [],
+          "buyPrice": 61,
+          "sellPrice": 30,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 62",
+          "itemId": "minecraft:milk_bucket",
+          "description": [],
+          "buyPrice": 62,
+          "sellPrice": 31,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 63",
+          "itemId": "minecraft:slime_ball",
+          "description": [],
+          "buyPrice": 63,
+          "sellPrice": 31,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 64",
+          "itemId": "minecraft:clay_ball",
+          "description": [],
+          "buyPrice": 64,
+          "sellPrice": 32,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 65",
+          "itemId": "minecraft:brick",
+          "description": [],
+          "buyPrice": 65,
+          "sellPrice": 32,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 66",
+          "itemId": "minecraft:nether_brick",
+          "description": [],
+          "buyPrice": 66,
+          "sellPrice": 33,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 67",
+          "itemId": "minecraft:glowstone_dust",
+          "description": [],
+          "buyPrice": 67,
+          "sellPrice": 33,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 68",
+          "itemId": "minecraft:ender_pearl",
+          "description": [],
+          "buyPrice": 68,
+          "sellPrice": 34,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 69",
+          "itemId": "minecraft:blaze_rod",
+          "description": [],
+          "buyPrice": 69,
+          "sellPrice": 34,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 70",
+          "itemId": "minecraft:ghast_tear",
+          "description": [],
+          "buyPrice": 70,
+          "sellPrice": 35,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 71",
+          "itemId": "minecraft:spider_eye",
+          "description": [],
+          "buyPrice": 71,
+          "sellPrice": 35,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 72",
+          "itemId": "minecraft:bone",
+          "description": [],
+          "buyPrice": 72,
+          "sellPrice": 36,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 73",
+          "itemId": "minecraft:gunpowder",
+          "description": [],
+          "buyPrice": 73,
+          "sellPrice": 36,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 74",
+          "itemId": "minecraft:rotten_flesh",
+          "description": [],
+          "buyPrice": 74,
+          "sellPrice": 37,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 75",
+          "itemId": "minecraft:arrow",
+          "description": [],
+          "buyPrice": 75,
+          "sellPrice": 37,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 76",
+          "itemId": "minecraft:bow",
+          "description": [],
+          "buyPrice": 76,
+          "sellPrice": 38,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 77",
+          "itemId": "minecraft:crossbow",
+          "description": [],
+          "buyPrice": 77,
+          "sellPrice": 38,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 78",
+          "itemId": "minecraft:shield",
+          "description": [],
+          "buyPrice": 78,
+          "sellPrice": 39,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 79",
+          "itemId": "minecraft:trident",
+          "description": [],
+          "buyPrice": 79,
+          "sellPrice": 39,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 80",
+          "itemId": "minecraft:fishing_rod",
+          "description": [],
+          "buyPrice": 80,
+          "sellPrice": 40,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 81",
+          "itemId": "minecraft:shears",
+          "description": [],
+          "buyPrice": 81,
+          "sellPrice": 40,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 82",
+          "itemId": "minecraft:flint_and_steel",
+          "description": [],
+          "buyPrice": 82,
+          "sellPrice": 41,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 83",
+          "itemId": "minecraft:clock",
+          "description": [],
+          "buyPrice": 83,
+          "sellPrice": 41,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 84",
+          "itemId": "minecraft:compass",
+          "description": [],
+          "buyPrice": 84,
+          "sellPrice": 42,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 85",
+          "itemId": "minecraft:map",
+          "description": [],
+          "buyPrice": 85,
+          "sellPrice": 42,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 86",
+          "itemId": "minecraft:name_tag",
+          "description": [],
+          "buyPrice": 86,
+          "sellPrice": 43,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 87",
+          "itemId": "minecraft:lead",
+          "description": [],
+          "buyPrice": 87,
+          "sellPrice": 43,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 88",
+          "itemId": "minecraft:saddle",
+          "description": [],
+          "buyPrice": 88,
+          "sellPrice": 44,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 89",
+          "itemId": "minecraft:elytra",
+          "description": [],
+          "buyPrice": 89,
+          "sellPrice": 44,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 90",
+          "itemId": "minecraft:turtle_helmet",
+          "description": [],
+          "buyPrice": 90,
+          "sellPrice": 45,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 91",
+          "itemId": "minecraft:totem_of_undying",
+          "description": [],
+          "buyPrice": 91,
+          "sellPrice": 45,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 92",
+          "itemId": "minecraft:shulker_shell",
+          "description": [],
+          "buyPrice": 92,
+          "sellPrice": 46,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 93",
+          "itemId": "minecraft:ender_chest",
+          "description": [],
+          "buyPrice": 93,
+          "sellPrice": 46,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 94",
+          "itemId": "minecraft:beacon",
+          "description": [],
+          "buyPrice": 94,
+          "sellPrice": 47,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 95",
+          "itemId": "minecraft:conduit",
+          "description": [],
+          "buyPrice": 95,
+          "sellPrice": 47,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 96",
+          "itemId": "minecraft:nether_star",
+          "description": [],
+          "buyPrice": 96,
+          "sellPrice": 48,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 97",
+          "itemId": "minecraft:dragon_breath",
+          "description": [],
+          "buyPrice": 97,
+          "sellPrice": 48,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 98",
+          "itemId": "minecraft:end_crystal",
+          "description": [],
+          "buyPrice": 98,
+          "sellPrice": 49,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 99",
+          "itemId": "minecraft:respawn_anchor",
+          "description": [],
+          "buyPrice": 99,
+          "sellPrice": 49,
+          "currency": "guishop:credit",
+          "components": {}
+        },
+        {
+          "name": "Item 100",
+          "itemId": "minecraft:lodestone",
+          "description": [],
+          "buyPrice": 100,
+          "sellPrice": 50,
+          "currency": "guishop:credit",
+          "components": {}
+        }
+      ]
+    }
+  ]
+}

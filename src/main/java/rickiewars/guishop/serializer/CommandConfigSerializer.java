@@ -1,7 +1,7 @@
 package rickiewars.guishop.serializer;
 
 import com.google.gson.*;
-import rickiewars.guishop.config.EconomyConfig.CommandConfig;
+import rickiewars.guishop.config.GuiShopConfig.CommandConfig;
 
 import java.lang.reflect.Type;
 

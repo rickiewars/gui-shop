@@ -83,9 +83,10 @@ dependencies {
     testImplementation "org.junit.platform:junit-platform-suite:${project.junit_platform_version}"
     testImplementation "org.junit.platform:junit-platform-suite-engine:${project.junit_platform_version}"
 
-    // Mockito core
+    // Mockito core. mockito-inline must NOT be added back: the inline mock maker has been part of
+    // mockito-core since 5.0, and the standalone artifact registers a second, incompatible MockMaker
+    // that makes every Mockito call fail with "Could not initialize plugin: MockMaker".
     testImplementation 'org.mockito:mockito-core:5.20.0'
-    testImplementation 'org.mockito:mockito-inline:5.2.0'
 
 }
 

@@ -30,6 +30,11 @@ public class GUIShopReloadCommand {
             return -1;
         }
 
+        if (GUIShop.shopStore != null) {
+            GUIShop.shops = new java.util.LinkedList<>(GUIShop.shopStore.readAll());
+            GUIShop.shops.forEach(rickiewars.guishop.shop.Shop::validate);
+        }
+
         return 0;
     }
 }

@@ -1,9 +1,9 @@
 package rickiewars.guishop.serializer;
 
 import com.google.gson.*;
-import rickiewars.guishop.config.EconomyConfig.AccountDefinition;
-import rickiewars.guishop.config.EconomyConfig.CurrencyDefinition;
-import rickiewars.guishop.config.EconomyConfig.EconomyProviderDefinition;
+import rickiewars.guishop.config.GuiShopConfig.AccountDefinition;
+import rickiewars.guishop.config.GuiShopConfig.CurrencyDefinition;
+import rickiewars.guishop.config.GuiShopConfig.EconomyProviderDefinition;
 
 import java.lang.reflect.Type;
 

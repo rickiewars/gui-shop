@@ -9,7 +9,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.command.GuiShopPermission;
-import rickiewars.guishop.util.ShopFileHandler;
+import rickiewars.guishop.config.ConfigManager;
 
 import java.io.IOException;
 
@@ -22,17 +22,19 @@ public class GUIShopForceSaveCommand {
     }
 
     public static int run(CommandContext<ServerCommandSource> context) {
-        ShopFileHandler fileHandler = new ShopFileHandler();
-        try{
-            fileHandler.saveToFile();
-            context.getSource().sendFeedback(()-> Text.literal("Shops successfully saved to config file!").formatted(Formatting.GREEN), false);
+        try {
+            ConfigManager.saveConfig();
+            if (GUIShop.shopStore != null) {
+                GUIShop.shops.forEach(GUIShop.shopStore::writeShop);
+            }
+            context.getSource().sendFeedback(()-> Text.literal("Config and shops successfully saved!").formatted(Formatting.GREEN), false);
         } catch (IOException e){
-            context.getSource().sendFeedback(()-> Text.literal("Error saving shops to file").formatted(Formatting.RED), false);
-            GUIShop.LOGGER.error("Error saving shops to file, IOException: ", e);
+            context.getSource().sendFeedback(()-> Text.literal("Error saving config to file").formatted(Formatting.RED), false);
+            GUIShop.LOGGER.error("Error saving config to file, IOException: ", e);
             throw new RuntimeException(e);
         } catch (Exception e){
             context.getSource().sendFeedback(()-> Text.literal("Error parsing data!").formatted(Formatting.RED), false);
-            GUIShop.LOGGER.error("Error saving shops to file, Exception: ", e);
+            GUIShop.LOGGER.error("Error saving config to file, Exception: ", e);
             throw new RuntimeException(e);
         }
 

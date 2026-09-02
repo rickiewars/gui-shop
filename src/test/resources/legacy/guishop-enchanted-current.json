@@ -1,0 +1,58 @@
+{
+  "economyProviders": {
+    "guishop:credit": ["account"]
+  },
+  "shops": [
+    {
+      "shopName": "Enchanted Shop",
+      "icon": "minecraft:enchanting_table",
+      "items": [
+        {
+          "name": "Excalibur",
+          "itemId": "minecraft:netherite_sword",
+          "description": ["A legendary blade", "Second lore line"],
+          "buyPrice": 1000,
+          "sellPrice": 100,
+          "currency": "guishop:credit",
+          "components": {
+            "minecraft:enchantments": {
+              "minecraft:sharpness": 5,
+              "minecraft:unbreaking": 3
+            },
+            "minecraft:custom_name": {
+              "text": "Excalibur",
+              "bold": true
+            },
+            "minecraft:lore": [
+              {
+                "text": "Forged in fire"
+              }
+            ],
+            "minecraft:damage": 42
+          }
+        },
+        {
+          "name": "Tagged Diamond",
+          "itemId": "minecraft:diamond",
+          "description": [],
+          "buyPrice": 5,
+          "sellPrice": 5,
+          "currency": "guishop:credit",
+          "components": {
+            "minecraft:custom_data": {
+              "shopTag": "legacy"
+            }
+          }
+        },
+        {
+          "name": "Plain Stone",
+          "itemId": "minecraft:stone",
+          "description": [],
+          "buyPrice": 1,
+          "sellPrice": 1,
+          "components": {}
+        }
+      ]
+    }
+  ]
+}

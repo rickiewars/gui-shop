@@ -1,0 +1,80 @@
+{
+  "economyProviders": {
+    "guishop:credit": ["account"]
+  },
+  "shops": [
+    {
+      "shopName": "Legacy Shapes",
+      "icon": "minecraft:chest",
+      "items": [
+        {
+          "name": "Wrapped Enchantments",
+          "itemId": "minecraft:netherite_sword",
+          "description": [],
+          "buyPrice": 100,
+          "sellPrice": 10,
+          "components": {
+            "minecraft:enchantments": {
+              "levels": {
+                "minecraft:sharpness": 5,
+                "minecraft:mending": 1
+              },
+              "show_in_tooltip": true
+            }
+          }
+        },
+        {
+          "name": "Wrapped Stored Enchantments",
+          "itemId": "minecraft:enchanted_book",
+          "description": [],
+          "buyPrice": 200,
+          "sellPrice": 20,
+          "components": {
+            "minecraft:stored_enchantments": {
+              "levels": {
+                "minecraft:lure": 3
+              }
+            }
+          }
+        },
+        {
+          "name": "Wrapped Dyed Colour",
+          "itemId": "minecraft:leather_chestplate",
+          "description": [],
+          "buyPrice": 50,
+          "sellPrice": 5,
+          "components": {
+            "minecraft:dyed_color": {
+              "rgb": 16711680,
+              "show_in_tooltip": true
+            }
+          }
+        },
+        {
+          "name": "Flat Enchantments With Tooltip Flag",
+          "itemId": "minecraft:diamond_pickaxe",
+          "description": [],
+          "buyPrice": 75,
+          "sellPrice": 7,
+          "components": {
+            "minecraft:enchantments": {
+              "minecraft:efficiency": 4,
+              "show_in_tooltip": false
+            }
+          }
+        },
+        {
+          "name": "Unsalvageable Component",
+          "itemId": "minecraft:stone",
+          "description": [],
+          "buyPrice": 1,
+          "sellPrice": 1,
+          "components": {
+            "minecraft:custom_name": { "text": "Still Named" },
+            "someremovedmod:mystery_component": { "value": 1 }
+          }
+        }
+      ]
+    }
+  ]
+}

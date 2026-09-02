@@ -23,7 +23,15 @@ public class GUIShopCreateCommand {
 
     public static int run(CommandContext<ServerCommandSource> context){
         var shopName = StringArgumentType.getString(context, "shopName");
-        GUIShop.config.shops.addLast(new Shop(shopName));
+
+        var existingIds = new java.util.HashSet<String>();
+        GUIShop.shops.forEach(s -> existingIds.add(s.getId()));
+        String id = rickiewars.guishop.util.CommonMethods.slugify(shopName, existingIds);
+
+        Shop shop = new Shop(id, shopName);
+        GUIShop.shops.add(shop);
+        GUIShop.shopStore.writeShop(shop);
+
         context.getSource().sendFeedback(()-> Text.literal("Shop successfully created!").formatted(Formatting.GREEN), false);
         return 0;
     }

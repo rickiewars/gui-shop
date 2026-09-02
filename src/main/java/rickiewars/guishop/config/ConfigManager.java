@@ -5,98 +5,89 @@ import com.google.gson.GsonBuilder;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.database.impl.SQLiteDatabaseManager;
 import rickiewars.guishop.serializer.*;
-import rickiewars.guishop.shop.Shop;
-import rickiewars.guishop.shop.ShopItem;
-import rickiewars.guishop.util.EconomyFileHandler;
-import rickiewars.guishop.util.ShopFileHandler;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Load and hold the configuration data for the plugin
+ * Load and hold the merged gui-shop configuration data at config/gui-shop/config.json. Shop
+ * items are not part of this file -- see SnbtShopStore.
  */
 public class ConfigManager {
     /**
      * Gson instance which holds the configuration data
      */
     public static final Gson GSON = new GsonBuilder()
-        .registerTypeAdapter(ShopItem.class, new ShopItemSerializer())
-        .registerTypeAdapter(Shop.class, new ShopSerializer())
-        .registerTypeAdapter(EconomyConfig.DatabaseConfig.class, new DatabaseConfigSerializer())
-        .registerTypeAdapter(EconomyConfig.EconomyProviderDefinition.class, new EconomyProviderDefinitionSerializer())
-        .registerTypeAdapter(EconomyConfig.CurrencyDefinition.class, new CurrencyDefinitionSerializer())
-        .registerTypeAdapter(EconomyConfig.AccountDefinition.class, new AccountDefinitionSerializer())
-        .registerTypeAdapter(EconomyConfig.CommandConfig.class, new CommandConfigSerializer())
-        .registerTypeAdapter(Config.EconomyProviders.class, new EconomyProvidersSerializer())
+        .registerTypeAdapter(GuiShopConfig.DatabaseConfig.class, new DatabaseConfigSerializer())
+        .registerTypeAdapter(GuiShopConfig.EconomyProviderDefinition.class, new EconomyProviderDefinitionSerializer())
+        .registerTypeAdapter(GuiShopConfig.CurrencyDefinition.class, new CurrencyDefinitionSerializer())
+        .registerTypeAdapter(GuiShopConfig.AccountDefinition.class, new AccountDefinitionSerializer())
+        .registerTypeAdapter(GuiShopConfig.CommandConfig.class, new CommandConfigSerializer())
+        .registerTypeAdapter(GuiShopConfig.EconomyProviders.class, new EconomyProvidersSerializer())
         .setPrettyPrinting()
         .disableHtmlEscaping()
         .create();
+
+    public static Path configRoot() {
+        return Paths.get("", "config");
+    }
+
+    public static Path guiShopConfigDir() {
+        return configRoot().resolve(GuiShopConfig.DIR_NAME);
+    }
+
+    public static Path guiShopConfigFile() {
+        return guiShopConfigDir().resolve(GuiShopConfig.FILE_NAME);
+    }
+
+    public static Path shopsDir() {
+        return guiShopConfigDir().resolve("shops");
+    }
 
     /**
      * Initialize a new empty configuration file.
      * Only gets called if the configuration file does not exist on load.
      */
-    private static Config initConfigFile(File configFile) throws IOException {
-        Config config = new Config();
+    private static GuiShopConfig initConfigFile(File configFile) throws IOException {
+        GuiShopConfig config = new GuiShopConfig();
         config.configureDefaultEconomyProvider();
 
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(configFile), StandardCharsets.UTF_8));
-        writer.write(GSON.toJson(config));
-        writer.close();
-
+        writeConfig(configFile, config);
         return config;
     }
 
-    /**
-     * Initialize a new empty economy configuration file.
-     * Only gets called if the economy configuration file does not exist on load.
-     */
-    private static EconomyConfig initEconomyConfigFile(File configFile) throws IOException {
-        EconomyConfig econConfig = new EconomyConfig();
-        econConfig.configureDefaultEconomy();
+    private static void writeConfig(File configFile, GuiShopConfig config) throws IOException {
+        File parent = configFile.getParentFile();
+        if (parent != null) parent.mkdirs();
 
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(configFile), StandardCharsets.UTF_8));
-        writer.write(GSON.toJson(econConfig));
-        writer.close();
-
-        return econConfig;
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(configFile), StandardCharsets.UTF_8))) {
+            writer.write(GSON.toJson(config));
+        }
     }
 
     /**
-     * Try to load the configuration data from guishop.json
+     * Try to load the configuration data from config/gui-shop/config.json
      */
-    private static Config getConfigData(File configFile) throws IOException {
+    private static GuiShopConfig getConfigData(File configFile) throws IOException {
         return configFile.exists() ? GSON.fromJson(
             new InputStreamReader(new FileInputStream(configFile), StandardCharsets.UTF_8),
-            Config.class
+            GuiShopConfig.class
         ) : initConfigFile(configFile);
     }
 
     /**
-     * Try to load the configuration data from guishopeconomy.json
-     */
-    private static EconomyConfig getEconomyConfigData(File configFile) throws IOException {
-        return configFile.exists() ? GSON.fromJson(
-            new InputStreamReader(new FileInputStream(configFile), StandardCharsets.UTF_8),
-            EconomyConfig.class
-        ) : initEconomyConfigFile(configFile);
-    }
-
-    /**
-     * Load the configuration data from guishop.json
+     * Load the configuration from config/gui-shop/config.json
      */
     public static void loadConfig() throws IOException {
-        boolean configUpdated = false;
-
-        File configDir = Paths.get("", "config").toFile();
-        File configFile = new File(configDir, Config.FILE_NAME);
+        File configFile = guiShopConfigFile().toFile();
 
         GUIShop.LOGGER.info("Loading config");
-        Config config = getConfigData(configFile);
+        GuiShopConfig config = getConfigData(configFile);
         GUIShop.LOGGER.info("Config loaded");
 
+        boolean configUpdated = false;
         if (!config.economyProvidersConfigured()) {
             configUpdated = true;
             GUIShop.LOGGER.info(
@@ -105,66 +96,39 @@ public class ConfigManager {
             config.configureDefaultEconomyProvider();
         }
 
-        GUIShop.config = config;
-
-        if (configUpdated) {
-            ShopFileHandler fileHandler = new ShopFileHandler();
-            fileHandler.saveToFile();
-        }
-    }
-
-    /**
-     * load the economy configuration data from guishopeconomy.json
-     * @return true if successful, false otherwise
-     */
-    public static boolean loadEconomyConfig() {
-        boolean success;
-        boolean configUpdated = false;
-        try {
-            File configDir = Paths.get("", "config").toFile();
-            File configFile = new File(configDir, EconomyConfig.FILE_NAME);
-
-            GUIShop.LOGGER.info("Loading economy config");
-            EconomyConfig econConfig = getEconomyConfigData(configFile);
-            GUIShop.LOGGER.info("Economy config loaded");
-
-            if (!econConfig.economyConfigured() && !econConfig.disabled) {
+        if (!config.economyDisabled) {
+            if (!config.economyConfigured()) {
                 GUIShop.LOGGER.info(
                         "The built-in economy provider has not been configured. Using default configuration."
                 );
-                econConfig.configureDefaultEconomy();
+                config.configureDefaultEconomy();
+                configUpdated = true;
             }
 
-            if (econConfig.database == null && !econConfig.disabled) {
+            if (config.database == null) {
                 configUpdated = true;
                 GUIShop.LOGGER.info(
                         "No database configuration found. Adding the default SQLite configuration."
                 );
-                econConfig.database = new EconomyConfig.DatabaseConfig();
+                config.database = new GuiShopConfig.DatabaseConfig();
             }
 
-            if (!econConfig.disabled) {
-                EconomyConfig.DatabaseConfig.DatabaseType type = econConfig.database.type;
-                if (type == EconomyConfig.DatabaseConfig.DatabaseType.SQLITE) {
-                    GUIShop.databaseManager = new SQLiteDatabaseManager(econConfig);
-                } else {
-                    throw new RuntimeException("Unsupported database type: " + type);
-                }
+            GuiShopConfig.DatabaseConfig.DatabaseType type = config.database.type;
+            if (type == GuiShopConfig.DatabaseConfig.DatabaseType.SQLITE) {
+                GUIShop.databaseManager = new SQLiteDatabaseManager(config);
+            } else {
+                throw new RuntimeException("Unsupported database type: " + type);
             }
-
-            GUIShop.economyConfig = econConfig;
-
-            if (configUpdated) {
-                EconomyFileHandler fileHandler = new EconomyFileHandler();
-                fileHandler.saveToFile();
-            }
-
-            success = true;
-
-        } catch (IOException e) {
-            success = false;
         }
 
-        return success;
+        GUIShop.config = config;
+
+        if (configUpdated) {
+            saveConfig();
+        }
+    }
+
+    public static void saveConfig() throws IOException {
+        writeConfig(guiShopConfigFile().toFile(), GUIShop.config);
     }
 }

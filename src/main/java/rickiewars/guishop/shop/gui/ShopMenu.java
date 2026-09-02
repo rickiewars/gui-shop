@@ -19,6 +19,7 @@ import java.util.Map;
 public class ShopMenu implements Menu {
     private final Shop shop;
     private final IPlayer player;
+    private final List<ShopItem> listableItems;
 
     private static final MenuConfig<SlotType> config = buildConfig();
 
@@ -34,29 +35,30 @@ public class ShopMenu implements Menu {
     public ShopMenu(Shop shop, IPlayer player) {
         this.shop = shop;
         this.player = player;
+        this.listableItems = shop.getItems().stream().filter(ShopItem::isListable).toList();
     }
 
     @Override
     public Text title() {
         EconomyAccount account = player.getAccount(shop.getDefaultCurrencyId());
         String balance = account.formattedBalance().getLiteralString();
-        return Text.of(shop.getName() + " (Balance: " + balance + ")");
+        return Text.of(shop.getDisplayName() + " (Balance: " + balance + ")");
     }
 
     @Override
     public int getPageCount() {
-        return (int) Math.ceil(shop.getItems().size() / (double) config.availableSlots());
+        return (int) Math.ceil(listableItems.size() / (double) config.availableSlots());
     }
 
     @Override
     public List<MenuSlot> getPageContent(int page) {
         int pageSize = config.availableSlots();
         int start = (page - 1) * pageSize;
-        int itemCount = shop.getItems().size();
+        int itemCount = listableItems.size();
         List<MenuSlot> result = new ArrayList<>();
 
         for (int i = start; i < Math.min(start + pageSize, itemCount); i++) {
-            result.add(shopItemSlot(shop.getItems().get(i)));
+            result.add(shopItemSlot(listableItems.get(i)));
         }
 
         return result;

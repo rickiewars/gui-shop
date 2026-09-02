@@ -1,7 +1,10 @@
 package rickiewars.guishop.shop.gui.slot;
 
 import eu.pb4.sgui.api.ClickType;
+import net.minecraft.item.ItemStack;
+import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.EconomyTest;
 import rickiewars.guishop.api.gui.impl.TestMenuController;
@@ -150,24 +153,22 @@ public class FixedSlotTest extends EconomyTest {
         var currencyId1 = economy.currencyCreditsId;
         var currencyId2 = economy.currencyCoinsId;
 
-        var shop = new Shop("Test shop", List.of(
+        var shop = new Shop("test_shop", "Test shop", List.of(
             new ShopItem(
                 "Item 1",
-                "minecraft:stone",
+                new ItemStack(Registries.ITEM.get(Identifier.of("minecraft:stone"))),
                 10,
                 10,
                 currencyId1,
-                new String[0],
-                null
+                List.of()
             ),
             new ShopItem(
                 "Item 2",
-                "minecraft:stone",
+                new ItemStack(Registries.ITEM.get(Identifier.of("minecraft:stone"))),
                 10,
                 10,
                 currencyId2,
-                new String[0],
-                null
+                List.of()
             )
         ), currencyId2);
 

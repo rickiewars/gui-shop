@@ -34,11 +34,12 @@ public class GUIShopRemoveItemCommand {
         if (foundShop == null) throw CommandErrors.SHOP_NOT_FOUND.create(shopName);
 
         var item = foundShop.getItems().stream().filter(
-            i -> i.itemName().equals(itemName)
+            i -> i.displayName().equals(itemName)
         ).findFirst();
         if (item.isEmpty()) throw CommandErrors.ITEM_NOT_FOUND.create(itemName);
 
         foundShop.getItems().remove(item.get());
+        rickiewars.guishop.GUIShop.shopStore.writeShop(foundShop);
         context.getSource().sendFeedback(()-> Text.literal(
             "Item successfully removed"
         ).formatted(Formatting.GREEN), false);

@@ -3,16 +3,16 @@ package rickiewars.guishop.serializer;
 import com.google.gson.*;
 import net.minecraft.util.Identifier;
 import rickiewars.guishop.GUIShop;
-import rickiewars.guishop.config.Config;
+import rickiewars.guishop.config.GuiShopConfig;
 
 import java.lang.reflect.Type;
 import java.util.List;
 
-public class EconomyProvidersSerializer implements JsonSerializer<Config.EconomyProviders>, JsonDeserializer<Config.EconomyProviders> {
+public class EconomyProvidersSerializer implements JsonSerializer<GuiShopConfig.EconomyProviders>, JsonDeserializer<GuiShopConfig.EconomyProviders> {
     @Override
-    public Config.EconomyProviders deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+    public GuiShopConfig.EconomyProviders deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
         JsonObject economy = jsonElement.getAsJsonObject();
-        Config.EconomyProviders economyProviders = new Config.EconomyProviders();
+        GuiShopConfig.EconomyProviders economyProviders = new GuiShopConfig.EconomyProviders();
 
         economy.asMap().forEach((key, value) -> {
             Identifier id = key.contains(":")
@@ -28,7 +28,7 @@ public class EconomyProvidersSerializer implements JsonSerializer<Config.Economy
     }
 
     @Override
-    public JsonElement serialize(Config.EconomyProviders providers, Type type, JsonSerializationContext jsonSerializationContext) {
+    public JsonElement serialize(GuiShopConfig.EconomyProviders providers, Type type, JsonSerializationContext jsonSerializationContext) {
         JsonObject result = new JsonObject();
 
         providers.forEach((key, value) -> {

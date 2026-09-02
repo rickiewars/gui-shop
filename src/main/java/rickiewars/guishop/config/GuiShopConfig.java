@@ -1,31 +1,30 @@
 package rickiewars.guishop.config;
 
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyAccount;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyProvider;
+import rickiewars.guishop.shop.SellPricing;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-/**
- * An interface representing the configuration structure
- */
-public class EconomyConfig {
-    public static final String FILE_NAME = "guishopeconomy.json";
+public class GuiShopConfig {
+    public static final String DIR_NAME = "gui-shop";
+    public static final String FILE_NAME = "config.json";
 
     /**
-     * Whether the economy is enabled.
-     * If false, the economy will be disabled and no economy commands will be available.
+     * Whether the built-in economy is enabled.
+     * If true, the economy will be disabled and no economy commands will be available.
      */
-    public boolean disabled;
+    public boolean economyDisabled;
 
     /**
      * Configure the storage type for the build-in economy.
      * Currently only supports sqlite.
-     * Ignored if the economy is disabled through the disabled field.
+     * Ignored if the economy is disabled through the economyDisabled field.
      */
     @Nullable
     public DatabaseConfig database;
@@ -33,30 +32,42 @@ public class EconomyConfig {
     /**
      * Configure the build-in economy.
      * Currency and account identifiers defined here have a namespace of guishop.
-     * Ignored if the economy is disabled through the disabled field.
+     * Ignored if the economy is disabled through the economyDisabled field.
      */
     @Nullable
     public EconomyProviderDefinition economy;
 
     /**
      * Configure an in-game command for interacting with the common economy api.
-     * This can also be used with external economy providers.
-     * Will add a "balance" command as a subcommand of guishop.
-     * When specifying an alias, the command will be available as main command under the specified name (e.g. "/myAlias").
      */
     public CommandConfig command;
 
-    public EconomyConfig(
+    /**
+     * Configure default economy or economies provided by other mods
+     */
+    public EconomyProviders economyProviders;
+
+    /**
+     * Default sell-pricing parameters, overridable per shop file.
+     */
+    public SellPricing sellPricing;
+
+    public GuiShopConfig(
             @Nullable EconomyProviderDefinition economy,
             @Nullable DatabaseConfig database,
-            CommandConfig command
+            CommandConfig command,
+            EconomyProviders economyProviders,
+            SellPricing sellPricing
     ) {
         this.economy = economy;
         this.database = database;
         this.command = command;
+        this.economyProviders = economyProviders;
+        this.sellPricing = sellPricing;
     }
-    public EconomyConfig(){
-        this(null, null, new CommandConfig());
+
+    public GuiShopConfig() {
+        this(null, null, new CommandConfig(), new EconomyProviders(), SellPricing.DEFAULT);
     }
 
     public boolean economyConfigured() {
@@ -67,18 +78,38 @@ public class EconomyConfig {
         return !command.disabled;
     }
 
+    public boolean economyProvidersConfigured() {
+        return economyProviders != null && !economyProviders.isEmpty();
+    }
+
+    public void configureDefaultEconomyProvider() {
+        if (economyProviders == null) economyProviders = new EconomyProviders();
+        economyProviders.put(
+            GuiShopEconomyCurrency.DEFAULT_ID,
+            new java.util.LinkedList<>() {{
+                add(GuiShopEconomyAccount.DEFAULT_ID.getPath());
+            }}
+        );
+    }
+
     public void configureDefaultEconomy() {
         if (economy == null) economy = new EconomyProviderDefinition();
 
         if (!economy.currencies.containsKey(GuiShopEconomyCurrency.DEFAULT_ID.getPath())) {
             economy.currencies.put(GuiShopEconomyCurrency.DEFAULT_ID.getPath(), new CurrencyDefinition(
-                    "Credits", "$", "", 2, new ItemStack(GuiShopEconomyCurrency.DEFAULT_ICON)
+                    "Credits", "$", "", 2, GuiShopEconomyCurrency.DEFAULT_ICON_ID
             ));
         }
         if (!economy.accounts.containsKey(GuiShopEconomyAccount.DEFAULT_ID.getPath())) {
             economy.accounts.put(GuiShopEconomyAccount.DEFAULT_ID.getPath(), new AccountDefinition(
-                    GuiShopEconomyCurrency.DEFAULT_ID.getPath(), "Account", new ItemStack(GuiShopEconomyAccount.DEFAULT_ICON)
+                    GuiShopEconomyCurrency.DEFAULT_ID.getPath(), "Account", GuiShopEconomyAccount.DEFAULT_ICON_ID
             ));
+        }
+    }
+
+    public static class EconomyProviders extends HashMap<Identifier, List<String>> {
+        public Identifier getFirstCurrency() {
+            return this.entrySet().iterator().next().getKey();
         }
     }
 
@@ -110,22 +141,17 @@ public class EconomyConfig {
         public boolean isConfigured() {
             return !currencies.isEmpty() && !accounts.isEmpty();
         }
-
     }
 
     public static class CurrencyDefinition {
-        // The name of the currency
         public String name;
-        // The prefix to display before the currency value
         public String prefix;
-        // The suffix to display after the currency value
         public String suffix;
-        // The number of decimal places to display
         public int decimalPlaces;
-        // The icon to display for the currency, used in the GUI
-        public ItemStack icon;
+        /** Bare item id, resolved to an ItemStack lazily at the GUI boundary. */
+        public Identifier icon;
 
-        public CurrencyDefinition(String name, String prefix, String suffix, int decimalPlaces, ItemStack icon) {
+        public CurrencyDefinition(String name, String prefix, String suffix, int decimalPlaces, Identifier icon) {
             this.name = name;
             this.prefix = prefix;
             this.suffix = suffix;
@@ -137,8 +163,10 @@ public class EconomyConfig {
     public static class AccountDefinition {
         public Identifier currencyId;
         public String name;
-        public ItemStack icon;
-        public AccountDefinition(String currencyId, String name, ItemStack icon) {
+        /** Bare item id, resolved to an ItemStack lazily at the GUI boundary. */
+        public Identifier icon;
+
+        public AccountDefinition(String currencyId, String name, Identifier icon) {
             this.currencyId = Identifier.of(GuiShopEconomyProvider.ID, currencyId);
             this.name = name;
             this.icon = icon;
@@ -169,6 +197,5 @@ public class EconomyConfig {
         public DatabaseConfig() {
             this(DEFAULT_TYPE, DEFAULT_FILE_LOCATION);
         }
-
     }
 }

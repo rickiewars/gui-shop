@@ -12,10 +12,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.GlobalPos;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.minecraft.IPlayer;
-import rickiewars.guishop.config.Config;
 import rickiewars.guishop.shop.Shop;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,22 +32,33 @@ public class CommonMethods {
     }
 
     /**
-     * Gets shop data by name.
-     * @param name The name of the shop to look for
-     * @return An object of class Shop from the list {@link Config#shops} with the same case-sensitive name as the one
-     * passed by argument, or null if none is found.
+     * Gets shop data by display name.
+     * @param name The display name of the shop to look for
+     * @return An object of class Shop from {@link GUIShop#shops} with the same case-sensitive
+     * display name as the one passed by argument, or null if none is found.
      */
     public static Shop getShopByName(String name) {
-        for(Shop shop: GUIShop.config.shops){
-            if(shop.getName().equals(name)){
+        for(Shop shop: GUIShop.shops){
+            if(shop.getDisplayName().equals(name)){
                 return shop;
             }
         }
         return null;
     }
 
-    public static List<Shop> getAllShops(){
-        return GUIShop.config.shops;
+    /// Turn a display name into a filesystem/id-safe slug: lowercase, non-alphanumerics become
+    /// `_`, and collisions with `existingIds` get `_2`, `_3`, ... appended.
+    public static String slugify(String name, java.util.Set<String> existingIds) {
+        String base = name.toLowerCase().replaceAll("[^a-z0-9]+", "_").replaceAll("^_+|_+$", "");
+        if (base.isEmpty()) base = "shop";
+
+        String candidate = base;
+        int suffix = 2;
+        while (existingIds.contains(candidate)) {
+            candidate = base + "_" + suffix;
+            suffix++;
+        }
+        return candidate;
     }
 
     public static Throwable findRootCause(Throwable e) {
@@ -73,7 +82,7 @@ public class CommonMethods {
         return Registries.ITEM.getId(item).toString();
     }
 
-    public static String translatePlayer(UUID uuid) {
+    public static String identifyPlayer(UUID uuid) {
         IPlayer player = GUIShop.minecraftServer.getPlayerByUUID(uuid);
         return player != null ? player.name().toString() : uuid.toString();
     }
@@ -130,9 +139,5 @@ public class CommonMethods {
         );
 
         return stack;
-    }
-
-    public static void getCurrency() {
-
     }
 }

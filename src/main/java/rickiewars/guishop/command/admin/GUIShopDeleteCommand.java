@@ -27,12 +27,13 @@ public class GUIShopDeleteCommand {
     public static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
         String shopName = StringArgumentType.getString(context, "shopName");
 
-        var shop = GUIShop.config.shops.stream().filter(
-            match -> match.getName().equals(shopName)
+        var shop = GUIShop.shops.stream().filter(
+            match -> match.getDisplayName().equals(shopName)
         ).findFirst();
         if (shop.isEmpty()) throw CommandErrors.SHOP_NOT_FOUND.create(shopName);
 
-        GUIShop.config.shops.remove(shop.get());
+        GUIShop.shops.remove(shop.get());
+        GUIShop.shopStore.deleteShop(shop.get());
         context.getSource().sendFeedback(()-> Text.literal(
             "Shop successfully removed!"
         ).formatted(Formatting.GREEN), false);

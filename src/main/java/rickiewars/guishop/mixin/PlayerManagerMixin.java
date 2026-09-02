@@ -16,7 +16,7 @@ import rickiewars.guishop.api.database.DatabaseManager;
 public class PlayerManagerMixin {
     @Inject(method = "onPlayerConnect", at = @At("TAIL"))
     private void guishop_onPlayerConnectMixin(ClientConnection connection, ServerPlayerEntity player, ConnectedClientData commonListenerCookie, CallbackInfo ci) {
-        if (GUIShop.economyConfig.disabled) {
+        if (GUIShop.config.economyDisabled) {
             return;
         }
 

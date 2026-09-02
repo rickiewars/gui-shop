@@ -1,10 +1,8 @@
 package rickiewars.guishop.shop;
 
-import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.Rarity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.MinecraftTest;
@@ -26,68 +24,85 @@ class ShopTest extends MinecraftTest {
     void setup() {
         stoneItem = new ShopItem(
             "Fancy Stone",
-            "minecraft:stone",
+            new ItemStack(Items.STONE),
             10,
             5,
             null,
-            new String[]{"A fancy stone block"},
-            null
+            List.of("A fancy stone block")
         );
 
         dirtItem = new ShopItem(
             "Cheap Dirt",
-            "minecraft:dirt",
+            new ItemStack(Items.DIRT),
             20,
             10,
             Identifier.of("test:currency"),
-            new String[]{"Just some dirt"},
-            null
+            List.of("Just some dirt")
         );
 
         defaultCurrency = Identifier.of("test:default");
 
         shop = new Shop(
+            "test_shop",
             "TestShop",
             List.of(stoneItem, dirtItem),
             defaultCurrency,
-            Identifier.ofVanilla("ender_chest")
+            Identifier.ofVanilla("ender_chest"),
+            SellPricing.DEFAULT
         );
     }
 
     @Test
-    void findItemReturnsMatchingShopItem() {
+    void findHighestPayingItemReturnsMatchingShopHighestPayingItem() {
         ItemStack stack = new ItemStack(Items.STONE, 1);
 
-        ShopItem found = shop.findItem(stack);
+        ShopItem found = shop.findHighestPayingItem(stack);
 
         assertNotNull(found);
         assertEquals(stoneItem, found);
     }
 
     @Test
-    void findItemReturnsNullIfItemNotInShop() {
+    void findHighestPayingItemReturnsNullIfItemNotInShop() {
         ItemStack stack = new ItemStack(Items.DIAMOND, 1);
 
-        ShopItem found = shop.findItem(stack);
+        ShopItem found = shop.findHighestPayingItem(stack);
 
         assertNull(found);
     }
 
     @Test
-    void findItemCanFindEnchantedItems() {
-        ItemStack stack = new ItemStack(Items.STONE, 1);
-        stack.set(DataComponentTypes.RARITY, Rarity.EPIC);
+    void findHighestPayingItemExcludesNonSellableListing() {
+        ShopItem notForSale = new ShopItem("Not sellable", new ItemStack(Items.GOLD_INGOT), 10, -1, null, List.of());
+        Shop s = new Shop("s", "S", List.of(notForSale), null, null, SellPricing.DEFAULT);
 
-        ShopItem found = shop.findItem(stack);
+        assertNull(s.findHighestPayingItem(new ItemStack(Items.GOLD_INGOT)));
+    }
 
-        assertNull(found);
+    @Test
+    void findHighestPayingItemRanksByAdjustedPayoutNotListedPrice() {
+        // A pristine listing at a lower price should lose to a damaged listing whose adjusted
+        // payout for THIS stack is higher.
+        ShopItem cheapPristine = new ShopItem("Cheap", new ItemStack(Items.IRON_PICKAXE), 100, 100, null, List.of());
+
+        ItemStack wornListing = new ItemStack(Items.IRON_PICKAXE);
+        wornListing.setDamage(200);
+        ShopItem expensiveWorn = new ShopItem("Expensive worn", wornListing, 100, 1000, null, List.of());
+
+        Shop s = new Shop("s", "S", List.of(cheapPristine, expensiveWorn), null, null, SellPricing.DEFAULT);
+
+        ItemStack playerStack = new ItemStack(Items.IRON_PICKAXE);
+        playerStack.setDamage(200); // matches expensiveWorn's baseline exactly -> multiplier 1.0
+
+        ShopItem found = s.findHighestPayingItem(playerStack);
+        assertEquals(expensiveWorn, found);
     }
 
     @Test
     void getCurrencyIdReturnsItemCurrencyIfPresent() {
         Identifier currency = shop.getCurrencyId(dirtItem);
 
-        assertEquals(dirtItem.currencyId(), currency);
+        assertEquals(dirtItem.resolvedCurrencyId(), currency);
     }
 
     @Test
@@ -100,6 +115,7 @@ class ShopTest extends MinecraftTest {
     @Test
     void getDefaultCurrencyIdFallsBackToEconomyUtilsIfNotConfigured() {
         Shop noDefaultCurrencyShop = new Shop(
+            "no_default",
             "NoDefault",
             List.of(stoneItem),
             null
@@ -115,6 +131,7 @@ class ShopTest extends MinecraftTest {
         assertTrue(shop.hasDefaultCurrency());
 
         Shop noDefaultCurrencyShop = new Shop(
+            "no_default",
             "NoDefault",
             List.of(stoneItem),
             null
@@ -124,8 +141,18 @@ class ShopTest extends MinecraftTest {
     }
 
     @Test
-    void getNameReturnsConfiguredName() {
-        assertEquals("TestShop", shop.getName());
+    void getDisplayNameReturnsConfiguredName() {
+        assertEquals("TestShop", shop.getDisplayName());
+    }
+
+    @Test
+    void equalsAndHashCodeAreKeyedOnId() {
+        Shop sameIdDifferentName = new Shop("test_shop", "A totally different name");
+        Shop differentId = new Shop("other_id", "TestShop");
+
+        assertEquals(shop, sameIdDifferentName);
+        assertEquals(shop.hashCode(), sameIdDifferentName.hashCode());
+        assertNotEquals(shop, differentId);
     }
 
     @Test
@@ -142,6 +169,7 @@ class ShopTest extends MinecraftTest {
         assertEquals(Items.ENDER_CHEST, shop.getIcon().getItem());
 
         Shop shopWithoutIcon = new Shop(
+            "shop_without_icon",
             "ShopWithIcon",
             List.of(stoneItem),
             null
