@@ -5,6 +5,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import rickiewars.guishop.api.gui.MenuContext;
 import rickiewars.guishop.api.gui.MenuSlot;
+import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.economy.Transaction;
 import rickiewars.guishop.shop.Shop;
 
@@ -29,7 +30,7 @@ public class EmptySlot implements MenuSlot {
     }
 
     public void onClick(MenuContext ctx, eu.pb4.sgui.api.ClickType click) {
-        ItemStack cursor = ctx.player().getCursorStack();
+        ItemStack cursor = ((MinecraftItemStack) ctx.player().getCursorStack()).stack();
         if (cursor.isEmpty()) return;
 
         Transaction tx = new Transaction(ctx.player(), shop);
@@ -41,7 +42,7 @@ public class EmptySlot implements MenuSlot {
                     cursor,
                     shift || click.isLeft ? cursor.getCount() : 1
                 );
-                ctx.player().setCursorStack(result);
+                ctx.player().setCursorStack(new MinecraftItemStack(result));
 
                 ctx.partialRefresh();
             }

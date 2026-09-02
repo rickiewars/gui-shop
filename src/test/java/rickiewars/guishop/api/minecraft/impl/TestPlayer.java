@@ -10,6 +10,7 @@ import net.minecraft.world.World;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyAccount;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 import rickiewars.guishop.api.minecraft.IInventory;
+import rickiewars.guishop.api.minecraft.IItemStack;
 import rickiewars.guishop.api.minecraft.IPlayer;
 import rickiewars.guishop.config.GuiShopConfig;
 
@@ -20,8 +21,8 @@ public class TestPlayer implements IPlayer {
     private final TestInventory inv = new TestInventory();
     private final Map<Identifier, EconomyAccount> accounts = new HashMap<>();
     private final List<Text> receivedMessages = new ArrayList<>();
-    private ItemStack cursorStack = ItemStack.EMPTY;
-    private ItemStack mainHandStack = ItemStack.EMPTY;
+    private IItemStack cursorStack = new MinecraftItemStack(ItemStack.EMPTY);
+    private IItemStack mainHandStack = new MinecraftItemStack(ItemStack.EMPTY);
     private float yaw = 0;
 
     public TestPlayer(UUID uuid) {
@@ -73,7 +74,7 @@ public class TestPlayer implements IPlayer {
     }
 
     @Override
-    public ItemStack getCursorStack() {
+    public IItemStack getCursorStack() {
         return cursorStack;
     }
 
@@ -83,7 +84,7 @@ public class TestPlayer implements IPlayer {
     }
 
     @Override
-    public void setCursorStack(ItemStack stack) {
+    public void setCursorStack(IItemStack stack) {
         cursorStack = stack;
     }
 
@@ -107,17 +108,17 @@ public class TestPlayer implements IPlayer {
     }
 
     @Override
-    public void giveItem(ItemStack itemStack) {
+    public void giveItem(IItemStack itemStack) {
         inv.offerOrDrop(itemStack);
     }
 
     @Override
-    public ItemStack getMainHandStack() {
+    public IItemStack getMainHandStack() {
         return mainHandStack;
     }
 
     @Override
-    public void setMainHandStack(ItemStack itemStack) {
+    public void setMainHandStack(IItemStack itemStack) {
         mainHandStack = itemStack;
     }
 }

@@ -8,6 +8,8 @@ import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.MinecraftTest;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
+import rickiewars.guishop.api.minecraft.IItemStack;
+import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 
 import java.util.List;
 
@@ -16,7 +18,11 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ShopItemTest extends MinecraftTest {
 
     private ShopItem item(ItemStack stack) {
-        return new ShopItem("Test Item", stack, 100, 50, null, List.of("A blade"));
+        return new ShopItem("Test Item", new MinecraftItemStack(stack), 100, 50, null, List.of("A blade"));
+    }
+
+    private static IItemStack wrap(ItemStack stack) {
+        return new MinecraftItemStack(stack);
     }
 
     // ----------------------------------------------------------
@@ -40,7 +46,7 @@ public class ShopItemTest extends MinecraftTest {
     @Test
     void shopItemStoresCurrency() {
         Identifier currency = Identifier.of("guishop:credit");
-        ShopItem item = new ShopItem("Credit Item", new ItemStack(Items.STONE), 10, 5, currency, List.of());
+        ShopItem item = new ShopItem("Credit Item", wrap(new ItemStack(Items.STONE)), 10, 5, currency, List.of());
 
         assertTrue(item.hasCurrency());
         assertEquals(currency, item.resolvedCurrencyId());
@@ -49,9 +55,9 @@ public class ShopItemTest extends MinecraftTest {
 
     @Test
     void isListableFalseOnlyWhenNeitherBuyableNorSellable() {
-        assertTrue(new ShopItem("A", new ItemStack(Items.STONE), 10, -1, null, List.of()).isListable());
-        assertTrue(new ShopItem("A", new ItemStack(Items.STONE), -1, 10, null, List.of()).isListable());
-        assertFalse(new ShopItem("A", new ItemStack(Items.STONE), -1, -1, null, List.of()).isListable());
+        assertTrue(new ShopItem("A", wrap(new ItemStack(Items.STONE)), 10, -1, null, List.of()).isListable());
+        assertTrue(new ShopItem("A", wrap(new ItemStack(Items.STONE)), -1, 10, null, List.of()).isListable());
+        assertFalse(new ShopItem("A", wrap(new ItemStack(Items.STONE)), -1, -1, null, List.of()).isListable());
     }
 
     // ----------------------------------------------------------
@@ -68,8 +74,8 @@ public class ShopItemTest extends MinecraftTest {
         ItemStack b = new ItemStack(Items.APPLE);
         b.set(DataComponentTypes.CUSTOM_NAME, Text.literal("Shiny"));
 
-        ShopItem itemA = new ShopItem("Apple", a, 10, 5, null, List.of());
-        ShopItem itemB = new ShopItem("Apple", b, 10, 5, null, List.of());
+        ShopItem itemA = new ShopItem("Apple", wrap(a), 10, 5, null, List.of());
+        ShopItem itemB = new ShopItem("Apple", wrap(b), 10, 5, null, List.of());
 
         assertEquals(itemA, itemB);
         assertEquals(itemA.hashCode(), itemB.hashCode());
@@ -81,8 +87,8 @@ public class ShopItemTest extends MinecraftTest {
         ItemStack b = new ItemStack(Items.APPLE);
         b.set(DataComponentTypes.CUSTOM_NAME, Text.literal("Different"));
 
-        ShopItem itemA = new ShopItem("Apple", a, 10, 5, null, List.of());
-        ShopItem itemB = new ShopItem("Apple", b, 10, 5, null, List.of());
+        ShopItem itemA = new ShopItem("Apple", wrap(a), 10, 5, null, List.of());
+        ShopItem itemB = new ShopItem("Apple", wrap(b), 10, 5, null, List.of());
 
         assertNotEquals(itemA, itemB);
     }
@@ -94,8 +100,8 @@ public class ShopItemTest extends MinecraftTest {
     @Test
     void resemblesFailsWhenItemDiffers() {
         ShopItem stone = item(new ItemStack(Items.STONE));
-        assertTrue(stone.resembles(new ItemStack(Items.STONE)));
-        assertFalse(stone.resembles(new ItemStack(Items.DIRT)));
+        assertTrue(stone.resembles(wrap(new ItemStack(Items.STONE))));
+        assertFalse(stone.resembles(wrap(new ItemStack(Items.DIRT))));
     }
 
     @Test
@@ -107,7 +113,7 @@ public class ShopItemTest extends MinecraftTest {
         damaged.setDamage(500);
         damaged.set(DataComponentTypes.REPAIR_COST, 3);
 
-        assertTrue(shopItem.resembles(damaged), "Graded components must not block a sale");
+        assertTrue(shopItem.resembles(wrap(damaged)), "Graded components must not block a sale");
     }
 
     @Test
@@ -117,7 +123,7 @@ public class ShopItemTest extends MinecraftTest {
         ItemStack renamed = new ItemStack(Items.DIAMOND_SWORD);
         renamed.set(DataComponentTypes.CUSTOM_NAME, Text.literal("My Sword"));
 
-        assertTrue(shopItem.resembles(renamed), "Flat-penalty components must not block a sale");
+        assertTrue(shopItem.resembles(wrap(renamed)), "Flat-penalty components must not block a sale");
     }
 
     @Test
@@ -127,7 +133,7 @@ public class ShopItemTest extends MinecraftTest {
         ItemStack enchanted = new ItemStack(Items.DIAMOND_SWORD);
         enchanted.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true);
 
-        assertFalse(shopItem.resembles(enchanted), "Strict components must block a sale on any difference");
+        assertFalse(shopItem.resembles(wrap(enchanted)), "Strict components must block a sale on any difference");
     }
 
     @Test
@@ -139,7 +145,7 @@ public class ShopItemTest extends MinecraftTest {
         ItemStack stamped = new ItemStack(Items.POTION);
         stamped.set(DataComponentTypes.CUSTOM_DATA, net.minecraft.component.type.NbtComponent.of(customData));
 
-        assertFalse(shopItem.resembles(stamped));
+        assertFalse(shopItem.resembles(wrap(stamped)));
     }
 
     // ----------------------------------------------------------
@@ -153,13 +159,13 @@ public class ShopItemTest extends MinecraftTest {
         ItemStack damaged = new ItemStack(Items.DIAMOND_SWORD);
         damaged.setDamage(10);
 
-        assertTrue(shopItem.resembles(damaged));
-        assertFalse(shopItem.matches(damaged));
+        assertTrue(shopItem.resembles(wrap(damaged)));
+        assertFalse(shopItem.matches(wrap(damaged)));
     }
 
     @Test
     void matchesAcceptsPristineMatch() {
         ShopItem shopItem = item(new ItemStack(Items.DIAMOND_SWORD));
-        assertTrue(shopItem.matches(new ItemStack(Items.DIAMOND_SWORD)));
+        assertTrue(shopItem.matches(wrap(new ItemStack(Items.DIAMOND_SWORD))));
     }
 }

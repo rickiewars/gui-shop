@@ -7,6 +7,7 @@ import net.minecraft.registry.Registries;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.EconomyTest;
 import rickiewars.guishop.api.gui.impl.TestMenuController;
+import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.api.minecraft.impl.TestPlayer;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
@@ -32,10 +33,10 @@ public class EmptySlotTest extends EconomyTest {
 
         ShopItem shopItem = shop.getItems().getFirst();
         Item item = Registries.ITEM.get(shopItem.itemId());
-        player.setCursorStack(new ItemStack(item, 10));
+        player.setCursorStack(new MinecraftItemStack(new ItemStack(item, 10)));
 
         assertEquals(0, player.getAccount(economy.currencyCreditsId).balance());
-        assertEquals(10, player.getCursorStack().getCount());
+        assertEquals(10, player.getCursorStack().count());
 
         controller.slots.get(1).onClick(ctx, ClickType.MOUSE_LEFT);
 
@@ -56,15 +57,15 @@ public class EmptySlotTest extends EconomyTest {
 
         ShopItem shopItem = shop.getItems().getFirst();
         Item item = Registries.ITEM.get(shopItem.itemId());
-        player.setCursorStack(new ItemStack(item, 10));
+        player.setCursorStack(new MinecraftItemStack(new ItemStack(item, 10)));
 
         assertEquals(0, player.getAccount(economy.currencyCreditsId).balance());
-        assertEquals(10, player.getCursorStack().getCount());
+        assertEquals(10, player.getCursorStack().count());
 
         controller.slots.get(1).onClick(ctx, ClickType.MOUSE_RIGHT);
 
         assertEquals(10, player.getAccount(economy.currencyCreditsId).balance());
-        assertEquals(9, player.getCursorStack().getCount());
+        assertEquals(9, player.getCursorStack().count());
     }
 
     @Test
@@ -80,7 +81,7 @@ public class EmptySlotTest extends EconomyTest {
 
         ShopItem shopItem = shop.getItems().getFirst();
         Item item = Registries.ITEM.get(shopItem.itemId());
-        player.setCursorStack(new ItemStack(item, 10));
+        player.setCursorStack(new MinecraftItemStack(new ItemStack(item, 10)));
 
         var balanceSlot = menu.config().indexOf(ShopMenu.SlotType.BALANCE).orElseThrow();
 

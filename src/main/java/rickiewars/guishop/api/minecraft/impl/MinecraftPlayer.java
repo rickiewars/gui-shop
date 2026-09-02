@@ -10,6 +10,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import rickiewars.guishop.api.minecraft.IInventory;
+import rickiewars.guishop.api.minecraft.IItemStack;
 import rickiewars.guishop.api.minecraft.IPlayer;
 import rickiewars.guishop.economy.EconomyUtils;
 
@@ -42,8 +43,8 @@ public class MinecraftPlayer implements IPlayer {
     }
 
     @Override
-    public ItemStack getCursorStack() {
-        return player.currentScreenHandler.getCursorStack();
+    public IItemStack getCursorStack() {
+        return new MinecraftItemStack(player.currentScreenHandler.getCursorStack());
     }
 
     @Override
@@ -52,8 +53,8 @@ public class MinecraftPlayer implements IPlayer {
     }
 
     @Override
-    public void setCursorStack(ItemStack stack) {
-        player.currentScreenHandler.setCursorStack(stack);
+    public void setCursorStack(IItemStack stack) {
+        player.currentScreenHandler.setCursorStack(unwrap(stack));
     }
 
     @Override
@@ -71,17 +72,21 @@ public class MinecraftPlayer implements IPlayer {
     }
 
     @Override
-    public void giveItem(ItemStack itemStack) {
-        player.getInventory().offerOrDrop(itemStack);
+    public void giveItem(IItemStack itemStack) {
+        player.getInventory().offerOrDrop(unwrap(itemStack));
     }
 
     @Override
-    public ItemStack getMainHandStack() {
-        return player.getMainHandStack();
+    public IItemStack getMainHandStack() {
+        return new MinecraftItemStack(player.getMainHandStack());
     }
 
     @Override
-    public void setMainHandStack(ItemStack itemStack) {
-        player.setStackInHand(Hand.MAIN_HAND, itemStack);
+    public void setMainHandStack(IItemStack itemStack) {
+        player.setStackInHand(Hand.MAIN_HAND, unwrap(itemStack));
+    }
+
+    private static ItemStack unwrap(IItemStack stack) {
+        return ((MinecraftItemStack) stack).stack();
     }
 }

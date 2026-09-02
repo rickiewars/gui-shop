@@ -1,10 +1,6 @@
 package rickiewars.guishop.shop;
 
-import net.minecraft.component.ComponentType;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.item.ItemStack;
-
-import java.util.Objects;
+import rickiewars.guishop.api.minecraft.IItemStack;
 
 /**
  * Computes a payout for selling an item, lowering the listing's {@code sellPrice}
@@ -50,13 +46,13 @@ public record SellPricing(
 ) {
     public static final SellPricing DEFAULT = new SellPricing(0.15, 0.05, 3.0, 0.02, 0.10, 0.10);
 
-    public long adjustedPayout(ShopItem listing, ItemStack playerStack) {
+    public long adjustedPayout(ShopItem listing, IItemStack playerStack) {
         if (listing.sellPrice() == 0) return 0;
 
         double damageMultiplier = damageMultiplier(listing.stack(), playerStack);
         double repairMultiplier = repairMultiplier(listing.stack(), playerStack);
-        double nameMultiplier = differs(listing.stack(), playerStack, DataComponentTypes.CUSTOM_NAME) ? 1 - customNamePenalty : 1.0;
-        double loreMultiplier = differs(listing.stack(), playerStack, DataComponentTypes.LORE) ? 1 - lorePenalty : 1.0;
+        double nameMultiplier = listing.stack().componentDiffers(IItemStack.ComponentKey.CUSTOM_NAME, playerStack) ? 1 - customNamePenalty : 1.0;
+        double loreMultiplier = listing.stack().componentDiffers(IItemStack.ComponentKey.LORE, playerStack) ? 1 - lorePenalty : 1.0;
 
         double multiplier = Math.max(damageMultiplier * repairMultiplier * nameMultiplier * loreMultiplier, minValueFraction);
         long payout = Math.round(listing.sellPrice() * multiplier);
@@ -71,14 +67,14 @@ public record SellPricing(
      *     + (1 - firstUsePenalty - minValueFraction) * remainingDurabilityFraction^damageCurveExponent
      * }</pre>
      */
-    private double damageMultiplier(ItemStack listed, ItemStack actual) {
+    private double damageMultiplier(IItemStack listed, IItemStack actual) {
         if (!actual.isDamageable()) return 1.0;
 
-        int maxDamage = actual.getMaxDamage();
+        int maxDamage = actual.maxDamage();
         if (maxDamage == 0) return 1.0;
 
-        int listedDamage = listed.getDamage();
-        int damage = actual.getDamage();
+        int listedDamage = listed.damage();
+        int damage = actual.damage();
         if (damage <= listedDamage) return 1.0;
 
         double remainingDurabilityFraction = (double) (maxDamage - damage) / maxDamage;
@@ -92,14 +88,8 @@ public record SellPricing(
      * repairMultiplier = max(minValueFraction, 1 - delta * repairCostPenaltyPerPoint)
      * }</pre>
      */
-    private double repairMultiplier(ItemStack listed, ItemStack actual) {
-        int listedRepairCost = listed.getOrDefault(DataComponentTypes.REPAIR_COST, 0);
-        int repairCost = actual.getOrDefault(DataComponentTypes.REPAIR_COST, 0);
-        int delta = Math.max(0, repairCost - listedRepairCost);
+    private double repairMultiplier(IItemStack listed, IItemStack actual) {
+        int delta = Math.max(0, actual.repairCost() - listed.repairCost());
         return Math.max(minValueFraction, 1 - delta * repairCostPenaltyPerPoint);
-    }
-
-    private boolean differs(ItemStack listed, ItemStack actual, ComponentType<?> type) {
-        return !Objects.equals(listed.get(type), actual.get(type));
     }
 }

@@ -1,11 +1,11 @@
 package rickiewars.guishop.economy;
 
 import eu.pb4.common.economy.api.EconomyAccount;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import rickiewars.guishop.api.minecraft.IPlayer;
+import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
 
@@ -27,7 +27,7 @@ public class Transaction {
         int bought = pay(item, amount);
         ItemStack stack = createStack(item);
         stack.setCount(bought);
-        player.getInventory().offerOrDrop(stack);
+        player.getInventory().offerOrDrop(new MinecraftItemStack(stack));
     }
 
     public ItemStack buyToItemStack(ShopItem item, ItemStack itemStack, int amount) {
@@ -37,7 +37,7 @@ public class Transaction {
         ItemStack base = createStack(item);
         int existing = 0;
         if (!itemStack.isEmpty()) {
-            if (!item.resembles(itemStack)) {
+            if (!item.resembles(new MinecraftItemStack(itemStack))) {
                 throw new IllegalStateException("Stack does not match shop item");
             }
             existing = itemStack.getCount();
@@ -59,7 +59,7 @@ public class Transaction {
         if (item.sellPrice() < 0) throw new IllegalStateException("Not sellable");
 
         int removed = player.getInventory().remove(
-            getItem(item),
+            item.stack().itemId(),
             amount,
             item::matches
         );
@@ -69,12 +69,12 @@ public class Transaction {
     public ItemStack sellFromItemStack(ItemStack itemStack, int amount) {
         if (amount <= 0) return itemStack;
 
-        ShopItem shopItem = shop.findHighestPayingItem(itemStack);
+        ShopItem shopItem = shop.findHighestPayingItem(new MinecraftItemStack(itemStack));
         if (shopItem == null) return itemStack;
         if (shopItem.sellPrice() < 0) throw new IllegalStateException("Not sellable");
 
         int toSell = Math.min(amount, itemStack.getCount());
-        long payoutPerUnit = shop.getSellPricing().adjustedPayout(shopItem, itemStack);
+        long payoutPerUnit = shop.getSellPricing().adjustedPayout(shopItem, new MinecraftItemStack(itemStack));
         boolean adjusted = payoutPerUnit != shopItem.sellPrice();
         earn(shopItem, payoutPerUnit * toSell, adjusted);
 
@@ -107,10 +107,10 @@ public class Transaction {
     }
 
     private ItemStack createStack(ShopItem item) {
-        return item.stack().copy();
+        return unwrap(item).copy();
     }
 
-    private Item getItem(ShopItem item) {
-        return item.stack().getItem();
+    private static ItemStack unwrap(ShopItem item) {
+        return ((MinecraftItemStack) item.stack()).stack();
     }
 }

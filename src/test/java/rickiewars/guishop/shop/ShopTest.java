@@ -6,6 +6,7 @@ import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.MinecraftTest;
+import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.economy.EconomyUtils;
 
 import java.util.List;
@@ -24,7 +25,7 @@ class ShopTest extends MinecraftTest {
     void setup() {
         stoneItem = new ShopItem(
             "Fancy Stone",
-            new ItemStack(Items.STONE),
+            new MinecraftItemStack(new ItemStack(Items.STONE)),
             10,
             5,
             null,
@@ -33,7 +34,7 @@ class ShopTest extends MinecraftTest {
 
         dirtItem = new ShopItem(
             "Cheap Dirt",
-            new ItemStack(Items.DIRT),
+            new MinecraftItemStack(new ItemStack(Items.DIRT)),
             20,
             10,
             Identifier.of("test:currency"),
@@ -56,7 +57,7 @@ class ShopTest extends MinecraftTest {
     void findHighestPayingItemReturnsMatchingShopHighestPayingItem() {
         ItemStack stack = new ItemStack(Items.STONE, 1);
 
-        ShopItem found = shop.findHighestPayingItem(stack);
+        ShopItem found = shop.findHighestPayingItem(new MinecraftItemStack(stack));
 
         assertNotNull(found);
         assertEquals(stoneItem, found);
@@ -66,35 +67,35 @@ class ShopTest extends MinecraftTest {
     void findHighestPayingItemReturnsNullIfItemNotInShop() {
         ItemStack stack = new ItemStack(Items.DIAMOND, 1);
 
-        ShopItem found = shop.findHighestPayingItem(stack);
+        ShopItem found = shop.findHighestPayingItem(new MinecraftItemStack(stack));
 
         assertNull(found);
     }
 
     @Test
     void findHighestPayingItemExcludesNonSellableListing() {
-        ShopItem notForSale = new ShopItem("Not sellable", new ItemStack(Items.GOLD_INGOT), 10, -1, null, List.of());
+        ShopItem notForSale = new ShopItem("Not sellable", new MinecraftItemStack(new ItemStack(Items.GOLD_INGOT)), 10, -1, null, List.of());
         Shop s = new Shop("s", "S", List.of(notForSale), null, null, SellPricing.DEFAULT);
 
-        assertNull(s.findHighestPayingItem(new ItemStack(Items.GOLD_INGOT)));
+        assertNull(s.findHighestPayingItem(new MinecraftItemStack(new ItemStack(Items.GOLD_INGOT))));
     }
 
     @Test
     void findHighestPayingItemRanksByAdjustedPayoutNotListedPrice() {
         // A pristine listing at a lower price should lose to a damaged listing whose adjusted
         // payout for THIS stack is higher.
-        ShopItem cheapPristine = new ShopItem("Cheap", new ItemStack(Items.IRON_PICKAXE), 100, 100, null, List.of());
+        ShopItem cheapPristine = new ShopItem("Cheap", new MinecraftItemStack(new ItemStack(Items.IRON_PICKAXE)), 100, 100, null, List.of());
 
         ItemStack wornListing = new ItemStack(Items.IRON_PICKAXE);
         wornListing.setDamage(200);
-        ShopItem expensiveWorn = new ShopItem("Expensive worn", wornListing, 100, 1000, null, List.of());
+        ShopItem expensiveWorn = new ShopItem("Expensive worn", new MinecraftItemStack(wornListing), 100, 1000, null, List.of());
 
         Shop s = new Shop("s", "S", List.of(cheapPristine, expensiveWorn), null, null, SellPricing.DEFAULT);
 
         ItemStack playerStack = new ItemStack(Items.IRON_PICKAXE);
         playerStack.setDamage(200); // matches expensiveWorn's baseline exactly -> multiplier 1.0
 
-        ShopItem found = s.findHighestPayingItem(playerStack);
+        ShopItem found = s.findHighestPayingItem(new MinecraftItemStack(playerStack));
         assertEquals(expensiveWorn, found);
     }
 

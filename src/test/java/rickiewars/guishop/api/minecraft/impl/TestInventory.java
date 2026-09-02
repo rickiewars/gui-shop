@@ -1,8 +1,11 @@
 package rickiewars.guishop.api.minecraft.impl;
 
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.Registries;
+import net.minecraft.util.Identifier;
 import rickiewars.guishop.api.minecraft.IInventory;
+import rickiewars.guishop.api.minecraft.IItemStack;
+import rickiewars.guishop.api.minecraft.ResourceId;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,10 +57,10 @@ public class TestInventory implements IInventory {
     }
 
     @Override
-    public int count(Item item) {
+    public int count(ResourceId itemId) {
         int total = 0;
         for (ItemStack s : slots) {
-            if (s.getItem().equals(item)) {
+            if (matchesId(s, itemId)) {
                 total += s.getCount();
             }
         }
@@ -65,30 +68,40 @@ public class TestInventory implements IInventory {
     }
 
     @Override
-    public void offerOrDrop(ItemStack stack) {
-        if (stack == null || stack.isEmpty()) return;
+    public void offerOrDrop(IItemStack stack) {
+        ItemStack real = unwrap(stack);
+        if (real.isEmpty()) return;
 
         for (int i = 0; i < SIZE; i++) {
             if (slots[i].isEmpty()) {
-                slots[i] = stack.copy();
+                slots[i] = real.copy();
                 return;
             }
         }
     }
 
     @Override
-    public int remove(Item match, int amount, Predicate<ItemStack> filter) {
+    public int remove(ResourceId matchId, int amount, Predicate<IItemStack> filter) {
         int removed = 0;
 
         for (int i = 0; i < SIZE && removed < amount; i++) {
-            ItemStack slot = slots[i];
-            removed += IInventory.handleRemove(slot, match, amount - removed, filter);
+            IItemStack slot = new MinecraftItemStack(slots[i]);
+            removed += IInventory.handleRemove(slot, matchId, amount - removed, filter);
 
-            if (slot.getCount() == 0) {
+            if (slots[i].getCount() == 0) {
                 slots[i] = ItemStack.EMPTY.copy();
             }
         }
 
         return removed;
+    }
+
+    private static boolean matchesId(ItemStack stack, ResourceId itemId) {
+        Identifier id = Registries.ITEM.getId(stack.getItem());
+        return id.getNamespace().equals(itemId.namespace()) && id.getPath().equals(itemId.path());
+    }
+
+    private static ItemStack unwrap(IItemStack stack) {
+        return ((MinecraftItemStack) stack).stack();
     }
 }

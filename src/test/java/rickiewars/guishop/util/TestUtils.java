@@ -10,6 +10,7 @@ import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.database.DatabaseManager;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyProvider;
+import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.api.minecraft.impl.TestServer;
 import rickiewars.guishop.config.GuiShopConfig;
 import rickiewars.guishop.shop.Shop;
@@ -60,7 +61,7 @@ public class TestUtils {
             ItemStack stack = new ItemStack(CommonMethods.getItem(itemId));
             shopItems.add(new ShopItem(
                 "Item " + (i + 1),
-                stack,
+                new MinecraftItemStack(stack),
                 10,
                 10,
                 currencyId,

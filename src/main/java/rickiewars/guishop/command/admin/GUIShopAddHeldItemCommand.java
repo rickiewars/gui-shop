@@ -15,6 +15,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
+import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.command.GuiShopPermission;
 import rickiewars.guishop.command.suggestions.CurrencySuggestionProvider;
 import rickiewars.guishop.command.suggestions.ShopNameSuggestionProvider;
@@ -64,7 +65,7 @@ public class GUIShopAddHeldItemCommand {
 
         foundShop.getItems().add(new ShopItem(
                 itemName,
-                heldItem.copyWithCount(1),
+                new MinecraftItemStack(heldItem.copyWithCount(1)),
                 buyItemPrice,
                 sellItemPrice,
                 currency,

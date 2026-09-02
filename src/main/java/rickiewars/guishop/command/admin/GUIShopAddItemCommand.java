@@ -15,6 +15,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
+import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.command.GuiShopPermission;
 import rickiewars.guishop.command.suggestions.CurrencySuggestionProvider;
 import rickiewars.guishop.command.suggestions.ShopNameSuggestionProvider;
@@ -68,7 +69,7 @@ public class GUIShopAddItemCommand {
 
         List<String> description = List.of(descriptionLine.split("\\\\"));
 
-        foundShop.getItems().add(new ShopItem(itemName, itemStack.copyWithCount(1), buyItemPrice, sellItemPrice, currency, description));
+        foundShop.getItems().add(new ShopItem(itemName, new MinecraftItemStack(itemStack.copyWithCount(1)), buyItemPrice, sellItemPrice, currency, description));
         GUIShop.shopStore.writeShop(foundShop);
         context.getSource().sendFeedback(() -> Text.literal("Item successfully added").formatted(Formatting.GREEN), false);
 

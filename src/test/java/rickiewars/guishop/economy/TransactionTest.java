@@ -8,6 +8,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.EconomyTest;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyProvider;
+import rickiewars.guishop.api.minecraft.ResourceId;
+import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.api.minecraft.impl.TestPlayer;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
@@ -46,6 +48,10 @@ public class TransactionTest extends EconomyTest {
         transaction = new Transaction(player, shop);
     }
 
+    private static ResourceId idOf(Item item) {
+        return new MinecraftItemStack(new ItemStack(item)).itemId();
+    }
+
     // -------------------------------------------------------------------------
     // Buy to Inventory
     // -------------------------------------------------------------------------
@@ -54,7 +60,7 @@ public class TransactionTest extends EconomyTest {
     void buyToInventoryAddsStackToInventory() {
         transaction.buyToInventory(shopItem, 10);
 
-        assertEquals(10, player.getInventory().count(item));
+        assertEquals(10, player.getInventory().count(idOf(item)));
         assertEquals(900, player.getAccount(economy.currencyCreditsId).balance());
     }
 
@@ -64,17 +70,17 @@ public class TransactionTest extends EconomyTest {
 
         transaction.buyToInventory(shopItem, 64);
 
-        assertEquals(50, player.getInventory().count(item));
+        assertEquals(50, player.getInventory().count(idOf(item)));
         assertEquals(5, player.getAccount(economy.currencyCreditsId).balance());
     }
 
     @Test
     void buyToInventoryDoesNothingIfAmountNegative() {
-        player.giveItem(new ItemStack(item, 5));
+        player.giveItem(new MinecraftItemStack(new ItemStack(item, 5)));
 
         transaction.buyToInventory(shopItem, -5);
 
-        assertEquals(5, player.getInventory().count(item));
+        assertEquals(5, player.getInventory().count(idOf(item)));
         assertEquals(1_000, player.getAccount(economy.currencyCreditsId).balance());
     }
 
@@ -171,11 +177,11 @@ public class TransactionTest extends EconomyTest {
 
     @Test
     void sellFromInventoryRemovesItemsAndPaysPlayer() {
-        player.giveItem(new ItemStack(item, 5));
+        player.giveItem(new MinecraftItemStack(new ItemStack(item, 5)));
 
         transaction.sellFromInventory(shopItem, 3);
 
-        assertEquals(2, player.getInventory().count(item));
+        assertEquals(2, player.getInventory().count(idOf(item)));
         assertEquals(1_030, player.getAccount(economy.currencyCreditsId).balance());
     }
 
@@ -183,27 +189,27 @@ public class TransactionTest extends EconomyTest {
     void sellFromInventoryDoesNothingIfNoItems() {
         transaction.sellFromInventory(shopItem, 5);
 
-        assertEquals(0, player.getInventory().count(item));
+        assertEquals(0, player.getInventory().count(idOf(item)));
         assertEquals(1_000, player.getAccount(economy.currencyCreditsId).balance());
     }
 
     @Test
     void sellFromInventoryOnlySellsTheItemAmountTheyOwn() {
-        player.giveItem(new ItemStack(item, 5));
+        player.giveItem(new MinecraftItemStack(new ItemStack(item, 5)));
 
         transaction.sellFromInventory(shopItem, 10);
 
-        assertEquals(0, player.getInventory().count(item));
+        assertEquals(0, player.getInventory().count(idOf(item)));
         assertEquals(1_050, player.getAccount(economy.currencyCreditsId).balance());
     }
 
     @Test
     void sellFromInventoryDoesNothingIfAmountNegative() {
-        player.giveItem(new ItemStack(item, 5));
+        player.giveItem(new MinecraftItemStack(new ItemStack(item, 5)));
 
         transaction.sellFromInventory(shopItem, -5);
 
-        assertEquals(5, player.getInventory().count(item));
+        assertEquals(5, player.getInventory().count(idOf(item)));
         assertEquals(1_000, player.getAccount(economy.currencyCreditsId).balance());
     }
 
@@ -212,7 +218,7 @@ public class TransactionTest extends EconomyTest {
         Item pickaxe = Registries.ITEM.get(Identifier.of("minecraft:netherite_pickaxe"));
         ShopItem pickaxeShopItem = new ShopItem(
             "My faforite pickaxe",
-            new ItemStack(pickaxe),
+            new MinecraftItemStack(new ItemStack(pickaxe)),
             10,
             100,
             economy.currencyCreditsId,
@@ -221,13 +227,13 @@ public class TransactionTest extends EconomyTest {
 
         ItemStack damaged = new ItemStack(pickaxe);
         damaged.setDamage(125);
-        player.giveItem(damaged);
+        player.giveItem(new MinecraftItemStack(damaged));
 
         transaction.sellFromInventory(pickaxeShopItem, 1);
 
         assertEquals(
             1,
-            player.getInventory().count(pickaxe),
+            player.getInventory().count(idOf(pickaxe)),
             "I don't want to accedently sell my favorite pickaxe!"
         );
         assertEquals(1_000, player.getAccount(economy.currencyCreditsId).balance());
@@ -279,7 +285,7 @@ public class TransactionTest extends EconomyTest {
         Item pickaxe = Registries.ITEM.get(Identifier.of("minecraft:iron_pickaxe"));
         ShopItem pickaxeShopItem = new ShopItem(
             "Pickaxe",
-            new ItemStack(pickaxe),
+            new MinecraftItemStack(new ItemStack(pickaxe)),
             10,
             100,
             economy.currencyCreditsId,
@@ -315,7 +321,7 @@ public class TransactionTest extends EconomyTest {
     @Test
     void buyThrowsErrorIfNotEnoughMoney() {
         player.getInventory().offerOrDrop(
-            new ItemStack(item, 5)
+            new MinecraftItemStack(new ItemStack(item, 5))
         );
         player.getAccount(economy.currencyCreditsId).setBalance(1);
 
@@ -326,18 +332,18 @@ public class TransactionTest extends EconomyTest {
             ));
         assertEquals("Not enough money", ex.getMessage());
         assertEquals(1, player.getAccount(economy.currencyCreditsId).balance());
-        assertEquals(5, player.getInventory().count(item));
+        assertEquals(5, player.getInventory().count(idOf(item)));
     }
 
     @Test
     void buyToInventoryThrowsErrorIfNotBuyable() {
         player.getInventory().offerOrDrop(
-            new ItemStack(item, 5)
+            new MinecraftItemStack(new ItemStack(item, 5))
         );
 
         var nonBuyableItem = new ShopItem(
             "Non-buyable Item",
-            new ItemStack(Registries.ITEM.get(Identifier.of("minecraft:stone"))),
+            new MinecraftItemStack(new ItemStack(Registries.ITEM.get(Identifier.of("minecraft:stone")))),
             -1,
             10,
             null,
@@ -350,7 +356,7 @@ public class TransactionTest extends EconomyTest {
                 1
             ));
         assertEquals("Not buyable", ex.getMessage());
-        assertEquals(5, player.getInventory().count(item));
+        assertEquals(5, player.getInventory().count(idOf(item)));
     }
 
     @Test
@@ -362,7 +368,7 @@ public class TransactionTest extends EconomyTest {
 
         var nonBuyableItem = new ShopItem(
             "Non-buyable Item",
-            new ItemStack(Registries.ITEM.get(Identifier.of("minecraft:stone"))),
+            new MinecraftItemStack(new ItemStack(Registries.ITEM.get(Identifier.of("minecraft:stone")))),
             -1,
             10,
             null,
@@ -388,12 +394,12 @@ public class TransactionTest extends EconomyTest {
     @Test
     void sellFromInventoryThrowsErrorIfNotSellable() {
         player.getInventory().offerOrDrop(
-            new ItemStack(item, 5)
+            new MinecraftItemStack(new ItemStack(item, 5))
         );
 
         var nonSellableItem = new ShopItem(
             "Non-sellable Item",
-            new ItemStack(Registries.ITEM.get(Identifier.of("minecraft:stone"))),
+            new MinecraftItemStack(new ItemStack(Registries.ITEM.get(Identifier.of("minecraft:stone")))),
             10,
             -1,
             null,
@@ -407,7 +413,7 @@ public class TransactionTest extends EconomyTest {
             ));
 
         assertEquals("Not sellable", ex.getMessage());
-        assertEquals(5, player.getInventory().count(item));
+        assertEquals(5, player.getInventory().count(idOf(item)));
     }
 
     @Test
@@ -419,7 +425,7 @@ public class TransactionTest extends EconomyTest {
 
         var nonSellableItem = new ShopItem(
             "Non-sellable Item",
-            new ItemStack(Registries.ITEM.get(Identifier.of("minecraft:stone"))),
+            new MinecraftItemStack(new ItemStack(Registries.ITEM.get(Identifier.of("minecraft:stone")))),
             10,
             -1,
             null,

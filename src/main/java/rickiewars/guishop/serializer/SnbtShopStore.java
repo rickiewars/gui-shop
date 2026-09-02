@@ -6,6 +6,7 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.util.Identifier;
 import rickiewars.guishop.GUIShop;
+import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.api.minecraft.impl.VanillaItemCodec;
 import rickiewars.guishop.shop.SellPricing;
 import rickiewars.guishop.shop.Shop;
@@ -137,7 +138,7 @@ public class SnbtShopStore {
 
         return Optional.of(new ShopItem(
             displayName.get(),
-            decoded.get(),
+            new MinecraftItemStack(decoded.get()),
             buyPrice.get(),
             sellPrice.get(),
             explicitCurrency,
@@ -180,7 +181,7 @@ public class SnbtShopStore {
                 if (explicitCurrencyId != null) {
                     entry.putString("currency", explicitCurrencyId.toString());
                 }
-                entry.put("stack", itemCodec.encode(item.stack()));
+                entry.put("stack", itemCodec.encode(((MinecraftItemStack) item.stack()).stack()));
                 entries.add(entry);
             }
             envelope.put("entries", entries);

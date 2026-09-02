@@ -3,7 +3,11 @@ package rickiewars.guishop.api.minecraft.impl;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.Registries;
+import net.minecraft.util.Identifier;
 import rickiewars.guishop.api.minecraft.IInventory;
+import rickiewars.guishop.api.minecraft.IItemStack;
+import rickiewars.guishop.api.minecraft.ResourceId;
 
 import java.util.function.Predicate;
 
@@ -20,24 +24,32 @@ public class MinecraftInventory implements IInventory {
     }
 
     @Override
-    public int count(Item item) {
-        return inv.count(item);
+    public int count(ResourceId itemId) {
+        return inv.count(resolveItem(itemId));
     }
 
     @Override
-    public void offerOrDrop(ItemStack stack) {
-        inv.offerOrDrop(stack);
+    public void offerOrDrop(IItemStack stack) {
+        inv.offerOrDrop(unwrap(stack));
     }
 
     @Override
-    public int remove(Item match, int amount, Predicate<ItemStack> filter) {
+    public int remove(ResourceId matchId, int amount, Predicate<IItemStack> filter) {
         int removed = 0;
 
         for (int i = 0; i < inv.size() && removed < amount; i++) {
-            ItemStack slot = inv.getStack(i);
-            removed += IInventory.handleRemove(slot, match, amount - removed, filter);
+            IItemStack slot = new MinecraftItemStack(inv.getStack(i));
+            removed += IInventory.handleRemove(slot, matchId, amount - removed, filter);
         }
 
         return removed;
+    }
+
+    private static Item resolveItem(ResourceId itemId) {
+        return Registries.ITEM.get(Identifier.of(itemId.namespace(), itemId.path()));
+    }
+
+    private static ItemStack unwrap(IItemStack stack) {
+        return ((MinecraftItemStack) stack).stack();
     }
 }

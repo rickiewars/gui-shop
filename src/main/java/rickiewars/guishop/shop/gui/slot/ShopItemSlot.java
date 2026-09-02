@@ -6,6 +6,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import rickiewars.guishop.api.gui.MenuContext;
 import rickiewars.guishop.api.gui.MenuSlot;
+import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.economy.Transaction;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
@@ -22,7 +23,7 @@ public class ShopItemSlot implements MenuSlot {
     }
 
     public ItemStack icon() {
-        return item.stack().copy();
+        return ((MinecraftItemStack) item.stack()).stack().copy();
     }
 
     public Text name() {
@@ -40,10 +41,10 @@ public class ShopItemSlot implements MenuSlot {
     public void onClick(MenuContext ctx, ClickType click) {
         Transaction tx = new Transaction(ctx.player(), shop);
 
-        ItemStack cursor = ctx.player().getCursorStack();
+        ItemStack cursor = ((MinecraftItemStack) ctx.player().getCursorStack()).stack();
         boolean shift = click.shift;
         boolean hasCursor = !cursor.isEmpty();
-        boolean itemResemblesCursorItem = hasCursor && item.resembles(cursor);
+        boolean itemResemblesCursorItem = hasCursor && item.resembles(new MinecraftItemStack(cursor));
 
         try {
             if (click.isMiddle) {
@@ -52,7 +53,7 @@ public class ShopItemSlot implements MenuSlot {
                     cursor,
                     Integer.MAX_VALUE
                 );
-                ctx.player().setCursorStack(result);
+                ctx.player().setCursorStack(new MinecraftItemStack(result));
             }
             else if (click.isLeft) {
                 ItemStack result;
@@ -66,7 +67,7 @@ public class ShopItemSlot implements MenuSlot {
                         shift ? item.getMaxStackSize() : 1
                     );
                 }
-                ctx.player().setCursorStack(result);
+                ctx.player().setCursorStack(new MinecraftItemStack(result));
             }
             else if (click.isRight) {
                 if (hasCursor) {
@@ -74,7 +75,7 @@ public class ShopItemSlot implements MenuSlot {
                         cursor,
                         shift ? cursor.getCount() : 1
                     );
-                    ctx.player().setCursorStack(result);
+                    ctx.player().setCursorStack(new MinecraftItemStack(result));
                 } else {
                     tx.sellFromInventory(
                         item,

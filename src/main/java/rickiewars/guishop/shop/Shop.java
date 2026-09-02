@@ -5,6 +5,7 @@ import net.minecraft.item.Items;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import rickiewars.guishop.GUIShop;
+import rickiewars.guishop.api.minecraft.IItemStack;
 import rickiewars.guishop.economy.EconomyUtils;
 import rickiewars.guishop.util.CommonMethods;
 
@@ -39,7 +40,7 @@ public class Shop {
         return sellPricing;
     }
 
-    public ShopItem findHighestPayingItem(ItemStack stack) {
+    public ShopItem findHighestPayingItem(IItemStack stack) {
         ShopItem best = null;
         long bestPayout = Long.MIN_VALUE;
 

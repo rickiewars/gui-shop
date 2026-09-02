@@ -2,16 +2,13 @@ package rickiewars.guishop.shop;
 
 import eu.pb4.common.economy.api.CommonEconomy;
 import eu.pb4.common.economy.api.EconomyCurrency;
-import net.minecraft.component.ComponentType;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import rickiewars.guishop.GUIShop;
+import rickiewars.guishop.api.minecraft.IItemStack;
 import rickiewars.guishop.economy.EconomyUtils;
 
 import java.util.*;
@@ -21,33 +18,33 @@ import java.util.*;
  */
 public record ShopItem(
         String displayName,
-        ItemStack stack,
+        IItemStack stack,
         long buyPrice,
         long sellPrice,
         @Nullable
         Identifier explicitCurrencyId,
         List<String> description
 ) {
-    private static final Set<ComponentType<?>> GRADED_COMPONENTS = Set.of(
-            DataComponentTypes.DAMAGE,
-            DataComponentTypes.REPAIR_COST
+    private static final Set<IItemStack.ComponentKey> GRADED_COMPONENTS = Set.of(
+            IItemStack.ComponentKey.DAMAGE,
+            IItemStack.ComponentKey.REPAIR_COST
     );
-    private static final Set<ComponentType<?>> FLAT_COMPONENTS = Set.of(
-            DataComponentTypes.CUSTOM_NAME,
-            DataComponentTypes.LORE
+    private static final Set<IItemStack.ComponentKey> FLAT_COMPONENTS = Set.of(
+            IItemStack.ComponentKey.CUSTOM_NAME,
+            IItemStack.ComponentKey.LORE
     );
 
     /// Check if the ShopItem has component changes like Enchantments, a custom name or description
     public boolean hasComponentChanges() {
-        return !stack.getComponentChanges().isEmpty();
+        return stack.hasComponentChanges();
     }
 
     public Identifier itemId() {
-        return Registries.ITEM.getId(stack.getItem());
+        return Identifier.of(stack.itemId().namespace(), stack.itemId().path());
     }
 
     public int getMaxStackSize() {
-        return stack.getMaxCount();
+        return stack.maxStackSize();
     }
 
     /// A listing that can neither be bought nor sold should not appear in the shop GUI at all.
@@ -65,7 +62,7 @@ public record ShopItem(
                 && displayName.equals(other.displayName)
                 && Objects.equals(explicitCurrencyId, other.explicitCurrencyId)
                 && description.equals(other.description)
-                && ItemStack.areItemsAndComponentsEqual(stack, other.stack);
+                && stack.equalsExact(other.stack);
     }
 
     @Override
@@ -75,34 +72,28 @@ public record ShopItem(
         result = 31 * result + Long.hashCode(sellPrice);
         result = 31 * result + Objects.hashCode(explicitCurrencyId);
         result = 31 * result + description.hashCode();
-        result = 31 * result + ItemStack.hashCode(stack);
+        result = 31 * result + stack.hashCode();
         return result;
     }
 
     /// Strict-policy match used to decide sale eligibility: every component must be identical
     /// except DAMAGE/REPAIR_COST (graded) and CUSTOM_NAME/LORE (flat), which are priced instead
     /// of being allowed to block a sale outright.
-    public boolean resembles(ItemStack other) {
-        if (!stack.getItem().equals(other.getItem())) return false;
-
-        ItemStack a = stack.copy();
-        ItemStack b = other.copy();
-        for (ComponentType<?> type : GRADED_COMPONENTS) {
-            a.remove(type);
-            b.remove(type);
-        }
-        for (ComponentType<?> type : FLAT_COMPONENTS) {
-            a.remove(type);
-            b.remove(type);
-        }
-        return ItemStack.areItemsAndComponentsEqual(a, b);
+    public boolean resembles(IItemStack other) {
+        return stack.equalsIgnoringComponents(other, ignoredForResemblance());
     }
 
     /// Strict match AND every graded/flat component identical to the listing too. Used only for
     /// bulk "search the whole inventory" selling, where a single flat price must apply to every
     /// stack matched, see Shop/Transaction for why this must never allow a discounted item through.
-    public boolean matches(ItemStack other) {
-        return resembles(other) && ItemStack.areItemsAndComponentsEqual(stack, other);
+    public boolean matches(IItemStack other) {
+        return resembles(other) && stack.equalsExact(other);
+    }
+
+    private static Set<IItemStack.ComponentKey> ignoredForResemblance() {
+        Set<IItemStack.ComponentKey> ignored = EnumSet.copyOf(GRADED_COMPONENTS);
+        ignored.addAll(FLAT_COMPONENTS);
+        return ignored;
     }
 
     public List<Text> getDescriptionAsText() {

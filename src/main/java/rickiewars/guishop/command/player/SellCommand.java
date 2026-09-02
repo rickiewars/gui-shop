@@ -8,7 +8,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import rickiewars.guishop.GUIShop;
+import rickiewars.guishop.api.minecraft.IItemStack;
 import rickiewars.guishop.api.minecraft.IPlayer;
+import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.api.minecraft.impl.MinecraftPlayer;
 import rickiewars.guishop.command.GuiShopPermission;
 import rickiewars.guishop.economy.Transaction;
@@ -31,16 +33,17 @@ public class SellCommand {
 		if (mcPlayer == null) throw CommandErrors.NEED_PLAYER.create();
 
 		IPlayer player = new MinecraftPlayer(mcPlayer);
-        ItemStack itemStack = player.getMainHandStack();
+        IItemStack heldItem = player.getMainHandStack();
+        ItemStack itemStack = ((MinecraftItemStack) heldItem).stack();
 
 		if (itemStack.isEmpty()) throw CommandErrors.HAND_EMPTY.create();
 
 		for (Shop shop : GUIShop.shops) {
 			for (ShopItem shopItem : shop.getItems()) {
-				if (shopItem.resembles(itemStack) && shopItem.sellPrice() >= 0) {
+				if (shopItem.resembles(heldItem) && shopItem.sellPrice() >= 0) {
 					Transaction tx = new Transaction(player, shop);
 					ItemStack returnedStack = tx.sellFromItemStack(itemStack, itemStack.getCount());
-					player.setMainHandStack(returnedStack);
+					player.setMainHandStack(new MinecraftItemStack(returnedStack));
 					return 0;
 				}
 			}

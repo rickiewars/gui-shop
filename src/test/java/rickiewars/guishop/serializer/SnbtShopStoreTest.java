@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import rickiewars.guishop.MinecraftTest;
+import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.api.minecraft.impl.VanillaItemCodec;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
@@ -49,7 +50,7 @@ public class SnbtShopStoreTest extends MinecraftTest {
             Map.of(Enchantments.SHARPNESS, 5), registryLookup
         ));
 
-        ShopItem item = new ShopItem("Sharp Sword", sword, 50000, 25000, null, List.of("Freshly ground"));
+        ShopItem item = new ShopItem("Sharp Sword", new MinecraftItemStack(sword), 50000, 25000, null, List.of("Freshly ground"));
         Shop shop = new Shop("enchanted_gear", "Enchanted Gear", List.of(item), null, Identifier.ofVanilla("enchanting_table"));
 
         store.writeShop(shop);
@@ -65,7 +66,7 @@ public class SnbtShopStoreTest extends MinecraftTest {
 
     @Test
     void corruptFileIsSkippedButOthersStillLoad() throws IOException {
-        ShopItem item = new ShopItem("Item", new ItemStack(Items.STONE), 10, 5, null, List.of());
+        ShopItem item = new ShopItem("Item", new MinecraftItemStack(new ItemStack(Items.STONE)), 10, 5, null, List.of());
         Shop goodShop = new Shop("good_shop", "Good Shop", List.of(item), null);
         store.writeShop(goodShop);
 
@@ -100,7 +101,7 @@ public class SnbtShopStoreTest extends MinecraftTest {
     @Test
     void countKeyOnStackIsIgnoredButLogsWarning() {
         var stack = new ItemStack(Items.STONE);
-        ShopItem item = new ShopItem("Stack item", stack, 10, 5, null, List.of());
+        ShopItem item = new ShopItem("Stack item", new MinecraftItemStack(stack), 10, 5, null, List.of());
         Shop shop = new Shop("shop", "Shop", List.of(item), null);
         store.writeShop(shop);
 
@@ -125,7 +126,7 @@ public class SnbtShopStoreTest extends MinecraftTest {
 
     @Test
     void upgradingOldDataVersionBacksUpOriginalBeforeRewriting() throws IOException {
-        ShopItem item = new ShopItem("Item", new ItemStack(Items.STONE), 10, 5, null, List.of());
+        ShopItem item = new ShopItem("Item", new MinecraftItemStack(new ItemStack(Items.STONE)), 10, 5, null, List.of());
         Shop shop = new Shop("old_shop", "Old Shop", List.of(item), null);
         store.writeShop(shop);
 
@@ -154,7 +155,7 @@ public class SnbtShopStoreTest extends MinecraftTest {
 
     @Test
     void rewriteIsSkippedWhenBackupFails() throws IOException {
-        ShopItem item = new ShopItem("Item", new ItemStack(Items.STONE), 10, 5, null, List.of());
+        ShopItem item = new ShopItem("Item", new MinecraftItemStack(new ItemStack(Items.STONE)), 10, 5, null, List.of());
         Shop shop = new Shop("old_shop", "Old Shop", List.of(item), null);
         store.writeShop(shop);
 

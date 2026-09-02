@@ -1,7 +1,6 @@
 package rickiewars.guishop.api.minecraft;
 
 import eu.pb4.common.economy.api.EconomyAccount;
-import net.minecraft.item.ItemStack;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -17,17 +16,17 @@ public interface IPlayer {
 
     String getUuid();
 
-    ItemStack getCursorStack();
+    IItemStack getCursorStack();
 
     Text name();
-    void setCursorStack(ItemStack stack);
+    void setCursorStack(IItemStack stack);
 
     float getYaw();
     BlockPos getBlockPos();
     RegistryKey<World> getWorldId();
 
-    void giveItem(ItemStack itemStack);
+    void giveItem(IItemStack itemStack);
 
-    ItemStack getMainHandStack();
-    void setMainHandStack(ItemStack itemStack);
+    IItemStack getMainHandStack();
+    void setMainHandStack(IItemStack itemStack);
 }

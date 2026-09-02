@@ -7,6 +7,8 @@ import net.minecraft.item.Items;
 import net.minecraft.text.Text;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.MinecraftTest;
+import rickiewars.guishop.api.minecraft.IItemStack;
+import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.factories.SellPricingFactory;
 
 import java.util.List;
@@ -18,7 +20,11 @@ public class SellPricingTest extends MinecraftTest {
     private static final int TEST_MAX_DAMAGE = 100;
 
     private ShopItem listing(ItemStack stack, long sellPrice) {
-        return new ShopItem("Listing", stack, 0, sellPrice, null, List.of());
+        return new ShopItem("Listing", wrap(stack), 0, sellPrice, null, List.of());
+    }
+
+    private static IItemStack wrap(ItemStack stack) {
+        return new MinecraftItemStack(stack);
     }
 
     /**
@@ -35,14 +41,14 @@ public class SellPricingTest extends MinecraftTest {
     void originalItemPaysFullPrice() {
         SellPricing pricing = new SellPricingFactory().build();
         ShopItem listing = listing(new ItemStack(Items.DIAMOND_SWORD), 1000);
-        assertEquals(1000, pricing.adjustedPayout(listing, new ItemStack(Items.DIAMOND_SWORD)));
+        assertEquals(1000, pricing.adjustedPayout(listing, wrap(new ItemStack(Items.DIAMOND_SWORD))));
     }
 
     @Test
     void nonDamageableItemPaysFullPrice() {
         SellPricing pricing = new SellPricingFactory().build();
         ShopItem listing = listing(new ItemStack(Items.STONE), 100);
-        assertEquals(100, pricing.adjustedPayout(listing, new ItemStack(Items.STONE)));
+        assertEquals(100, pricing.adjustedPayout(listing, wrap(new ItemStack(Items.STONE))));
     }
 
     @Test
@@ -54,7 +60,7 @@ public class SellPricingTest extends MinecraftTest {
         ShopItem listing = listing(damagedItem(Items.IRON_PICKAXE, 0), 1000);
         ItemStack barelyDamaged = damagedItem(Items.IRON_PICKAXE, 1);
 
-        assertEquals(800, pricing.adjustedPayout(listing, barelyDamaged));
+        assertEquals(800, pricing.adjustedPayout(listing, wrap(barelyDamaged)));
     }
 
     @Test
@@ -67,7 +73,7 @@ public class SellPricingTest extends MinecraftTest {
         ShopItem listing = listing(damagedItem(Items.IRON_PICKAXE, 0), 1000);
         ItemStack halfDamaged = damagedItem(Items.IRON_PICKAXE, 50);
 
-        assertEquals(250, pricing.adjustedPayout(listing, halfDamaged));
+        assertEquals(250, pricing.adjustedPayout(listing, wrap(halfDamaged)));
     }
 
     @Test
@@ -80,7 +86,7 @@ public class SellPricingTest extends MinecraftTest {
         ShopItem listing = listing(damagedItem(Items.IRON_PICKAXE, 0), 1000);
         ItemStack halfDamaged = damagedItem(Items.IRON_PICKAXE, 50);
 
-        assertEquals(500, pricing.adjustedPayout(listing, halfDamaged));
+        assertEquals(500, pricing.adjustedPayout(listing, wrap(halfDamaged)));
     }
 
     @Test
@@ -94,7 +100,7 @@ public class SellPricingTest extends MinecraftTest {
         ShopItem listing = listing(damagedItem(Items.IRON_PICKAXE, 0), 1000);
         ItemStack fullyDamaged = damagedItem(Items.IRON_PICKAXE, 100);
 
-        assertEquals(300, pricing.adjustedPayout(listing, fullyDamaged));
+        assertEquals(300, pricing.adjustedPayout(listing, wrap(fullyDamaged)));
     }
 
     @Test
@@ -107,7 +113,7 @@ public class SellPricingTest extends MinecraftTest {
         ItemStack refurbishedItem = new ItemStack(Items.IRON_PICKAXE);
         refurbishedItem.set(DataComponentTypes.REPAIR_COST, 1);
 
-        assertEquals(900, pricing.adjustedPayout(listing, refurbishedItem));
+        assertEquals(900, pricing.adjustedPayout(listing, wrap(refurbishedItem)));
     }
 
 
@@ -129,9 +135,9 @@ public class SellPricingTest extends MinecraftTest {
 
         ItemStack untouched = damagedItem(Items.IRON_PICKAXE, 0);
 
-        assertEquals(250, pricing.adjustedPayout(listing, broken));
-        assertEquals(600, pricing.adjustedPayout(listing, repaired));
-        assertEquals(1000, pricing.adjustedPayout(listing, untouched));
+        assertEquals(250, pricing.adjustedPayout(listing, wrap(broken)));
+        assertEquals(600, pricing.adjustedPayout(listing, wrap(repaired)));
+        assertEquals(1000, pricing.adjustedPayout(listing, wrap(untouched)));
     }
 
     @Test
@@ -142,7 +148,7 @@ public class SellPricingTest extends MinecraftTest {
         ItemStack renamed = new ItemStack(Items.DIAMOND_SWORD);
         renamed.set(DataComponentTypes.CUSTOM_NAME, Text.literal("My Sword"));
 
-        assertEquals(900, pricing.adjustedPayout(listing, renamed));
+        assertEquals(900, pricing.adjustedPayout(listing, wrap(renamed)));
     }
 
     @Test
@@ -153,7 +159,7 @@ public class SellPricingTest extends MinecraftTest {
         ItemStack loredItem = new ItemStack(Items.DIAMOND_SWORD);
         loredItem.set(DataComponentTypes.LORE, new net.minecraft.component.type.LoreComponent(List.of(Text.literal("Cool"))));
 
-        assertEquals(900, pricing.adjustedPayout(listing, loredItem));
+        assertEquals(900, pricing.adjustedPayout(listing, wrap(loredItem)));
     }
 
     @Test
@@ -168,7 +174,7 @@ public class SellPricingTest extends MinecraftTest {
         renamedWithLore.set(DataComponentTypes.CUSTOM_NAME, Text.literal("My Sword"));
         renamedWithLore.set(DataComponentTypes.LORE, new net.minecraft.component.type.LoreComponent(List.of(Text.literal("Cool"))));
 
-        assertEquals(810, pricing.adjustedPayout(listing, renamedWithLore));
+        assertEquals(810, pricing.adjustedPayout(listing, wrap(renamedWithLore)));
     }
 
     @Test
@@ -189,7 +195,7 @@ public class SellPricingTest extends MinecraftTest {
         wrecked.set(DataComponentTypes.CUSTOM_NAME, Text.literal("Wrecked"));
         wrecked.set(DataComponentTypes.LORE, new net.minecraft.component.type.LoreComponent(List.of(Text.literal("Ruined"))));
 
-        assertEquals(100, pricing.adjustedPayout(listing, wrecked));
+        assertEquals(100, pricing.adjustedPayout(listing, wrap(wrecked)));
     }
 
     @Test
@@ -198,7 +204,7 @@ public class SellPricingTest extends MinecraftTest {
         ShopItem listing = listing(damagedItem(Items.DIAMOND_SWORD, 0), 0);
         ItemStack damaged = damagedItem(Items.DIAMOND_SWORD, 100);
 
-        assertEquals(0, pricing.adjustedPayout(listing, damaged));
+        assertEquals(0, pricing.adjustedPayout(listing, wrap(damaged)));
     }
 
     @Test
@@ -210,6 +216,6 @@ public class SellPricingTest extends MinecraftTest {
         ShopItem listing = listing(damagedItem(Items.DIAMOND_SWORD, 0), 1);
         ItemStack wrecked = damagedItem(Items.DIAMOND_SWORD, 99);
 
-        assertEquals(1, pricing.adjustedPayout(listing, wrecked));
+        assertEquals(1, pricing.adjustedPayout(listing, wrap(wrecked)));
     }
 }

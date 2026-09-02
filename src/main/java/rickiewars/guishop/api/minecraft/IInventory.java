@@ -1,24 +1,21 @@
 package rickiewars.guishop.api.minecraft;
 
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-
 import java.util.function.Predicate;
 
 public interface IInventory {
     int size();
 
-    int count(Item item);
+    int count(ResourceId itemId);
 
-    void offerOrDrop(ItemStack stack);
+    void offerOrDrop(IItemStack stack);
 
-    int remove(Item match, int amount, Predicate<ItemStack> filter);
+    int remove(ResourceId matchId, int amount, Predicate<IItemStack> filter);
 
-    static int handleRemove(ItemStack slot, Item match, int amount, Predicate<ItemStack> filter) {
-        if (slot.getItem() != match) return 0;
+    static int handleRemove(IItemStack slot, ResourceId matchId, int amount, Predicate<IItemStack> filter) {
+        if (!slot.itemId().equals(matchId)) return 0;
         if (!filter.test(slot)) return 0;
 
-        int removeCount = Math.min(amount, slot.getCount());
+        int removeCount = Math.min(amount, slot.count());
         slot.decrement(removeCount);
 
         return removeCount;

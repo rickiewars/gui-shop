@@ -8,6 +8,7 @@ import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.EconomyTest;
 import rickiewars.guishop.api.gui.impl.TestMenuController;
+import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.api.minecraft.impl.TestPlayer;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
@@ -156,7 +157,7 @@ public class FixedSlotTest extends EconomyTest {
         var shop = new Shop("test_shop", "Test shop", List.of(
             new ShopItem(
                 "Item 1",
-                new ItemStack(Registries.ITEM.get(Identifier.of("minecraft:stone"))),
+                new MinecraftItemStack(new ItemStack(Registries.ITEM.get(Identifier.of("minecraft:stone")))),
                 10,
                 10,
                 currencyId1,
@@ -164,7 +165,7 @@ public class FixedSlotTest extends EconomyTest {
             ),
             new ShopItem(
                 "Item 2",
-                new ItemStack(Registries.ITEM.get(Identifier.of("minecraft:stone"))),
+                new MinecraftItemStack(new ItemStack(Registries.ITEM.get(Identifier.of("minecraft:stone")))),
                 10,
                 10,
                 currencyId2,

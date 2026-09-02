@@ -12,6 +12,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.Test;
+import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.serializer.SnbtShopStore;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
@@ -50,6 +51,10 @@ public class LegacyShopConverterTest extends MigrationTestBase {
 
     private NbtCompound readRaw(String id) throws Exception {
         return StringNbtReader.readCompound(Files.readString(shopsDir.resolve(id + ".snbt"), StandardCharsets.UTF_8));
+    }
+
+    private static ItemStack stackOf(ShopItem item) {
+        return ((MinecraftItemStack) item.stack()).stack();
     }
 
     private List<String> shopFileNames() throws IOException {
@@ -224,7 +229,7 @@ public class LegacyShopConverterTest extends MigrationTestBase {
         Shop shop = readShop("enchanted_shop");
         assertEquals(3, shop.getItems().size());
 
-        ItemStack sword = shop.getItems().getFirst().stack();
+        ItemStack sword = stackOf(shop.getItems().getFirst());
         assertEquals(Items.NETHERITE_SWORD, sword.getItem());
         assertEquals(5, sword.getEnchantments().getLevel(registries().getEntryOrThrow(Enchantments.SHARPNESS)));
         assertEquals(3, sword.getEnchantments().getLevel(registries().getEntryOrThrow(Enchantments.UNBREAKING)));
@@ -233,10 +238,10 @@ public class LegacyShopConverterTest extends MigrationTestBase {
         assertEquals("Forged in fire", sword.get(DataComponentTypes.LORE).lines().getFirst().getString());
         assertEquals(42, sword.getDamage());
 
-        ItemStack tagged = shop.getItems().get(1).stack();
+        ItemStack tagged = stackOf(shop.getItems().get(1));
         assertNotNull(tagged.get(DataComponentTypes.CUSTOM_DATA), "custom_data must survive the conversion");
 
-        ItemStack plain = shop.getItems().get(2).stack();
+        ItemStack plain = stackOf(shop.getItems().get(2));
         assertTrue(plain.getComponentChanges().isEmpty());
     }
 
@@ -254,7 +259,7 @@ public class LegacyShopConverterTest extends MigrationTestBase {
         assertTrue(convert());
 
         Shop shop = readShop("old_enchanted_shop");
-        ItemStack sword = shop.getItems().getFirst().stack();
+        ItemStack sword = stackOf(shop.getItems().getFirst());
 
         assertEquals(
             5,
@@ -281,22 +286,22 @@ public class LegacyShopConverterTest extends MigrationTestBase {
         Shop shop = readShop("legacy_shapes");
         assertEquals(5, shop.getItems().size());
 
-        ItemStack sword = shop.getItems().get(0).stack();
+        ItemStack sword = stackOf(shop.getItems().get(0));
         assertEquals(5, sword.getEnchantments().getLevel(registries().getEntryOrThrow(Enchantments.SHARPNESS)));
         assertEquals(1, sword.getEnchantments().getLevel(registries().getEntryOrThrow(Enchantments.MENDING)));
 
-        ItemStack book = shop.getItems().get(1).stack();
+        ItemStack book = stackOf(shop.getItems().get(1));
         assertEquals(
             3,
             book.get(DataComponentTypes.STORED_ENCHANTMENTS).getLevel(registries().getEntryOrThrow(Enchantments.LURE)),
             "stored_enchantments was unwrapped by the same 1.21.5 change"
         );
 
-        ItemStack chestplate = shop.getItems().get(2).stack();
+        ItemStack chestplate = stackOf(shop.getItems().get(2));
         assertNotNull(chestplate.get(DataComponentTypes.DYED_COLOR), "dyed_color lost its rgb wrapper in 1.21.5");
         assertEquals(16711680, chestplate.get(DataComponentTypes.DYED_COLOR).rgb());
 
-        ItemStack pickaxe = shop.getItems().get(3).stack();
+        ItemStack pickaxe = stackOf(shop.getItems().get(3));
         assertEquals(
             4,
             pickaxe.getEnchantments().getLevel(registries().getEntryOrThrow(Enchantments.EFFICIENCY)),
@@ -314,7 +319,7 @@ public class LegacyShopConverterTest extends MigrationTestBase {
 
         assertTrue(convert());
 
-        ItemStack stone = readShop("legacy_shapes").getItems().get(4).stack();
+        ItemStack stone = stackOf(readShop("legacy_shapes").getItems().get(4));
         assertEquals(Items.STONE, stone.getItem());
         assertNotNull(stone.get(DataComponentTypes.CUSTOM_NAME), "the readable component must be kept");
         assertEquals("Still Named", stone.get(DataComponentTypes.CUSTOM_NAME).getString());
@@ -330,7 +335,7 @@ public class LegacyShopConverterTest extends MigrationTestBase {
         Shop shop = readShop("old_enchanted_shop");
         assertEquals(2, shop.getItems().size());
         assertEquals("Plain Stone", shop.getItems().get(1).displayName());
-        assertEquals(Items.STONE, shop.getItems().get(1).stack().getItem());
+        assertEquals(Items.STONE, stackOf(shop.getItems().get(1)).getItem());
     }
 
     @Test
@@ -540,8 +545,8 @@ public class LegacyShopConverterTest extends MigrationTestBase {
         assertTrue(convert());
 
         ShopItem item = readShop("no_components").getItems().getFirst();
-        assertEquals(Items.STONE, item.stack().getItem());
-        assertTrue(item.stack().getComponentChanges().isEmpty());
+        assertEquals(Items.STONE, stackOf(item).getItem());
+        assertTrue(stackOf(item).getComponentChanges().isEmpty());
     }
 
     /**
