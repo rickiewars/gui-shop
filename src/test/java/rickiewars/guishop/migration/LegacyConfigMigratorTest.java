@@ -12,7 +12,6 @@ import rickiewars.guishop.config.GuiShopConfig;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -90,9 +89,7 @@ public class LegacyConfigMigratorTest extends MigrationTestBase {
         assertTrue(LegacyConfigMigrator.migrateIfNeeded());
 
         JsonObject produced = readMigratedJson();
-        JsonObject shipped = JsonParser.parseString(
-            Files.readString(Path.of("run/config/gui-shop/config.json"), StandardCharsets.UTF_8)
-        ).getAsJsonObject();
+        JsonObject shipped = JsonParser.parseString(readFixture("expected-migrated-config.json")).getAsJsonObject();
 
         for (String key : List.of("economyDisabled", "database", "economy", "command", "economyProviders")) {
             assertEquals(shipped.get(key), produced.get(key), "block '" + key + "' differs from the real migrated config");
