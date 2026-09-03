@@ -1,7 +1,7 @@
 package rickiewars.guishop.shop.gui;
 
-import net.minecraft.item.Items;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Items;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.EconomyTest;
 import rickiewars.guishop.api.gui.impl.TestMenuController;
@@ -50,9 +50,9 @@ class MenuContextTest extends EconomyTest {
         assertEquals(2, ctx.page());
 
         assertInstanceOf(ShopItemSlot.class, controller.slots.get(0));
-        assertEquals(Text.of("Item 46"), controller.slots.get(0).name());
+        assertEquals(Component.nullToEmpty("Item 46"), controller.slots.get(0).name());
         assertInstanceOf(ShopItemSlot.class, controller.slots.get(44));
-        assertEquals(Text.of("Item 90"), controller.slots.get(44).name());
+        assertEquals(Component.nullToEmpty("Item 90"), controller.slots.get(44).name());
     }
 
     @Test
@@ -139,9 +139,9 @@ class MenuContextTest extends EconomyTest {
         ctx.refresh();
 
         assertInstanceOf(ShopItemSlot.class, controller.slots.get(0));
-        assertEquals(Text.of("Item 46"), controller.slots.get(0).name());
+        assertEquals(Component.nullToEmpty("Item 46"), controller.slots.get(0).name());
         assertInstanceOf(ShopItemSlot.class, controller.slots.get(44));
-        assertEquals(Text.of("Item 90"), controller.slots.get(44).name());
+        assertEquals(Component.nullToEmpty("Item 90"), controller.slots.get(44).name());
     }
 
     @Test

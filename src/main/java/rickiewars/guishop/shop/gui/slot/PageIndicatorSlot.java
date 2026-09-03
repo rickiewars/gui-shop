@@ -1,9 +1,9 @@
 package rickiewars.guishop.shop.gui.slot;
 
 import eu.pb4.sgui.api.ClickType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import rickiewars.guishop.api.gui.MenuContext;
 import rickiewars.guishop.api.gui.MenuSlot;
 
@@ -19,16 +19,16 @@ public class PageIndicatorSlot implements MenuSlot {
     }
 
     public ItemStack icon() {
-        ItemStack paper = Items.PAPER.getDefaultStack();
+        ItemStack paper = Items.PAPER.getDefaultInstance();
         paper.setCount(page);
         return paper;
     }
 
-    public Text name() {
-        return Text.literal("Page " + page + " / " + maxPage);
+    public Component name() {
+        return Component.literal("Page " + page + " / " + maxPage);
     }
 
-    public List<Text> lore() {
+    public List<Component> lore() {
         return List.of();
     }
 

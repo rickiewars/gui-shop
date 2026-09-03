@@ -1,11 +1,11 @@
 package rickiewars.guishop.util;
 
-import net.minecraft.component.type.ItemEnchantmentsComponent;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.database.DatabaseManager;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
@@ -26,7 +26,7 @@ public class TestUtils {
     static public Shop testShop(int itemCount) {
         return testShop(
             List.of("minecraft:stone"),
-            Identifier.of(GuiShopEconomyProvider.ID, "credits"),
+            Identifier.fromNamespaceAndPath(GuiShopEconomyProvider.ID, "credits"),
             itemCount
         );
     }
@@ -73,14 +73,14 @@ public class TestUtils {
 
     static public class EconomyDetails {
         /** Currency ID */
-        public Identifier currencyCreditsId = Identifier.of(GuiShopEconomyProvider.ID, "credits");
+        public Identifier currencyCreditsId = Identifier.fromNamespaceAndPath(GuiShopEconomyProvider.ID, "credits");
         /** Currency ID */
-        public Identifier currencyCoinsId = Identifier.of(GuiShopEconomyProvider.ID, "coins");
+        public Identifier currencyCoinsId = Identifier.fromNamespaceAndPath(GuiShopEconomyProvider.ID, "coins");
 
         /** Account ID */
-        public Identifier accountCardId = Identifier.of(GuiShopEconomyProvider.ID, "card");
+        public Identifier accountCardId = Identifier.fromNamespaceAndPath(GuiShopEconomyProvider.ID, "card");
         /** Account ID */
-        public Identifier accountPouchId = Identifier.of(GuiShopEconomyProvider.ID, "pouch");
+        public Identifier accountPouchId = Identifier.fromNamespaceAndPath(GuiShopEconomyProvider.ID, "pouch");
         public Map<String, GuiShopConfig.CurrencyDefinition> currencies = new HashMap<>();
         public Map<String, GuiShopConfig.AccountDefinition> accounts = new HashMap<>();
     }
@@ -92,18 +92,18 @@ public class TestUtils {
             "Credits", "$", "", 2, GuiShopEconomyCurrency.DEFAULT_ICON_ID
         ));
         details.currencies.put(details.currencyCoinsId.getPath(), new GuiShopConfig.CurrencyDefinition(
-            "Coins", "", " Coins", 0, Identifier.of(CommonMethods.getItemId(Items.GOLD_NUGGET))
+            "Coins", "", " Coins", 0, Identifier.parse(CommonMethods.getItemId(Items.GOLD_NUGGET))
         ));
 
         details.accounts.put(details.accountCardId.getPath(), new GuiShopConfig.AccountDefinition(
             details.currencyCreditsId.getPath(),
             "Credit card",
-            Identifier.of(CommonMethods.getItemId(Items.PAPER))
+            Identifier.parse(CommonMethods.getItemId(Items.PAPER))
         ));
         details.accounts.put(details.accountPouchId.getPath(), new GuiShopConfig.AccountDefinition(
             details.currencyCoinsId.getPath(),
             "Pouch",
-            Identifier.of(CommonMethods.getItemId(Items.BROWN_BUNDLE))
+            Identifier.parse(CommonMethods.getItemId(Items.BROWN_BUNDLE))
         ));
 
         GUIShop.config = new GuiShopConfig();
@@ -114,14 +114,14 @@ public class TestUtils {
         return details;
     }
 
-    static public ItemEnchantmentsComponent buildEnchantmentsComponent(Map<RegistryKey<Enchantment>, Integer> enchantments, net.minecraft.registry.RegistryWrapper.WrapperLookup lookup) {
-        var builder = new ItemEnchantmentsComponent.Builder(ItemEnchantmentsComponent.DEFAULT);
+    static public ItemEnchantments buildEnchantmentsComponent(Map<ResourceKey<Enchantment>, Integer> enchantments, net.minecraft.core.HolderLookup.Provider lookup) {
+        var builder = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
 
         enchantments.forEach((enchantment, level) -> {
-            builder.add(lookup.getEntryOrThrow(enchantment), level);
+            builder.upgrade(lookup.getOrThrow(enchantment), level);
         });
 
-        return builder.build();
+        return builder.toImmutable();
     }
 
 }

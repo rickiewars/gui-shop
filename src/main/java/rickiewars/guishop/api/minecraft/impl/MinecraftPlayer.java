@@ -1,23 +1,23 @@
 package rickiewars.guishop.api.minecraft.impl;
 
 import eu.pb4.common.economy.api.EconomyAccount;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import rickiewars.guishop.api.minecraft.IInventory;
 import rickiewars.guishop.api.minecraft.IItemStack;
 import rickiewars.guishop.api.minecraft.IPlayer;
 import rickiewars.guishop.economy.EconomyUtils;
 
 public class MinecraftPlayer implements IPlayer {
-    private final ServerPlayerEntity player;
+    private final ServerPlayer player;
 
-    public MinecraftPlayer(ServerPlayerEntity player) {
+    public MinecraftPlayer(ServerPlayer player) {
         this.player = player;
         assert this.player != null;
     }
@@ -33,57 +33,57 @@ public class MinecraftPlayer implements IPlayer {
     }
 
     @Override
-    public void sendMessage(Text message) {
-        player.sendMessage(message);
+    public void sendMessage(Component message) {
+        player.sendSystemMessage(message);
     }
 
     @Override
     public String getUuid() {
-        return player.getUuidAsString();
+        return player.getStringUUID();
     }
 
     @Override
     public IItemStack getCursorStack() {
-        return new MinecraftItemStack(player.currentScreenHandler.getCursorStack());
+        return new MinecraftItemStack(player.containerMenu.getCarried());
     }
 
     @Override
-    public Text name() {
+    public Component name() {
         return player.getName();
     }
 
     @Override
     public void setCursorStack(IItemStack stack) {
-        player.currentScreenHandler.setCursorStack(unwrap(stack));
+        player.containerMenu.setCarried(unwrap(stack));
     }
 
     @Override
     public float getYaw() {
-        return player.getYaw();
+        return player.getYRot();
     }
     @Override
     public BlockPos getBlockPos() {
-        return player.getBlockPos();
+        return player.blockPosition();
     }
 
     @Override
-    public RegistryKey<World> getWorldId() {
-        return player.getEntityWorld().getRegistryKey();
+    public ResourceKey<Level> getWorldId() {
+        return player.level().dimension();
     }
 
     @Override
     public void giveItem(IItemStack itemStack) {
-        player.getInventory().offerOrDrop(unwrap(itemStack));
+        player.getInventory().placeItemBackInInventory(unwrap(itemStack));
     }
 
     @Override
     public IItemStack getMainHandStack() {
-        return new MinecraftItemStack(player.getMainHandStack());
+        return new MinecraftItemStack(player.getMainHandItem());
     }
 
     @Override
     public void setMainHandStack(IItemStack itemStack) {
-        player.setStackInHand(Hand.MAIN_HAND, unwrap(itemStack));
+        player.setItemInHand(InteractionHand.MAIN_HAND, unwrap(itemStack));
     }
 
     private static ItemStack unwrap(IItemStack stack) {

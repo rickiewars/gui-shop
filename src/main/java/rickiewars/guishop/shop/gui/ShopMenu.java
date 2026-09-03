@@ -1,8 +1,8 @@
 package rickiewars.guishop.shop.gui;
 
 import eu.pb4.common.economy.api.EconomyAccount;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.inventory.MenuType;
 import rickiewars.guishop.api.gui.Menu;
 import rickiewars.guishop.api.gui.MenuConfig;
 import rickiewars.guishop.api.gui.MenuSlot;
@@ -39,10 +39,10 @@ public class ShopMenu implements Menu {
     }
 
     @Override
-    public Text title() {
+    public Component title() {
         EconomyAccount account = player.getAccount(shop.getDefaultCurrencyId());
-        String balance = account.formattedBalance().getLiteralString();
-        return Text.of(shop.getDisplayName() + " (Balance: " + balance + ")");
+        String balance = account.formattedBalance().tryCollapseToString();
+        return Component.nullToEmpty(shop.getDisplayName() + " (Balance: " + balance + ")");
     }
 
     @Override
@@ -125,7 +125,7 @@ public class ShopMenu implements Menu {
 
     private static MenuConfig<SlotType> buildConfig() {
         int lastDynamicSlot = 5 * 9 - 1;
-        return new MenuConfig<>(ScreenHandlerType.GENERIC_9X6, Map.of(
+        return new MenuConfig<>(MenuType.GENERIC_9x6, Map.of(
             lastDynamicSlot + 1, SlotType.BALANCE,
             lastDynamicSlot + 2, SlotType.EMPTY,
             lastDynamicSlot + 3, SlotType.EMPTY,

@@ -1,7 +1,7 @@
 package rickiewars.guishop;
 
-import net.minecraft.Bootstrap;
 import net.minecraft.SharedConstants;
+import net.minecraft.server.Bootstrap;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
 
@@ -10,7 +10,7 @@ public abstract class MinecraftTest {
 
     @BeforeAll
     final void setupMinecraft() {
-        SharedConstants.createGameVersion();
-        Bootstrap.initialize();
+        SharedConstants.tryDetectVersion();
+        Bootstrap.bootStrap();
     }
 }

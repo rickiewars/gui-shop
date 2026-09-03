@@ -1,8 +1,8 @@
 package rickiewars.guishop.shop;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.MinecraftTest;
@@ -37,18 +37,18 @@ class ShopTest extends MinecraftTest {
             new MinecraftItemStack(new ItemStack(Items.DIRT)),
             20,
             10,
-            Identifier.of("test:currency"),
+            Identifier.parse("test:currency"),
             List.of("Just some dirt")
         );
 
-        defaultCurrency = Identifier.of("test:default");
+        defaultCurrency = Identifier.parse("test:default");
 
         shop = new Shop(
             "test_shop",
             "TestShop",
             List.of(stoneItem, dirtItem),
             defaultCurrency,
-            Identifier.ofVanilla("ender_chest"),
+            Identifier.withDefaultNamespace("ender_chest"),
             SellPricing.DEFAULT
         );
     }
@@ -87,13 +87,13 @@ class ShopTest extends MinecraftTest {
         ShopItem cheapPristine = new ShopItem("Cheap", new MinecraftItemStack(new ItemStack(Items.IRON_PICKAXE)), 100, 100, null, List.of());
 
         ItemStack wornListing = new ItemStack(Items.IRON_PICKAXE);
-        wornListing.setDamage(200);
+        wornListing.setDamageValue(200);
         ShopItem expensiveWorn = new ShopItem("Expensive worn", new MinecraftItemStack(wornListing), 100, 1000, null, List.of());
 
         Shop s = new Shop("s", "S", List.of(cheapPristine, expensiveWorn), null, null, SellPricing.DEFAULT);
 
         ItemStack playerStack = new ItemStack(Items.IRON_PICKAXE);
-        playerStack.setDamage(200); // matches expensiveWorn's baseline exactly -> multiplier 1.0
+        playerStack.setDamageValue(200); // matches expensiveWorn's baseline exactly -> multiplier 1.0
 
         ShopItem found = s.findHighestPayingItem(new MinecraftItemStack(playerStack));
         assertEquals(expensiveWorn, found);

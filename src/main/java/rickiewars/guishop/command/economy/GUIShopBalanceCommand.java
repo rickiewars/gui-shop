@@ -7,13 +7,13 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import eu.pb4.common.economy.api.CommonEconomy;
 import eu.pb4.common.economy.api.EconomyAccount;
 import eu.pb4.common.economy.api.EconomyCurrency;
-import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.command.argument.IdentifierArgumentType;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.IdentifierArgument;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.command.GuiShopPermission;
 import rickiewars.guishop.command.economy.subcommands.GUIShopBalanceAddCommand;
@@ -27,11 +27,11 @@ import java.util.Collection;
 
 public class GUIShopBalanceCommand extends GuiShopBalanceCommands {
 
-    public static LiteralArgumentBuilder<ServerCommandSource> getBalanceNode(String literal) {
-        return CommandManager.literal(literal)
+    public static LiteralArgumentBuilder<CommandSourceStack> getBalanceNode(String literal) {
+        return Commands.literal(literal)
             .requires(GuiShopPermission.BALANCE.require())
             .executes(GUIShopBalanceCommand::showAllBalances)
-            .then(CommandManager.argument("currency", IdentifierArgumentType.identifier())
+            .then(Commands.argument("currency", IdentifierArgument.id())
                 .suggests(new CurrencySuggestionProvider())
                 .executes(GUIShopBalanceCommand::run)
 
@@ -41,11 +41,11 @@ public class GUIShopBalanceCommand extends GuiShopBalanceCommands {
             );
     }
 
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandRegistryAccess, Commands.CommandSelection registrationEnvironment) {
         if (!GUIShop.config.economyCommandsEnabled()) return;
 
         dispatcher.register(
-            CommandManager.literal("guishop").then(getBalanceNode("balance"))
+            Commands.literal("guishop").then(getBalanceNode("balance"))
         );
 
         String alias = GUIShop.config.command != null ? GUIShop.config.command.alias : "";
@@ -57,8 +57,8 @@ public class GUIShopBalanceCommand extends GuiShopBalanceCommands {
         }
     }
 
-    private static int showAllBalances(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        ServerPlayerEntity player = context.getSource().getPlayer();
+    private static int showAllBalances(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        ServerPlayer player = context.getSource().getPlayer();
         if (player == null) throw CommandErrors.NEED_PLAYER.create();
 
         Collection<EconomyCurrency> currencies = CommonEconomy.getCurrencies(context.getSource().getServer());
@@ -67,18 +67,18 @@ public class GUIShopBalanceCommand extends GuiShopBalanceCommands {
         currencies.forEach(currency -> {
             EconomyAccount account = currency.provider().getDefaultAccount(player, currency);
             if (account == null) return;
-            context.getSource().sendFeedback(() -> Text.literal(String.format(
+            context.getSource().sendSuccess(() -> Component.literal(String.format(
                 "Balance for %s: %s",
-                currency.name(),
+                currency.name().getString(),
                 currency.formatValue(account.balance(), false)
-            )).formatted(Formatting.GREEN), false);
+            )).withStyle(ChatFormatting.GREEN), false);
         });
 
         return 0;
     }
 
-    private static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        ServerPlayerEntity player = context.getSource().getPlayer();
+    private static int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        ServerPlayer player = context.getSource().getPlayer();
         if (player == null) throw CommandErrors.NEED_PLAYER.create();
 
         EconomyCurrency currency = GuiShopBalanceCommands.getCurrency(context);
@@ -86,11 +86,11 @@ public class GUIShopBalanceCommand extends GuiShopBalanceCommands {
         EconomyAccount account = currency.provider().getDefaultAccount(player, currency);
         if (account == null) throw CommandErrors.ACCOUNT_NOT_FOUND.create(player.getName());
 
-        context.getSource().sendFeedback(() -> Text.literal(String.format(
+        context.getSource().sendSuccess(() -> Component.literal(String.format(
             "Balance for %s: %s",
-            currency.name(),
+            currency.name().getString(),
             currency.formatValue(account.balance(), false))
-        ).formatted(Formatting.GREEN), false);
+        ).withStyle(ChatFormatting.GREEN), false);
         return 0;
     }
 }

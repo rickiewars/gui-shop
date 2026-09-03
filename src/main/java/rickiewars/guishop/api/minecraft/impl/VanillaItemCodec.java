@@ -3,14 +3,14 @@ package rickiewars.guishop.api.minecraft.impl;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.SharedConstants;
-import net.minecraft.datafixer.Schemas;
-import net.minecraft.datafixer.TypeReferences;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.registry.RegistryOps;
-import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.datafix.DataFixers;
+import net.minecraft.util.datafix.fixes.References;
+import net.minecraft.world.item.ItemStack;
 import rickiewars.guishop.GUIShop;
 
 import java.util.Optional;
@@ -21,17 +21,17 @@ import java.util.Optional;
  * instead of gui-shop maintaining its own hand-written item migration code.
  */
 public class VanillaItemCodec {
-    private final RegistryOps<net.minecraft.nbt.NbtElement> ops;
+    private final RegistryOps<net.minecraft.nbt.Tag> ops;
     private final DataFixer fixer;
     private final int currentDataVersion;
 
     public VanillaItemCodec(MinecraftServer server) {
-        this(server.getRegistryManager());
+        this(server.registryAccess());
     }
 
-    public VanillaItemCodec(RegistryWrapper.WrapperLookup registryLookup) {
-        this.ops = registryLookup.getOps(NbtOps.INSTANCE);
-        this.fixer = Schemas.getFixer();
+    public VanillaItemCodec(HolderLookup.Provider registryLookup) {
+        this.ops = registryLookup.createSerializationContext(NbtOps.INSTANCE);
+        this.fixer = DataFixers.getDataFixer();
         this.currentDataVersion = readCurrentDataVersion();
     }
 
@@ -39,13 +39,13 @@ public class VanillaItemCodec {
         return currentDataVersion;
     }
 
-    public NbtCompound encode(ItemStack stack) {
-        return (NbtCompound) ItemStack.VALIDATED_UNCOUNTED_CODEC
+    public CompoundTag encode(ItemStack stack) {
+        return (CompoundTag) ItemStack.STRICT_SINGLE_ITEM_CODEC
             .encodeStart(ops, stack)
             .getOrThrow(msg -> new IllegalStateException("shop item encode failed: " + msg));
     }
 
-    public Optional<ItemStack> decode(NbtCompound stackNbt, int storedDataVersion) {
+    public Optional<ItemStack> decode(CompoundTag stackNbt, int storedDataVersion) {
         if (storedDataVersion > currentDataVersion) {
             GUIShop.LOGGER.error(
                 "shop item data version {} is newer than the running server's {} -- refusing to load (downgrade?)",
@@ -54,22 +54,22 @@ public class VanillaItemCodec {
             return Optional.empty();
         }
 
-        NbtCompound working = stackNbt;
+        CompoundTag working = stackNbt;
         if (storedDataVersion < currentDataVersion) {
-            NbtCompound withCount = working.copy();
+            CompoundTag withCount = working.copy();
             if (!withCount.contains("count")) {
                 withCount.putInt("count", 1);
             }
-            Dynamic<net.minecraft.nbt.NbtElement> fixed = fixer.update(
-                TypeReferences.ITEM_STACK,
+            Dynamic<net.minecraft.nbt.Tag> fixed = fixer.update(
+                References.ITEM_STACK,
                 new Dynamic<>(NbtOps.INSTANCE, withCount),
                 storedDataVersion,
                 currentDataVersion
             );
-            working = (NbtCompound) fixed.getValue();
+            working = (CompoundTag) fixed.getValue();
         }
 
-        return ItemStack.VALIDATED_UNCOUNTED_CODEC
+        return ItemStack.STRICT_SINGLE_ITEM_CODEC
             .parse(ops, working)
             .resultOrPartial(err -> GUIShop.LOGGER.warn("shop item decode failed: {}", err));
     }
@@ -77,6 +77,6 @@ public class VanillaItemCodec {
     /// Isolated per the migration spec: the WorldVersion/data-version accessor shape has moved
     /// before across Minecraft updates and may move again.
     private static int readCurrentDataVersion() {
-        return SharedConstants.getGameVersion().dataVersion().id();
+        return SharedConstants.getCurrentVersion().dataVersion().version();
     }
 }

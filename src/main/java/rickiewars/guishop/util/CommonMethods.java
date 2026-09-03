@@ -1,15 +1,15 @@
 package rickiewars.guishop.util;
 
 
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.LodestoneTrackerComponent;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.GlobalPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.LodestoneTracker;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.minecraft.IPlayer;
 import rickiewars.guishop.shop.Shop;
@@ -70,16 +70,16 @@ public class CommonMethods {
     }
 
     public static Item getItem(String id) {
-        return Registries.ITEM.get(Identifier.of(id));
+        return BuiltInRegistries.ITEM.getValue(Identifier.parse(id));
     }
     public static Optional<Item> getOptionalItem(String id) {
-        return Registries.ITEM.getOptionalValue(Identifier.of(id));
+        return BuiltInRegistries.ITEM.getOptional(Identifier.parse(id));
     }
     public static Item getItem(String id, Item defaultItem) {
         return getOptionalItem(id).orElse(defaultItem);
     }
     public static String getItemId(Item item) {
-        return Registries.ITEM.getId(item).toString();
+        return BuiltInRegistries.ITEM.getKey(item).toString();
     }
 
     public static String identifyPlayer(UUID uuid) {
@@ -122,7 +122,7 @@ public class CommonMethods {
         // Place fake lodestone far away so wobble is minimal
         int distance = 1000;
 
-        BlockPos targetPos = player.getBlockPos().add(
+        BlockPos targetPos = player.getBlockPos().offset(
             (int) (dx * distance),
             0,
             (int) (dz * distance)
@@ -131,8 +131,8 @@ public class CommonMethods {
         ItemStack stack = new ItemStack(Items.COMPASS);
 
         // Lodestone tracker component (1.21+)
-        stack.set(DataComponentTypes.LODESTONE_TRACKER,
-            new LodestoneTrackerComponent(
+        stack.set(DataComponents.LODESTONE_TRACKER,
+            new LodestoneTracker(
                 Optional.of(new GlobalPos(player.getWorldId(), targetPos)),
                 false
             )

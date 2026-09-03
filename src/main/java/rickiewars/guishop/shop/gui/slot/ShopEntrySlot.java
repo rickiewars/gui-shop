@@ -1,8 +1,8 @@
 package rickiewars.guishop.shop.gui.slot;
 
 import eu.pb4.sgui.api.ClickType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 import rickiewars.guishop.api.gui.MenuContext;
 import rickiewars.guishop.api.gui.MenuSlot;
 import rickiewars.guishop.api.minecraft.IPlayer;
@@ -24,16 +24,16 @@ public class ShopEntrySlot implements MenuSlot {
         return shop.getIcon();
     }
 
-    public Text name() {
-        return Text.literal(shop.getDisplayName());
+    public Component name() {
+        return Component.literal(shop.getDisplayName());
     }
 
-    public List<Text> lore() {
+    public List<Component> lore() {
         var currencyId = shop.getDefaultCurrencyId();
         var account = player.getAccount(currencyId);
         return List.of(
-            Text.literal("Main currency: ").append(account.currency().name()),
-            Text.literal("Your Balance: ").append(account.formattedBalance())
+            Component.literal("Main currency: ").append(account.currency().name()),
+            Component.literal("Your Balance: ").append(account.formattedBalance())
         );
     }
 

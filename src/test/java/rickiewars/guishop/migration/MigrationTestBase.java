@@ -1,7 +1,7 @@
 package rickiewars.guishop.migration;
 
-import net.minecraft.registry.BuiltinRegistries;
-import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.data.registries.VanillaRegistries;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.MockedStatic;
@@ -27,7 +27,7 @@ public abstract class MigrationTestBase extends MinecraftTest {
 
     protected static final Path FIXTURE_DIR = Path.of("src/test/resources/legacy");
 
-    private static RegistryWrapper.WrapperLookup registries;
+    private static HolderLookup.Provider registries;
 
     protected Path configRoot;
     protected Path guiShopDir;
@@ -63,8 +63,8 @@ public abstract class MigrationTestBase extends MinecraftTest {
         deleteRecursively(configRoot);
     }
 
-    protected static RegistryWrapper.WrapperLookup registries() {
-        if (registries == null) registries = BuiltinRegistries.createWrapperLookup();
+    protected static HolderLookup.Provider registries() {
+        if (registries == null) registries = VanillaRegistries.createLookup();
         return registries;
     }
 

@@ -1,10 +1,10 @@
 package rickiewars.guishop.shop.gui.slot;
 
 import eu.pb4.sgui.api.ClickType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.EconomyTest;
 import rickiewars.guishop.api.gui.impl.TestMenuController;
@@ -55,17 +55,17 @@ public class FixedSlotTest extends EconomyTest {
         var slotIndex = menu.config().indexOf(ShopMenu.SlotType.PAGE_INDICATOR).orElseThrow();
 
         assertEquals(
-            Text.literal("Page 1 / 3"),
+            Component.literal("Page 1 / 3"),
             controller.slots.get(slotIndex).name()
         );
         ctx.goToPage(2);
         assertEquals(
-            Text.literal("Page 2 / 3"),
+            Component.literal("Page 2 / 3"),
             controller.slots.get(slotIndex).name()
         );
         ctx.goToPage(3);
         assertEquals(
-            Text.literal("Page 3 / 3"),
+            Component.literal("Page 3 / 3"),
             controller.slots.get(slotIndex).name()
         );
     }
@@ -157,7 +157,7 @@ public class FixedSlotTest extends EconomyTest {
         var shop = new Shop("test_shop", "Test shop", List.of(
             new ShopItem(
                 "Item 1",
-                new MinecraftItemStack(new ItemStack(Registries.ITEM.get(Identifier.of("minecraft:stone")))),
+                new MinecraftItemStack(new ItemStack(BuiltInRegistries.ITEM.getValue(Identifier.parse("minecraft:stone")))),
                 10,
                 10,
                 currencyId1,
@@ -165,7 +165,7 @@ public class FixedSlotTest extends EconomyTest {
             ),
             new ShopItem(
                 "Item 2",
-                new MinecraftItemStack(new ItemStack(Registries.ITEM.get(Identifier.of("minecraft:stone")))),
+                new MinecraftItemStack(new ItemStack(BuiltInRegistries.ITEM.getValue(Identifier.parse("minecraft:stone")))),
                 10,
                 10,
                 currencyId2,

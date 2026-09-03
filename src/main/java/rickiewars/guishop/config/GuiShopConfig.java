@@ -1,6 +1,6 @@
 package rickiewars.guishop.config;
 
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyAccount;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
@@ -167,7 +167,7 @@ public class GuiShopConfig {
         public Identifier icon;
 
         public AccountDefinition(String currencyId, String name, Identifier icon) {
-            this.currencyId = Identifier.of(GuiShopEconomyProvider.ID, currencyId);
+            this.currencyId = Identifier.fromNamespaceAndPath(GuiShopEconomyProvider.ID, currencyId);
             this.name = name;
             this.icon = icon;
         }

@@ -1,7 +1,7 @@
 package rickiewars.guishop.api.gui.impl;
 
 import eu.pb4.sgui.api.ClickType;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 import rickiewars.guishop.api.gui.Menu;
 import rickiewars.guishop.api.gui.MenuContext;
 import rickiewars.guishop.api.gui.MenuController;
@@ -17,7 +17,7 @@ public class TestMenuController implements MenuController {
 
     public boolean opened = false;
 
-    public Text title;
+    public Component title;
     public final Map<Integer, MenuSlot> slots = new HashMap<>();
 
     public TestMenuController(IPlayer player) {
@@ -37,7 +37,7 @@ public class TestMenuController implements MenuController {
     }
 
     @Override
-    public void setTitle(Text title) {
+    public void setTitle(Component title) {
         this.title = title;
     }
 

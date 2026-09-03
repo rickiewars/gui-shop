@@ -1,6 +1,6 @@
 package rickiewars.guishop.migration;
 
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.config.ConfigManager;
 import rickiewars.guishop.config.GuiShopConfig;
@@ -49,7 +49,7 @@ public class MigrationEndToEndTest extends MigrationTestBase {
         );
         assertEquals("balance", config.command.alias);
         assertEquals(2, config.economy.currencies.size());
-        assertEquals(List.of("account"), config.economyProviders.get(Identifier.of("guishop:credit")));
+        assertEquals(List.of("account"), config.economyProviders.get(Identifier.parse("guishop:credit")));
 
         // shops
         List<Shop> shops = loadShops();
@@ -60,7 +60,7 @@ public class MigrationEndToEndTest extends MigrationTestBase {
         assertEquals(104, shops.stream().mapToInt(s -> s.getItems().size()).sum());
         assertEquals(101, shops.get(3).getItems().size());
         assertEquals(
-            Identifier.of("guishop:coins"),
+            Identifier.parse("guishop:coins"),
             shops.get(3).getItems().get(2).explicitCurrencyId(),
             "the one item priced in coins must keep its currency"
         );

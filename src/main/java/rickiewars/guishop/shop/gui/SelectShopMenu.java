@@ -1,7 +1,7 @@
 package rickiewars.guishop.shop.gui;
 
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.inventory.MenuType;
 import rickiewars.guishop.api.gui.Menu;
 import rickiewars.guishop.api.gui.MenuConfig;
 import rickiewars.guishop.api.gui.MenuSlot;
@@ -37,8 +37,8 @@ public class SelectShopMenu implements Menu {
     }
 
     @Override
-    public Text title() {
-        return Text.of("Select Shop");
+    public Component title() {
+        return Component.nullToEmpty("Select Shop");
     }
 
     @Override
@@ -113,7 +113,7 @@ public class SelectShopMenu implements Menu {
     private MenuConfig<SlotType> buildConfig(int entryCount) {
         int lastDynamicSlot = 9 - 1;
         return entryCount > 8
-            ? new MenuConfig<>(ScreenHandlerType.GENERIC_9X2, Map.of(
+            ? new MenuConfig<>(MenuType.GENERIC_9x2, Map.of(
                 lastDynamicSlot + 1, SlotType.EMPTY,
                 lastDynamicSlot + 2, SlotType.EMPTY,
                 lastDynamicSlot + 3, SlotType.EMPTY,
@@ -124,7 +124,7 @@ public class SelectShopMenu implements Menu {
                 lastDynamicSlot + 8, SlotType.EMPTY,
                 lastDynamicSlot + 9, SlotType.EXIT
             ))
-            : new MenuConfig<>(ScreenHandlerType.GENERIC_9X1, Map.of(
+            : new MenuConfig<>(MenuType.GENERIC_9x1, Map.of(
                 lastDynamicSlot, SlotType.EXIT
             ));
     }

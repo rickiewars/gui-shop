@@ -8,18 +8,18 @@ import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.SharedConstants;
-import net.minecraft.component.ComponentChanges;
-import net.minecraft.datafixer.Schemas;
-import net.minecraft.datafixer.TypeReferences;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.Identifier;
+import net.minecraft.util.datafix.DataFixers;
+import net.minecraft.util.datafix.fixes.References;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.minecraft.impl.VanillaItemCodec;
@@ -46,10 +46,10 @@ public final class LegacyShopConverter {
     private LegacyShopConverter() {}
 
     public static boolean convertIfNeeded(MinecraftServer server, VanillaItemCodec itemCodec) {
-        return convertIfNeeded(server.getRegistryManager(), itemCodec);
+        return convertIfNeeded(server.registryAccess(), itemCodec);
     }
 
-    public static boolean convertIfNeeded(RegistryWrapper.WrapperLookup registries, VanillaItemCodec itemCodec) {
+    public static boolean convertIfNeeded(HolderLookup.Provider registries, VanillaItemCodec itemCodec) {
         Path legacyShopFile = ConfigManager.configRoot().resolve("guishop.json");
         Path shopsDir = ConfigManager.shopsDir();
         Path doneMarker = shopsDir.resolve(CONVERSION_DONE_MARKER);
@@ -100,16 +100,16 @@ public final class LegacyShopConverter {
         }
     }
 
-    private static void convertShop(JsonObject shop, RegistryWrapper.WrapperLookup registries, VanillaItemCodec itemCodec, Path staging, Set<String> usedIds) throws IOException {
+    private static void convertShop(JsonObject shop, HolderLookup.Provider registries, VanillaItemCodec itemCodec, Path staging, Set<String> usedIds) throws IOException {
         String shopName = shop.get("shopName").getAsString();
         String id = CommonMethods.slugify(shopName, usedIds);
         usedIds.add(id);
         GUIShop.LOGGER.info("Converting shop '{}' -> id '{}'", shopName, id);
 
-        Identifier icon = readIcon(shop, Identifier.ofVanilla("chest"));
+        Identifier icon = readIcon(shop, Identifier.withDefaultNamespace("chest"));
         String defaultCurrency = shop.has("defaultCurrency") ? shop.get("defaultCurrency").getAsString() : null;
 
-        int currentDataVersion = SharedConstants.getGameVersion().dataVersion().id();
+        int currentDataVersion = SharedConstants.getCurrentVersion().dataVersion().version();
 
         StringBuilder entries = new StringBuilder("[");
         JsonArray items = shop.has("items") ? shop.getAsJsonArray("items") : new JsonArray();
@@ -135,7 +135,7 @@ public final class LegacyShopConverter {
         Files.writeString(staging.resolve(id + ".snbt"), shopSnbt.toString(), StandardCharsets.UTF_8);
     }
 
-    private static String convertItem(JsonObject item, RegistryWrapper.WrapperLookup registries, VanillaItemCodec itemCodec) {
+    private static String convertItem(JsonObject item, HolderLookup.Provider registries, VanillaItemCodec itemCodec) {
         String itemId = item.get("itemId").getAsString();
         String name = item.get("name").getAsString();
 
@@ -186,7 +186,7 @@ public final class LegacyShopConverter {
     @Nullable
     private static ItemStack decodeLegacyStack(
         String itemId, String name, @Nullable JsonElement components,
-        RegistryWrapper.WrapperLookup registries, VanillaItemCodec itemCodec
+        HolderLookup.Provider registries, VanillaItemCodec itemCodec
     ) {
         Optional<ItemStack> fixed = fixLegacyStack(itemId, components, registries, itemCodec.currentDataVersion());
         if (fixed.isPresent()) return fixed.get();
@@ -198,30 +198,30 @@ public final class LegacyShopConverter {
         }
 
         ItemStack stack = new ItemStack(registryItem.get(), 1);
-        applySalvageableComponents(stack, components, registries.getOps(JsonOps.INSTANCE), itemId, name);
+        applySalvageableComponents(stack, components, registries.createSerializationContext(JsonOps.INSTANCE), itemId, name);
         return stack;
     }
 
     private static Optional<ItemStack> fixLegacyStack(
-        String itemId, @Nullable JsonElement components, RegistryWrapper.WrapperLookup registries, int currentDataVersion
+        String itemId, @Nullable JsonElement components, HolderLookup.Provider registries, int currentDataVersion
     ) {
         try {
-            NbtCompound stackNbt = new NbtCompound();
+            CompoundTag stackNbt = new CompoundTag();
             stackNbt.putString("id", itemId);
             stackNbt.putInt("count", 1);
             if (components != null && components.isJsonObject() && !components.getAsJsonObject().isEmpty()) {
                 stackNbt.put("components", JsonOps.INSTANCE.convertTo(NbtOps.INSTANCE, components));
             }
 
-            Dynamic<NbtElement> fixed = Schemas.getFixer().update(
-                TypeReferences.ITEM_STACK,
+            Dynamic<Tag> fixed = DataFixers.getDataFixer().update(
+                References.ITEM_STACK,
                 new Dynamic<>(NbtOps.INSTANCE, stackNbt),
                 LEGACY_FLOOR_DATA_VERSION,
                 currentDataVersion
             );
 
-            return ItemStack.VALIDATED_UNCOUNTED_CODEC
-                .parse(registries.getOps(NbtOps.INSTANCE), fixed.getValue())
+            return ItemStack.STRICT_SINGLE_ITEM_CODEC
+                .parse(registries.createSerializationContext(NbtOps.INSTANCE), fixed.getValue())
                 .result();
         } catch (Exception e) {
             GUIShop.LOGGER.warn(
@@ -240,18 +240,18 @@ public final class LegacyShopConverter {
             JsonObject single = new JsonObject();
             single.add(entry.getKey(), entry.getValue());
 
-            ComponentChanges.CODEC.parse(ops, single).resultOrPartial(err ->
+            DataComponentPatch.CODEC.parse(ops, single).resultOrPartial(err ->
                 GUIShop.LOGGER.warn(
                     "Legacy item '{}' ({}): dropping component '{}' that could not be read: {}",
                     name, itemId, entry.getKey(), err
                 )
-            ).ifPresent(stack::applyChanges);
+            ).ifPresent(stack::applyComponentsAndValidate);
         });
     }
 
     private static Optional<Item> lookupItem(String itemId) {
         try {
-            return Registries.ITEM.getOptionalValue(Identifier.of(itemId));
+            return BuiltInRegistries.ITEM.getOptional(Identifier.parse(itemId));
         } catch (Exception e) {
             return Optional.empty();
         }
@@ -262,7 +262,7 @@ public final class LegacyShopConverter {
     private static Identifier readIcon(JsonObject shop, Identifier fallback) {
         if (!shop.has("icon")) return fallback;
         try {
-            return Identifier.of(shop.get("icon").getAsString());
+            return Identifier.parse(shop.get("icon").getAsString());
         } catch (Exception e) {
             GUIShop.LOGGER.warn("Legacy shop icon was not a plain item id, using default: {}", e.getMessage());
             return fallback;

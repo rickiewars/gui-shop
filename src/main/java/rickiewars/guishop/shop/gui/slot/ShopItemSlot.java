@@ -1,9 +1,9 @@
 package rickiewars.guishop.shop.gui.slot;
 
 import eu.pb4.sgui.api.ClickType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 import rickiewars.guishop.api.gui.MenuContext;
 import rickiewars.guishop.api.gui.MenuSlot;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
@@ -26,12 +26,12 @@ public class ShopItemSlot implements MenuSlot {
         return ((MinecraftItemStack) item.stack()).stack().copy();
     }
 
-    public Text name() {
-        return Text.literal(item.displayName());
+    public Component name() {
+        return Component.literal(item.displayName());
     }
 
-    public List<Text> lore() {
-        List<Text> lore = item.getDescriptionAsText();
+    public List<Component> lore() {
+        List<Component> lore = item.getDescriptionAsText();
         lore.add(item.getLoreBuyPrice());
         lore.add(item.getLoreSellPrice());
         lore.add(item.getLoreTradeStackInstruction());
@@ -87,7 +87,7 @@ public class ShopItemSlot implements MenuSlot {
 
         } catch (IllegalStateException e) {
             ctx.player().sendMessage(
-                Text.literal(e.getMessage()).formatted(Formatting.RED)
+                Component.literal(e.getMessage()).withStyle(ChatFormatting.RED)
             );
         }
     }

@@ -7,27 +7,27 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import eu.pb4.common.economy.api.EconomyAccount;
 import eu.pb4.common.economy.api.EconomyCurrency;
 import eu.pb4.common.economy.api.EconomyTransaction;
-import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import rickiewars.guishop.command.GuiShopPermission;
 import rickiewars.guishop.errors.CommandErrors;
 
 public class GUIShopBalanceAddCommand {
-    public static LiteralArgumentBuilder<ServerCommandSource> register() {
-        return CommandManager.literal("add")
+    public static LiteralArgumentBuilder<CommandSourceStack> register() {
+        return Commands.literal("add")
             .requires(GuiShopPermission.BALANCE_ADD.require())
-            .then(CommandManager.argument("player", EntityArgumentType.player())
-                .then(CommandManager.argument("amount", LongArgumentType.longArg(-1))
+            .then(Commands.argument("player", EntityArgument.player())
+                .then(Commands.argument("amount", LongArgumentType.longArg(-1))
                     .executes(GUIShopBalanceAddCommand::run)
                 ));
     }
 
-    public static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        ServerPlayerEntity player = EntityArgumentType.getPlayer(context, "player");
+    public static int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        ServerPlayer player = EntityArgument.getPlayer(context, "player");
         EconomyCurrency currency = GuiShopBalanceCommands.getCurrency(context);
 
         long amount = LongArgumentType.getLong(context, "amount");
@@ -39,9 +39,9 @@ public class GUIShopBalanceAddCommand {
         EconomyTransaction transaction = account.increaseBalance(amount);
         if (transaction.isFailure()) throw CommandErrors.TRANSACTION_FAILED.create(transaction.message());
 
-        context.getSource().sendFeedback(() -> Text.literal(
+        context.getSource().sendSuccess(() -> Component.literal(
             "Successfully added " + currency.formatValue(amount, false) + " to " + player.getName().getString() + "'s account"
-        ).formatted(Formatting.GREEN), false);
+        ).withStyle(ChatFormatting.GREEN), false);
         return 0;
     }
 }

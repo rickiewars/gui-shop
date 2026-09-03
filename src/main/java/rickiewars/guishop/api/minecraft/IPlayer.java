@@ -1,29 +1,29 @@
 package rickiewars.guishop.api.minecraft;
 
 import eu.pb4.common.economy.api.EconomyAccount;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
 
 public interface IPlayer {
     IInventory getInventory();
 
     EconomyAccount getAccount(Identifier currencyId);
 
-    void sendMessage(Text message);
+    void sendMessage(Component message);
 
     String getUuid();
 
     IItemStack getCursorStack();
 
-    Text name();
+    Component name();
     void setCursorStack(IItemStack stack);
 
     float getYaw();
     BlockPos getBlockPos();
-    RegistryKey<World> getWorldId();
+    ResourceKey<Level> getWorldId();
 
     void giveItem(IItemStack itemStack);
 

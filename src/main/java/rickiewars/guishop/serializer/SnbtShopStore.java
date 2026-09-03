@@ -1,10 +1,10 @@
 package rickiewars.guishop.serializer;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.StringNbtReader;
-import net.minecraft.util.Identifier;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.TagParser;
+import net.minecraft.resources.Identifier;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.api.minecraft.impl.VanillaItemCodec;
@@ -55,9 +55,9 @@ public class SnbtShopStore {
 
     public Optional<Shop> readShop(Path file) {
         String id = fileNameWithoutExtension(file);
-        NbtCompound envelope;
+        CompoundTag envelope;
         try {
-            envelope = StringNbtReader.readCompound(Files.readString(file, StandardCharsets.UTF_8));
+            envelope = TagParser.parseCompoundFully(Files.readString(file, StandardCharsets.UTF_8));
         } catch (IOException | CommandSyntaxException e) {
             GUIShop.LOGGER.error("Shop file {} failed to load: {}", file, e.getMessage());
             return Optional.empty();
@@ -84,9 +84,9 @@ public class SnbtShopStore {
 
         List<ShopItem> items = new LinkedList<>();
         boolean[] needsRewrite = {false};
-        NbtList entries = envelope.getListOrEmpty("entries");
+        ListTag entries = envelope.getListOrEmpty("entries");
         for (int i = 0; i < entries.size(); i++) {
-            Optional<NbtCompound> entryCompound = entries.getCompound(i);
+            Optional<CompoundTag> entryCompound = entries.getCompound(i);
             if (entryCompound.isEmpty()) continue;
             readEntry(entryCompound.get(), id, file, storedVersion.get(), needsRewrite).ifPresent(items::add);
         }
@@ -105,18 +105,18 @@ public class SnbtShopStore {
         return Optional.of(shop);
     }
 
-    private Optional<ShopItem> readEntry(NbtCompound entry, String shopId, Path file, int storedVersion, boolean[] needsRewrite) {
+    private Optional<ShopItem> readEntry(CompoundTag entry, String shopId, Path file, int storedVersion, boolean[] needsRewrite) {
         Optional<String> displayName = entry.getString("displayName");
         Optional<Long> buyPrice = entry.getLong("buyPrice");
         Optional<Long> sellPrice = entry.getLong("sellPrice");
-        Optional<NbtCompound> stackNbt = entry.getCompound("stack");
+        Optional<CompoundTag> stackNbt = entry.getCompound("stack");
 
         if (displayName.isEmpty() || buyPrice.isEmpty() || sellPrice.isEmpty() || stackNbt.isEmpty()) {
             GUIShop.LOGGER.warn("Shop '{}' in {}: entry missing a required field, skipping", shopId, file);
             return Optional.empty();
         }
 
-        Optional<net.minecraft.item.ItemStack> decoded = itemCodec.decode(stackNbt.get(), storedVersion);
+        Optional<net.minecraft.world.item.ItemStack> decoded = itemCodec.decode(stackNbt.get(), storedVersion);
         if (decoded.isEmpty()) {
             GUIShop.LOGGER.warn("Shop '{}' in {}: entry '{}' could not be decoded, skipping", shopId, file, displayName.get());
             return Optional.empty();
@@ -158,7 +158,7 @@ public class SnbtShopStore {
         try {
             Files.createDirectories(shopsDir);
 
-            NbtCompound envelope = new NbtCompound();
+            CompoundTag envelope = new CompoundTag();
             envelope.putInt("DataVersion", itemCodec.currentDataVersion());
             envelope.putString("displayName", shop.getDisplayName());
             envelope.putString("icon", shop.iconId().toString());
@@ -166,13 +166,13 @@ public class SnbtShopStore {
                 envelope.putString("defaultCurrency", shop.getDefaultCurrencyId().toString());
             }
 
-            NbtList entries = new NbtList();
+            ListTag entries = new ListTag();
             for (ShopItem item : shop.getItems()) {
-                NbtCompound entry = new NbtCompound();
+                CompoundTag entry = new CompoundTag();
                 entry.putString("displayName", item.displayName());
                 if (!item.description().isEmpty()) {
-                    NbtList description = new NbtList();
-                    item.description().forEach(line -> description.add(net.minecraft.nbt.NbtString.of(line)));
+                    ListTag description = new ListTag();
+                    item.description().forEach(line -> description.add(net.minecraft.nbt.StringTag.valueOf(line)));
                     entry.put("description", description);
                 }
                 entry.putLong("buyPrice", item.buyPrice());
@@ -204,10 +204,10 @@ public class SnbtShopStore {
         }
     }
 
-    private Optional<SellPricing> readSellPricing(NbtCompound envelope) {
-        Optional<NbtCompound> compound = envelope.getCompound("sellPricing");
+    private Optional<SellPricing> readSellPricing(CompoundTag envelope) {
+        Optional<CompoundTag> compound = envelope.getCompound("sellPricing");
         if (compound.isEmpty()) return Optional.empty();
-        NbtCompound sp = compound.get();
+        CompoundTag sp = compound.get();
 
         SellPricing defaults = SellPricing.DEFAULT;
         return Optional.of(new SellPricing(

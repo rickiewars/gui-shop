@@ -5,11 +5,11 @@ import eu.pb4.common.economy.api.CommonEconomy;
 import eu.pb4.common.economy.api.EconomyAccount;
 import eu.pb4.common.economy.api.EconomyCurrency;
 import eu.pb4.common.economy.api.EconomyProvider;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.config.GuiShopConfig;
@@ -29,8 +29,8 @@ public class GuiShopEconomyProvider implements EconomyProvider {
     }
 
     @Override
-    public Text name() {
-        return Text.literal("GuiShop Economy");
+    public Component name() {
+        return Component.literal("GuiShop Economy");
     }
 
     @Override
@@ -39,7 +39,7 @@ public class GuiShopEconomyProvider implements EconomyProvider {
         if (!GUIShop.config.economy.accounts.containsKey(accountId)) return null;
 
         return new GuiShopEconomyAccount(
-                Identifier.of(GuiShopEconomyProvider.ID, accountId),
+                Identifier.fromNamespaceAndPath(GuiShopEconomyProvider.ID, accountId),
                 GUIShop.config.economy.accounts.get(accountId),
                 gameProfile.id()
         );
@@ -53,7 +53,7 @@ public class GuiShopEconomyProvider implements EconomyProvider {
         Collection<EconomyAccount> accounts = new ArrayList<>();
         GUIShop.config.economy.accounts.forEach(
             (accountId, accountDefinition) -> accounts.add(new GuiShopEconomyAccount(
-                Identifier.of(GuiShopEconomyProvider.ID, accountId),
+                Identifier.fromNamespaceAndPath(GuiShopEconomyProvider.ID, accountId),
                 accountDefinition, gameProfile.id()
             )));
 
@@ -66,7 +66,7 @@ public class GuiShopEconomyProvider implements EconomyProvider {
         if (!GUIShop.config.economy.currencies.containsKey(currencyId)) return null;
 
         return new GuiShopEconomyCurrency(
-                Identifier.of(GuiShopEconomyProvider.ID, currencyId),
+                Identifier.fromNamespaceAndPath(GuiShopEconomyProvider.ID, currencyId),
                 GUIShop.config.economy.currencies.get(currencyId)
         );
     }
@@ -79,7 +79,7 @@ public class GuiShopEconomyProvider implements EconomyProvider {
         Collection<EconomyCurrency> currencies = new ArrayList<>();
         GUIShop.config.economy.currencies.forEach(
             (currencyId, currencyDefinition) -> currencies.add(new GuiShopEconomyCurrency(
-                Identifier.of(GuiShopEconomyProvider.ID, currencyId),
+                Identifier.fromNamespaceAndPath(GuiShopEconomyProvider.ID, currencyId),
                 currencyDefinition
             )));
 
@@ -102,6 +102,6 @@ public class GuiShopEconomyProvider implements EconomyProvider {
 
     @Override
     public ItemStack icon() {
-        return Items.CHEST.getDefaultStack();
+        return Items.CHEST.getDefaultInstance();
     }
 }

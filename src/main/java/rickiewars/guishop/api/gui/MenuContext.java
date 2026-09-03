@@ -32,7 +32,7 @@ public class MenuContext {
     }
 
     public void partialRefresh() {
-        controller.setTitle(net.minecraft.text.Text.of(menu.title()));
+        controller.setTitle(net.minecraft.network.chat.Component.translationArg(menu.title()));
         renderFixed();
     }
 

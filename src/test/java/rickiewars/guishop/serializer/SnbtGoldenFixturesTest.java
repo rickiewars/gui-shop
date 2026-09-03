@@ -1,6 +1,6 @@
 package rickiewars.guishop.serializer;
 
-import net.minecraft.registry.BuiltinRegistries;
+import net.minecraft.data.registries.VanillaRegistries;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.MinecraftTest;
@@ -21,7 +21,7 @@ public class SnbtGoldenFixturesTest extends MinecraftTest {
 
     @BeforeEach
     void setup() {
-        VanillaItemCodec codec = new VanillaItemCodec(BuiltinRegistries.createWrapperLookup());
+        VanillaItemCodec codec = new VanillaItemCodec(VanillaRegistries.createLookup());
         store = new SnbtShopStore(codec, FIXTURE_DIR);
     }
 

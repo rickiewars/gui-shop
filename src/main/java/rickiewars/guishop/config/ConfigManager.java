@@ -8,8 +8,10 @@ import rickiewars.guishop.serializer.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 /**
  * Load and hold the merged gui-shop configuration data at config/gui-shop/config.json. Shop
@@ -62,9 +64,12 @@ public class ConfigManager {
         File parent = configFile.getParentFile();
         if (parent != null) parent.mkdirs();
 
-        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(configFile), StandardCharsets.UTF_8))) {
+        File tempFile = File.createTempFile(configFile.getName(), ".tmp", parent);
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tempFile), StandardCharsets.UTF_8))) {
             writer.write(GSON.toJson(config));
         }
+
+        Files.move(tempFile.toPath(), configFile.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
     }
 
     /**

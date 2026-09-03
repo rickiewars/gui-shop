@@ -1,8 +1,8 @@
 package rickiewars.guishop.shop.gui.slot;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 import rickiewars.guishop.api.gui.MenuContext;
 import rickiewars.guishop.api.gui.MenuSlot;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
@@ -18,14 +18,14 @@ public class EmptySlot implements MenuSlot {
     }
 
     public ItemStack icon() {
-        return net.minecraft.item.Items.AIR.getDefaultStack();
+        return net.minecraft.world.item.Items.AIR.getDefaultInstance();
     }
 
-    public Text name() {
-        return Text.empty();
+    public Component name() {
+        return Component.empty();
     }
 
-    public List<Text> lore() {
+    public List<Component> lore() {
         return List.of();
     }
 
@@ -48,7 +48,7 @@ public class EmptySlot implements MenuSlot {
             }
         } catch (IllegalStateException e) {
             ctx.player().sendMessage(
-                Text.literal(e.getMessage()).formatted(Formatting.RED)
+                Component.literal(e.getMessage()).withStyle(ChatFormatting.RED)
             );
         }
     }

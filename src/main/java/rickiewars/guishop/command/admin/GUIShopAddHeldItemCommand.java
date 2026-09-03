@@ -5,14 +5,14 @@ import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.command.argument.IdentifierArgumentType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.IdentifierArgument;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
@@ -27,23 +27,23 @@ import rickiewars.guishop.util.CommonMethods;
 import java.util.List;
 
 public class GUIShopAddHeldItemCommand {
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
-        dispatcher.register(CommandManager.literal("guishop")
-            .then(CommandManager.literal("addhelditem")
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandRegistryAccess, Commands.CommandSelection registrationEnvironment) {
+        dispatcher.register(Commands.literal("guishop")
+            .then(Commands.literal("addhelditem")
                 .requires(GuiShopPermission.ADD_ITEM.require())
-                .then(CommandManager.argument("shopName", StringArgumentType.string())
+                .then(Commands.argument("shopName", StringArgumentType.string())
                     .suggests(new ShopNameSuggestionProvider())
-                    .then(CommandManager.argument("itemName", StringArgumentType.string())
-                        .then(CommandManager.argument("buyItemPrice", LongArgumentType.longArg(-1))
-                            .then(CommandManager.argument("sellItemPrice", LongArgumentType.longArg(-1))
+                    .then(Commands.argument("itemName", StringArgumentType.string())
+                        .then(Commands.argument("buyItemPrice", LongArgumentType.longArg(-1))
+                            .then(Commands.argument("sellItemPrice", LongArgumentType.longArg(-1))
                                 .executes(GUIShopAddHeldItemCommand::run)
-                                .then(CommandManager.argument("currency", IdentifierArgumentType.identifier())
+                                .then(Commands.argument("currency", IdentifierArgument.id())
                                     .suggests(new CurrencySuggestionProvider())
                                     .executes(GUIShopAddHeldItemCommand::run)
                                 )))))));
     }
 
-    public static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    public static int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         var player = context.getSource().getPlayer();
         if (player == null) throw CommandErrors.NEED_PLAYER.create();
 
@@ -54,13 +54,13 @@ public class GUIShopAddHeldItemCommand {
 
         Identifier currency = GuiShopEconomyCurrency.DEFAULT_ID;
         try {
-            currency = IdentifierArgumentType.getIdentifier(context, "currency");
+            currency = IdentifierArgument.getId(context, "currency");
         } catch (IllegalArgumentException ignored) {}
 
         Shop foundShop = CommonMethods.getShopByName(shopName);
         if (foundShop == null) throw CommandErrors.SHOP_NOT_FOUND.create(shopName);
 
-        ItemStack heldItem = player.getMainHandStack();
+        ItemStack heldItem = player.getMainHandItem();
         if (heldItem.isEmpty()) throw CommandErrors.HAND_EMPTY.create();
 
         foundShop.getItems().add(new ShopItem(
@@ -72,7 +72,7 @@ public class GUIShopAddHeldItemCommand {
                 List.of()
         ));
         GUIShop.shopStore.writeShop(foundShop);
-        context.getSource().sendFeedback(() -> Text.literal("Item successfully added").formatted(Formatting.GREEN), false);
+        context.getSource().sendSuccess(() -> Component.literal("Item successfully added").withStyle(ChatFormatting.GREEN), false);
         return 0;
     }
 }

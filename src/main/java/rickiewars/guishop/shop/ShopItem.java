@@ -2,10 +2,10 @@ package rickiewars.guishop.shop;
 
 import eu.pb4.common.economy.api.CommonEconomy;
 import eu.pb4.common.economy.api.EconomyCurrency;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.minecraft.IItemStack;
@@ -40,7 +40,7 @@ public record ShopItem(
     }
 
     public Identifier itemId() {
-        return Identifier.of(stack.itemId().namespace(), stack.itemId().path());
+        return Identifier.fromNamespaceAndPath(stack.itemId().namespace(), stack.itemId().path());
     }
 
     public int getMaxStackSize() {
@@ -96,39 +96,39 @@ public record ShopItem(
         return ignored;
     }
 
-    public List<Text> getDescriptionAsText() {
-        LinkedList<Text> resultDescription = new LinkedList<>();
+    public List<Component> getDescriptionAsText() {
+        LinkedList<Component> resultDescription = new LinkedList<>();
 
         for (String line : description) {
-            resultDescription.addLast(Text.literal(line));
+            resultDescription.addLast(Component.literal(line));
         }
         return resultDescription;
     }
 
-    public Text getLoreBuyPrice() {
-        MutableText priceText = Text.literal("");
+    public Component getLoreBuyPrice() {
+        MutableComponent priceText = Component.literal("");
 
         if (buyPrice >= 0) {
-            priceText.append(Text.literal("Left click to buy for ").formatted(Formatting.GREEN)
-                .append(Text.literal(formatCurrency(buyPrice)).formatted(Formatting.YELLOW)));
+            priceText.append(Component.literal("Left click to buy for ").withStyle(ChatFormatting.GREEN)
+                .append(Component.literal(formatCurrency(buyPrice)).withStyle(ChatFormatting.YELLOW)));
         }
 
         return priceText;
     }
 
-    public Text getLoreSellPrice() {
-        MutableText priceText = Text.literal("");
+    public Component getLoreSellPrice() {
+        MutableComponent priceText = Component.literal("");
 
         if (sellPrice >= 0) {
-            priceText.append(Text.literal("Right click to sell for ").formatted(Formatting.RED)
-                .append(Text.literal(formatCurrency(sellPrice)).formatted(Formatting.YELLOW)));
+            priceText.append(Component.literal("Right click to sell for ").withStyle(ChatFormatting.RED)
+                .append(Component.literal(formatCurrency(sellPrice)).withStyle(ChatFormatting.YELLOW)));
         }
 
         return priceText;
     }
 
-    public Text getLoreTradeStackInstruction() {
-        return Text.literal("Hold shift to trade up to a stack of items").formatted(Formatting.AQUA);
+    public Component getLoreTradeStackInstruction() {
+        return Component.literal("Hold shift to trade up to a stack of items").withStyle(ChatFormatting.AQUA);
     }
 
     public Identifier resolvedCurrencyId() {

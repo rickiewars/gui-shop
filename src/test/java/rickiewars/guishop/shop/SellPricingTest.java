@@ -1,10 +1,10 @@
 package rickiewars.guishop.shop;
 
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.text.Text;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.MinecraftTest;
 import rickiewars.guishop.api.minecraft.IItemStack;
@@ -32,8 +32,8 @@ public class SellPricingTest extends MinecraftTest {
      */
     private ItemStack damagedItem(Item item, int damage) {
         ItemStack stack = new ItemStack(item);
-        stack.set(DataComponentTypes.MAX_DAMAGE, TEST_MAX_DAMAGE);
-        stack.setDamage(damage);
+        stack.set(DataComponents.MAX_DAMAGE, TEST_MAX_DAMAGE);
+        stack.setDamageValue(damage);
         return stack;
     }
 
@@ -111,7 +111,7 @@ public class SellPricingTest extends MinecraftTest {
             .build();
         ShopItem listing = listing(new ItemStack(Items.IRON_PICKAXE), 1000);
         ItemStack refurbishedItem = new ItemStack(Items.IRON_PICKAXE);
-        refurbishedItem.set(DataComponentTypes.REPAIR_COST, 1);
+        refurbishedItem.set(DataComponents.REPAIR_COST, 1);
 
         assertEquals(900, pricing.adjustedPayout(listing, wrap(refurbishedItem)));
     }
@@ -131,7 +131,7 @@ public class SellPricingTest extends MinecraftTest {
         ItemStack broken = damagedItem(Items.IRON_PICKAXE, 75);
 
         ItemStack repaired = damagedItem(Items.IRON_PICKAXE, 25);
-        repaired.set(DataComponentTypes.REPAIR_COST, 2);
+        repaired.set(DataComponents.REPAIR_COST, 2);
 
         ItemStack untouched = damagedItem(Items.IRON_PICKAXE, 0);
 
@@ -146,7 +146,7 @@ public class SellPricingTest extends MinecraftTest {
         SellPricing pricing = new SellPricingFactory().withCustomNamePenalty(0.1).build();
         ShopItem listing = listing(new ItemStack(Items.DIAMOND_SWORD), 1000);
         ItemStack renamed = new ItemStack(Items.DIAMOND_SWORD);
-        renamed.set(DataComponentTypes.CUSTOM_NAME, Text.literal("My Sword"));
+        renamed.set(DataComponents.CUSTOM_NAME, Component.literal("My Sword"));
 
         assertEquals(900, pricing.adjustedPayout(listing, wrap(renamed)));
     }
@@ -157,7 +157,7 @@ public class SellPricingTest extends MinecraftTest {
         SellPricing pricing = new SellPricingFactory().withLorePenalty(0.1).build();
         ShopItem listing = listing(new ItemStack(Items.DIAMOND_SWORD), 1000);
         ItemStack loredItem = new ItemStack(Items.DIAMOND_SWORD);
-        loredItem.set(DataComponentTypes.LORE, new net.minecraft.component.type.LoreComponent(List.of(Text.literal("Cool"))));
+        loredItem.set(DataComponents.LORE, new net.minecraft.world.item.component.ItemLore(List.of(Component.literal("Cool"))));
 
         assertEquals(900, pricing.adjustedPayout(listing, wrap(loredItem)));
     }
@@ -171,8 +171,8 @@ public class SellPricingTest extends MinecraftTest {
             .build();
         ShopItem listing = listing(new ItemStack(Items.DIAMOND_SWORD), 1000);
         ItemStack renamedWithLore = new ItemStack(Items.DIAMOND_SWORD);
-        renamedWithLore.set(DataComponentTypes.CUSTOM_NAME, Text.literal("My Sword"));
-        renamedWithLore.set(DataComponentTypes.LORE, new net.minecraft.component.type.LoreComponent(List.of(Text.literal("Cool"))));
+        renamedWithLore.set(DataComponents.CUSTOM_NAME, Component.literal("My Sword"));
+        renamedWithLore.set(DataComponents.LORE, new net.minecraft.world.item.component.ItemLore(List.of(Component.literal("Cool"))));
 
         assertEquals(810, pricing.adjustedPayout(listing, wrap(renamedWithLore)));
     }
@@ -191,9 +191,9 @@ public class SellPricingTest extends MinecraftTest {
         ShopItem listing = listing(damagedItem(Items.DIAMOND_SWORD, 0), 1000);
 
         ItemStack wrecked = damagedItem(Items.DIAMOND_SWORD, 100);
-        wrecked.set(DataComponentTypes.REPAIR_COST, 10);
-        wrecked.set(DataComponentTypes.CUSTOM_NAME, Text.literal("Wrecked"));
-        wrecked.set(DataComponentTypes.LORE, new net.minecraft.component.type.LoreComponent(List.of(Text.literal("Ruined"))));
+        wrecked.set(DataComponents.REPAIR_COST, 10);
+        wrecked.set(DataComponents.CUSTOM_NAME, Component.literal("Wrecked"));
+        wrecked.set(DataComponents.LORE, new net.minecraft.world.item.component.ItemLore(List.of(Component.literal("Ruined"))));
 
         assertEquals(100, pricing.adjustedPayout(listing, wrap(wrecked)));
     }

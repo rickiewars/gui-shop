@@ -1,8 +1,8 @@
 package rickiewars.guishop.shop;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.minecraft.IItemStack;
@@ -107,7 +107,7 @@ public class Shop {
         this.displayName = displayName;
         this.items = items;
         this.defaultCurrencyId = defaultCurrencyId;
-        this.icon = icon != null ? icon : Identifier.ofVanilla("chest");
+        this.icon = icon != null ? icon : Identifier.withDefaultNamespace("chest");
         this.sellPricing = sellPricing != null ? sellPricing : GUIShop.config.sellPricing;
     }
 

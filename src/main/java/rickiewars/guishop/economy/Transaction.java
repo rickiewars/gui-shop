@@ -1,9 +1,9 @@
 package rickiewars.guishop.economy;
 
 import eu.pb4.common.economy.api.EconomyAccount;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 import rickiewars.guishop.api.minecraft.IPlayer;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.shop.Shop;
@@ -43,7 +43,7 @@ public class Transaction {
             existing = itemStack.getCount();
         }
 
-        int maxAdd = base.getMaxCount() - existing;
+        int maxAdd = base.getMaxStackSize() - existing;
         int toBuy = Math.min(amount, maxAdd);
 
         if (toBuy <= 0) return itemStack;
@@ -101,8 +101,8 @@ public class Transaction {
         acc.increaseBalance(amount);
 
         if (adjustedForCondition) {
-            player.sendMessage(Text.literal("Sold for " + item.formatCurrency(amount) + " (adjusted for condition)")
-                .formatted(Formatting.GRAY));
+            player.sendMessage(Component.literal("Sold for " + item.formatCurrency(amount) + " (adjusted for condition)")
+                .withStyle(ChatFormatting.GRAY));
         }
     }
 

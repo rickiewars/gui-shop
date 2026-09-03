@@ -20,6 +20,6 @@ public class MinecraftServer implements IServer {
     }
 
     public IPlayer getPlayerByUUID(UUID uuid) {
-        return new MinecraftPlayer(getInstance().getPlayerManager().getPlayer(uuid));
+        return new MinecraftPlayer(getInstance().getPlayerList().getPlayer(uuid));
     }
 }

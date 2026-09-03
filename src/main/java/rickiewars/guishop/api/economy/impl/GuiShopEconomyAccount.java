@@ -4,12 +4,12 @@ import eu.pb4.common.economy.api.EconomyAccount;
 import eu.pb4.common.economy.api.EconomyCurrency;
 import eu.pb4.common.economy.api.EconomyProvider;
 import eu.pb4.common.economy.api.EconomyTransaction;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.database.DatabaseManager;
 import rickiewars.guishop.config.GuiShopConfig;
@@ -18,9 +18,9 @@ import rickiewars.guishop.util.CommonMethods;
 import java.util.UUID;
 
 public class GuiShopEconomyAccount implements EconomyAccount {
-    public static Identifier DEFAULT_ID = Identifier.of(GuiShopEconomyProvider.ID,"account");
+    public static Identifier DEFAULT_ID = Identifier.fromNamespaceAndPath(GuiShopEconomyProvider.ID,"account");
     public static final Item DEFAULT_ICON = Items.DIAMOND;
-    public static final Identifier DEFAULT_ICON_ID = Registries.ITEM.getId(DEFAULT_ICON);
+    public static final Identifier DEFAULT_ICON_ID = BuiltInRegistries.ITEM.getKey(DEFAULT_ICON);
     private final Identifier id;
     private final UUID uuid;
     private final String uuidString;
@@ -37,8 +37,8 @@ public class GuiShopEconomyAccount implements EconomyAccount {
         this.uuidString = uuid.toString();
     }
     @Override
-    public Text name() {
-        return Text.literal(accountDefinition.name);
+    public Component name() {
+        return Component.literal(accountDefinition.name);
     }
 
     @Override
@@ -67,7 +67,7 @@ public class GuiShopEconomyAccount implements EconomyAccount {
         if (newBal >= Integer.MAX_VALUE) {
             return new EconomyTransaction.Simple(
                 false,
-                Text.literal("Congratulations! You have hit the limit of " + currency().formatValue(Integer.MAX_VALUE, false) + ". Go spend some money so we can give you money again!"),
+                Component.literal("Congratulations! You have hit the limit of " + currency().formatValue(Integer.MAX_VALUE, false) + ". Go spend some money so we can give you money again!"),
                 currentBal,
                 currentBal,
                 0,
@@ -77,7 +77,7 @@ public class GuiShopEconomyAccount implements EconomyAccount {
 
         return new EconomyTransaction.Simple(
             true,
-            Text.literal("Added " + currency().formatValue(value, false) + " to your account"),
+            Component.literal("Added " + currency().formatValue(value, false) + " to your account"),
             newBal,
             currentBal,
             value,
@@ -92,7 +92,7 @@ public class GuiShopEconomyAccount implements EconomyAccount {
         if (newBal < 0) {
             return new EconomyTransaction.Simple(
                 false,
-                Text.literal("You don't have enough money to take " + currency().formatValue(value, false) + " from your account of " + currency().formatValue(currentBal, false)),
+                Component.literal("You don't have enough money to take " + currency().formatValue(value, false) + " from your account of " + currency().formatValue(currentBal, false)),
                 currentBal,
                 currentBal,
                 0,
@@ -102,7 +102,7 @@ public class GuiShopEconomyAccount implements EconomyAccount {
 
         return new EconomyTransaction.Simple(
                 true,
-                Text.literal("Removed " + currency().formatValue(value, false) + " from your account"),
+                Component.literal("Removed " + currency().formatValue(value, false) + " from your account"),
                 newBal,
                 currentBal,
                 value,

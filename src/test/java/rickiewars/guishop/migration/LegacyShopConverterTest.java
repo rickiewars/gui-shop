@@ -4,13 +4,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.minecraft.SharedConstants;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.StringNbtReader;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.TagParser;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantments;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.serializer.SnbtShopStore;
@@ -49,8 +49,8 @@ public class LegacyShopConverterTest extends MigrationTestBase {
         return shop.get();
     }
 
-    private NbtCompound readRaw(String id) throws Exception {
-        return StringNbtReader.readCompound(Files.readString(shopsDir.resolve(id + ".snbt"), StandardCharsets.UTF_8));
+    private CompoundTag readRaw(String id) throws Exception {
+        return TagParser.parseCompoundFully(Files.readString(shopsDir.resolve(id + ".snbt"), StandardCharsets.UTF_8));
     }
 
     private static ItemStack stackOf(ShopItem item) {
@@ -91,7 +91,7 @@ public class LegacyShopConverterTest extends MigrationTestBase {
             Shop shop = readShop(idByIndex.get(String.valueOf(i)));
 
             assertEquals(legacy.get("shopName").getAsString(), shop.getDisplayName());
-            assertEquals(Identifier.of(legacy.get("icon").getAsString()), shop.iconId());
+            assertEquals(Identifier.parse(legacy.get("icon").getAsString()), shop.iconId());
 
             JsonArray legacyItems = legacy.getAsJsonArray("items");
             assertEquals(legacyItems.size(), shop.getItems().size(), "item count changed for shop " + shop.getId());
@@ -104,9 +104,9 @@ public class LegacyShopConverterTest extends MigrationTestBase {
                 assertEquals(legacyItem.get("name").getAsString(), item.displayName());
                 assertEquals(legacyItem.get("buyPrice").getAsLong(), item.buyPrice());
                 assertEquals(legacyItem.get("sellPrice").getAsLong(), item.sellPrice());
-                assertEquals(Identifier.of(legacyItem.get("itemId").getAsString()), item.itemId());
+                assertEquals(Identifier.parse(legacyItem.get("itemId").getAsString()), item.itemId());
                 assertEquals(
-                    Identifier.of(legacyItem.get("currency").getAsString()),
+                    Identifier.parse(legacyItem.get("currency").getAsString()),
                     item.explicitCurrencyId(),
                     "currency changed for '" + item.displayName() + "'"
                 );
@@ -122,7 +122,7 @@ public class LegacyShopConverterTest extends MigrationTestBase {
 
         assertTrue(convert());
 
-        int expected = SharedConstants.getGameVersion().dataVersion().id();
+        int expected = SharedConstants.getCurrentVersion().dataVersion().version();
         assertEquals(Optional.of(expected), readRaw("example_shop").getInt("DataVersion"));
     }
 
@@ -178,15 +178,15 @@ public class LegacyShopConverterTest extends MigrationTestBase {
 
         Shop shop = readShop("fancy");
         assertEquals("Fancy", shop.getDisplayName());
-        assertEquals(Identifier.of("minecraft:diamond"), shop.iconId());
+        assertEquals(Identifier.parse("minecraft:diamond"), shop.iconId());
         assertTrue(shop.hasDefaultCurrency());
-        assertEquals(Identifier.of("guishop:coins"), shop.getDefaultCurrencyId());
+        assertEquals(Identifier.parse("guishop:coins"), shop.getDefaultCurrencyId());
 
         ShopItem item = shop.getItems().getFirst();
         assertEquals(List.of("first", "second", "third"), item.description());
         assertEquals(10, item.buyPrice());
         assertEquals(4, item.sellPrice());
-        assertEquals(Identifier.of("guishop:credit"), item.explicitCurrencyId());
+        assertEquals(Identifier.parse("guishop:credit"), item.explicitCurrencyId());
     }
 
     @Test
@@ -199,7 +199,7 @@ public class LegacyShopConverterTest extends MigrationTestBase {
 
         assertTrue(convert());
 
-        assertEquals(Identifier.ofVanilla("chest"), readShop("no_icon").iconId());
+        assertEquals(Identifier.withDefaultNamespace("chest"), readShop("no_icon").iconId());
     }
 
     @Test
@@ -231,18 +231,18 @@ public class LegacyShopConverterTest extends MigrationTestBase {
 
         ItemStack sword = stackOf(shop.getItems().getFirst());
         assertEquals(Items.NETHERITE_SWORD, sword.getItem());
-        assertEquals(5, sword.getEnchantments().getLevel(registries().getEntryOrThrow(Enchantments.SHARPNESS)));
-        assertEquals(3, sword.getEnchantments().getLevel(registries().getEntryOrThrow(Enchantments.UNBREAKING)));
-        assertEquals("Excalibur", sword.get(DataComponentTypes.CUSTOM_NAME).getString());
-        assertEquals(1, sword.get(DataComponentTypes.LORE).lines().size());
-        assertEquals("Forged in fire", sword.get(DataComponentTypes.LORE).lines().getFirst().getString());
-        assertEquals(42, sword.getDamage());
+        assertEquals(5, sword.getEnchantments().getLevel(registries().getOrThrow(Enchantments.SHARPNESS)));
+        assertEquals(3, sword.getEnchantments().getLevel(registries().getOrThrow(Enchantments.UNBREAKING)));
+        assertEquals("Excalibur", sword.get(DataComponents.CUSTOM_NAME).getString());
+        assertEquals(1, sword.get(DataComponents.LORE).lines().size());
+        assertEquals("Forged in fire", sword.get(DataComponents.LORE).lines().getFirst().getString());
+        assertEquals(42, sword.getDamageValue());
 
         ItemStack tagged = stackOf(shop.getItems().get(1));
-        assertNotNull(tagged.get(DataComponentTypes.CUSTOM_DATA), "custom_data must survive the conversion");
+        assertNotNull(tagged.get(DataComponents.CUSTOM_DATA), "custom_data must survive the conversion");
 
         ItemStack plain = stackOf(shop.getItems().get(2));
-        assertTrue(plain.getComponentChanges().isEmpty());
+        assertTrue(plain.getComponentsPatch().isEmpty());
     }
 
     /**
@@ -263,11 +263,11 @@ public class LegacyShopConverterTest extends MigrationTestBase {
 
         assertEquals(
             5,
-            sword.getEnchantments().getLevel(registries().getEntryOrThrow(Enchantments.SHARPNESS)),
+            sword.getEnchantments().getLevel(registries().getOrThrow(Enchantments.SHARPNESS)),
             "pre-1.21.5 enchantment JSON must survive the migration"
         );
         assertNotNull(
-            sword.get(DataComponentTypes.CUSTOM_NAME),
+            sword.get(DataComponents.CUSTOM_NAME),
             "one unparseable component must not take the item's other components with it"
         );
     }
@@ -287,24 +287,24 @@ public class LegacyShopConverterTest extends MigrationTestBase {
         assertEquals(5, shop.getItems().size());
 
         ItemStack sword = stackOf(shop.getItems().get(0));
-        assertEquals(5, sword.getEnchantments().getLevel(registries().getEntryOrThrow(Enchantments.SHARPNESS)));
-        assertEquals(1, sword.getEnchantments().getLevel(registries().getEntryOrThrow(Enchantments.MENDING)));
+        assertEquals(5, sword.getEnchantments().getLevel(registries().getOrThrow(Enchantments.SHARPNESS)));
+        assertEquals(1, sword.getEnchantments().getLevel(registries().getOrThrow(Enchantments.MENDING)));
 
         ItemStack book = stackOf(shop.getItems().get(1));
         assertEquals(
             3,
-            book.get(DataComponentTypes.STORED_ENCHANTMENTS).getLevel(registries().getEntryOrThrow(Enchantments.LURE)),
+            book.get(DataComponents.STORED_ENCHANTMENTS).getLevel(registries().getOrThrow(Enchantments.LURE)),
             "stored_enchantments was unwrapped by the same 1.21.5 change"
         );
 
         ItemStack chestplate = stackOf(shop.getItems().get(2));
-        assertNotNull(chestplate.get(DataComponentTypes.DYED_COLOR), "dyed_color lost its rgb wrapper in 1.21.5");
-        assertEquals(16711680, chestplate.get(DataComponentTypes.DYED_COLOR).rgb());
+        assertNotNull(chestplate.get(DataComponents.DYED_COLOR), "dyed_color lost its rgb wrapper in 1.21.5");
+        assertEquals(16711680, chestplate.get(DataComponents.DYED_COLOR).rgb());
 
         ItemStack pickaxe = stackOf(shop.getItems().get(3));
         assertEquals(
             4,
-            pickaxe.getEnchantments().getLevel(registries().getEntryOrThrow(Enchantments.EFFICIENCY)),
+            pickaxe.getEnchantments().getLevel(registries().getOrThrow(Enchantments.EFFICIENCY)),
             "a flat enchantment map still carrying show_in_tooltip must not be discarded"
         );
     }
@@ -321,8 +321,8 @@ public class LegacyShopConverterTest extends MigrationTestBase {
 
         ItemStack stone = stackOf(readShop("legacy_shapes").getItems().get(4));
         assertEquals(Items.STONE, stone.getItem());
-        assertNotNull(stone.get(DataComponentTypes.CUSTOM_NAME), "the readable component must be kept");
-        assertEquals("Still Named", stone.get(DataComponentTypes.CUSTOM_NAME).getString());
+        assertNotNull(stone.get(DataComponents.CUSTOM_NAME), "the readable component must be kept");
+        assertEquals("Still Named", stone.get(DataComponents.CUSTOM_NAME).getString());
     }
 
     /** The neighbouring items in a shop must not be affected by one item's component failure. */
@@ -546,7 +546,7 @@ public class LegacyShopConverterTest extends MigrationTestBase {
 
         ShopItem item = readShop("no_components").getItems().getFirst();
         assertEquals(Items.STONE, stackOf(item).getItem());
-        assertTrue(stackOf(item).getComponentChanges().isEmpty());
+        assertTrue(stackOf(item).getComponentsPatch().isEmpty());
     }
 
     /**
@@ -565,7 +565,7 @@ public class LegacyShopConverterTest extends MigrationTestBase {
         assertTrue(convert());
 
         Shop shop = readShop("bad_icon");
-        assertEquals(Identifier.ofVanilla("chest"), shop.iconId());
+        assertEquals(Identifier.withDefaultNamespace("chest"), shop.iconId());
         assertEquals(1, shop.getItems().size(), "the listings must survive a bad icon");
     }
 }

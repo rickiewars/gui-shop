@@ -3,12 +3,12 @@ package rickiewars.guishop.shop.gui.slot;
 import eu.pb4.common.economy.api.EconomyAccount;
 import eu.pb4.common.economy.api.EconomyCurrency;
 import eu.pb4.sgui.api.ClickType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
 import rickiewars.guishop.api.gui.MenuContext;
 import rickiewars.guishop.api.gui.MenuSlot;
 import rickiewars.guishop.api.minecraft.IPlayer;
@@ -32,24 +32,24 @@ public class BalanceSlot implements MenuSlot {
         return currency.icon().copy();
     }
 
-    public Text name() {
-        return Text.literal("Your balance")
+    public Component name() {
+        return Component.literal("Your balance")
             .setStyle(Style.EMPTY.withItalic(true))
-            .formatted(Formatting.GREEN);
+            .withStyle(ChatFormatting.GREEN);
     }
 
-    public List<Text> lore() {
-        var lines = new ArrayList<Text>();
+    public List<Component> lore() {
+        var lines = new ArrayList<Component>();
         for (var currencyId : shop.getAllCurrencyIds()) {
             EconomyAccount account = player.getAccount(currencyId);
-            MutableText currencyName = account.currency().name().copy();
-            Text balance = Text.literal(
+            MutableComponent currencyName = account.currency().name().copy();
+            Component balance = Component.literal(
                 account.currency().formatValue(account.balance(), true)
-            ).setStyle(Style.EMPTY.withItalic(true)).formatted(Formatting.YELLOW);
+            ).setStyle(Style.EMPTY.withItalic(true)).withStyle(ChatFormatting.YELLOW);
 
             lines.add(
-                currencyName.formatted(Formatting.GREEN)
-                    .append(Text.literal(": ").formatted(Formatting.GREEN))
+                currencyName.withStyle(ChatFormatting.GREEN)
+                    .append(Component.literal(": ").withStyle(ChatFormatting.GREEN))
                     .append(balance)
 
             );

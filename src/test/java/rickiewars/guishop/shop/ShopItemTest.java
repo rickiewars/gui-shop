@@ -1,10 +1,10 @@
 package rickiewars.guishop.shop;
 
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.MinecraftTest;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
@@ -34,7 +34,7 @@ public class ShopItemTest extends MinecraftTest {
         ShopItem item = item(new ItemStack(Items.DIAMOND_SWORD));
 
         assertEquals("Test Item", item.displayName());
-        assertEquals(Identifier.ofVanilla("diamond_sword"), item.itemId());
+        assertEquals(Identifier.withDefaultNamespace("diamond_sword"), item.itemId());
         assertEquals(100, item.buyPrice());
         assertEquals(50, item.sellPrice());
         assertEquals(List.of("A blade"), item.description());
@@ -45,7 +45,7 @@ public class ShopItemTest extends MinecraftTest {
 
     @Test
     void shopItemStoresCurrency() {
-        Identifier currency = Identifier.of("guishop:credit");
+        Identifier currency = Identifier.parse("guishop:credit");
         ShopItem item = new ShopItem("Credit Item", wrap(new ItemStack(Items.STONE)), 10, 5, currency, List.of());
 
         assertTrue(item.hasCurrency());
@@ -69,10 +69,10 @@ public class ShopItemTest extends MinecraftTest {
         // Two stacks that end up with the same effective components via different patches
         // must be considered equal.
         ItemStack a = new ItemStack(Items.APPLE);
-        a.set(DataComponentTypes.CUSTOM_NAME, Text.literal("Shiny"));
+        a.set(DataComponents.CUSTOM_NAME, Component.literal("Shiny"));
 
         ItemStack b = new ItemStack(Items.APPLE);
-        b.set(DataComponentTypes.CUSTOM_NAME, Text.literal("Shiny"));
+        b.set(DataComponents.CUSTOM_NAME, Component.literal("Shiny"));
 
         ShopItem itemA = new ShopItem("Apple", wrap(a), 10, 5, null, List.of());
         ShopItem itemB = new ShopItem("Apple", wrap(b), 10, 5, null, List.of());
@@ -85,7 +85,7 @@ public class ShopItemTest extends MinecraftTest {
     void equalsFalseWhenComponentsDiffer() {
         ItemStack a = new ItemStack(Items.APPLE);
         ItemStack b = new ItemStack(Items.APPLE);
-        b.set(DataComponentTypes.CUSTOM_NAME, Text.literal("Different"));
+        b.set(DataComponents.CUSTOM_NAME, Component.literal("Different"));
 
         ShopItem itemA = new ShopItem("Apple", wrap(a), 10, 5, null, List.of());
         ShopItem itemB = new ShopItem("Apple", wrap(b), 10, 5, null, List.of());
@@ -110,8 +110,8 @@ public class ShopItemTest extends MinecraftTest {
         ShopItem shopItem = item(listing);
 
         ItemStack damaged = new ItemStack(Items.DIAMOND_SWORD);
-        damaged.setDamage(500);
-        damaged.set(DataComponentTypes.REPAIR_COST, 3);
+        damaged.setDamageValue(500);
+        damaged.set(DataComponents.REPAIR_COST, 3);
 
         assertTrue(shopItem.resembles(wrap(damaged)), "Graded components must not block a sale");
     }
@@ -121,7 +121,7 @@ public class ShopItemTest extends MinecraftTest {
         ShopItem shopItem = item(new ItemStack(Items.DIAMOND_SWORD));
 
         ItemStack renamed = new ItemStack(Items.DIAMOND_SWORD);
-        renamed.set(DataComponentTypes.CUSTOM_NAME, Text.literal("My Sword"));
+        renamed.set(DataComponents.CUSTOM_NAME, Component.literal("My Sword"));
 
         assertTrue(shopItem.resembles(wrap(renamed)), "Flat-penalty components must not block a sale");
     }
@@ -131,7 +131,7 @@ public class ShopItemTest extends MinecraftTest {
         ShopItem shopItem = item(new ItemStack(Items.DIAMOND_SWORD));
 
         ItemStack enchanted = new ItemStack(Items.DIAMOND_SWORD);
-        enchanted.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, true);
+        enchanted.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
 
         assertFalse(shopItem.resembles(wrap(enchanted)), "Strict components must block a sale on any difference");
     }
@@ -140,10 +140,10 @@ public class ShopItemTest extends MinecraftTest {
     void resemblesFailsWhenCustomDataDiffers() {
         ShopItem shopItem = item(new ItemStack(Items.POTION));
 
-        net.minecraft.nbt.NbtCompound customData = new net.minecraft.nbt.NbtCompound();
+        net.minecraft.nbt.CompoundTag customData = new net.minecraft.nbt.CompoundTag();
         customData.putString("marker", "x");
         ItemStack stamped = new ItemStack(Items.POTION);
-        stamped.set(DataComponentTypes.CUSTOM_DATA, net.minecraft.component.type.NbtComponent.of(customData));
+        stamped.set(DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.of(customData));
 
         assertFalse(shopItem.resembles(wrap(stamped)));
     }
@@ -157,7 +157,7 @@ public class ShopItemTest extends MinecraftTest {
         ShopItem shopItem = item(new ItemStack(Items.DIAMOND_SWORD));
 
         ItemStack damaged = new ItemStack(Items.DIAMOND_SWORD);
-        damaged.setDamage(10);
+        damaged.setDamageValue(10);
 
         assertTrue(shopItem.resembles(wrap(damaged)));
         assertFalse(shopItem.matches(wrap(damaged)));

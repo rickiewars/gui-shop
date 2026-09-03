@@ -4,11 +4,11 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.Component;
 import rickiewars.guishop.command.GuiShopPermission;
 import rickiewars.guishop.command.suggestions.ShopNameSuggestionProvider;
 import rickiewars.guishop.errors.CommandErrors;
@@ -16,17 +16,17 @@ import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.util.CommonMethods;
 
 public class GUIShopRemoveItemCommand {
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment){
-        dispatcher.register(CommandManager.literal("guishop")
-            .then(CommandManager.literal("removeitem")
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandRegistryAccess, Commands.CommandSelection registrationEnvironment){
+        dispatcher.register(Commands.literal("guishop")
+            .then(Commands.literal("removeitem")
                 .requires(GuiShopPermission.REMOVE_ITEM.require())
-                .then(CommandManager.argument("shopName", StringArgumentType.string())
+                .then(Commands.argument("shopName", StringArgumentType.string())
                     .suggests(new ShopNameSuggestionProvider())
-                    .then(CommandManager.argument("itemName", StringArgumentType.string())
+                    .then(Commands.argument("itemName", StringArgumentType.string())
                         .executes(GUIShopRemoveItemCommand::run)))));
     }
 
-    public static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    public static int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         String shopName = StringArgumentType.getString(context, "shopName");
         String itemName = StringArgumentType.getString(context, "itemName");
 
@@ -40,9 +40,9 @@ public class GUIShopRemoveItemCommand {
 
         foundShop.getItems().remove(item.get());
         rickiewars.guishop.GUIShop.shopStore.writeShop(foundShop);
-        context.getSource().sendFeedback(()-> Text.literal(
+        context.getSource().sendSuccess(()-> Component.literal(
             "Item successfully removed"
-        ).formatted(Formatting.GREEN), false);
+        ).withStyle(ChatFormatting.GREEN), false);
         return 0;
     }
 }

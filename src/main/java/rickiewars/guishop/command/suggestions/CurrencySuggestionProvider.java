@@ -4,15 +4,15 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.ServerCommandSource;
 import rickiewars.guishop.economy.EconomyUtils;
 
 import java.util.concurrent.CompletableFuture;
 
-public class CurrencySuggestionProvider  implements SuggestionProvider<ServerCommandSource> {
+public class CurrencySuggestionProvider  implements SuggestionProvider<CommandSourceStack> {
     @Override
-    public CompletableFuture<Suggestions> getSuggestions(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) {
+    public CompletableFuture<Suggestions> getSuggestions(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) {
         MinecraftServer server = context.getSource().getServer();
         String input = builder.getRemaining().toLowerCase();
 

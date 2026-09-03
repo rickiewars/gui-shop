@@ -3,9 +3,9 @@ package rickiewars.guishop.economy;
 import eu.pb4.common.economy.api.CommonEconomy;
 import eu.pb4.common.economy.api.EconomyAccount;
 import eu.pb4.common.economy.api.EconomyCurrency;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.server.level.ServerPlayer;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 
@@ -24,7 +24,7 @@ public class EconomyUtils {
             : GUIShop.config.economyProviders.getFirstCurrency();
     }
 
-    public static EconomyAccount getDefaultAccount(ServerPlayerEntity player, Identifier currencyId) {
+    public static EconomyAccount getDefaultAccount(ServerPlayer player, Identifier currencyId) {
         EconomyCurrency currency = CommonEconomy.getCurrency(
             GUIShop.minecraftServer.getInstance(),
             currencyId

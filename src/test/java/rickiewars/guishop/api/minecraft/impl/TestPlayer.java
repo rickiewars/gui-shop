@@ -1,12 +1,12 @@
 package rickiewars.guishop.api.minecraft.impl;
 
 import eu.pb4.common.economy.api.EconomyAccount;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyAccount;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 import rickiewars.guishop.api.minecraft.IInventory;
@@ -20,7 +20,7 @@ public class TestPlayer implements IPlayer {
     private final UUID uuid;
     private final TestInventory inv = new TestInventory();
     private final Map<Identifier, EconomyAccount> accounts = new HashMap<>();
-    private final List<Text> receivedMessages = new ArrayList<>();
+    private final List<Component> receivedMessages = new ArrayList<>();
     private IItemStack cursorStack = new MinecraftItemStack(ItemStack.EMPTY);
     private IItemStack mainHandStack = new MinecraftItemStack(ItemStack.EMPTY);
     private float yaw = 0;
@@ -45,7 +45,7 @@ public class TestPlayer implements IPlayer {
         ));
     }
 
-    public List<Text> getReceivedMessages() {
+    public List<Component> getReceivedMessages() {
         return receivedMessages;
     }
 
@@ -64,7 +64,7 @@ public class TestPlayer implements IPlayer {
     }
 
     @Override
-    public void sendMessage(Text message) {
+    public void sendMessage(Component message) {
         receivedMessages.add(message);
     }
 
@@ -79,8 +79,8 @@ public class TestPlayer implements IPlayer {
     }
 
     @Override
-    public Text name() {
-        return Text.literal("TestPlayer");
+    public Component name() {
+        return Component.literal("TestPlayer");
     }
 
     @Override
@@ -103,8 +103,8 @@ public class TestPlayer implements IPlayer {
     }
 
     @Override
-    public RegistryKey<World> getWorldId() {
-        return World.OVERWORLD;
+    public ResourceKey<Level> getWorldId() {
+        return Level.OVERWORLD;
     }
 
     @Override

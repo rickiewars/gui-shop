@@ -5,14 +5,14 @@ import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.command.argument.IdentifierArgumentType;
-import net.minecraft.command.argument.ItemStackArgumentType;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.IdentifierArgument;
+import net.minecraft.commands.arguments.item.ItemArgument;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
@@ -27,27 +27,27 @@ import rickiewars.guishop.util.CommonMethods;
 import java.util.List;
 
 public class GUIShopAddItemCommand {
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment){
-        dispatcher.register(CommandManager.literal("guishop")
-            .then(CommandManager.literal("additem")
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandRegistryAccess, Commands.CommandSelection registrationEnvironment){
+        dispatcher.register(Commands.literal("guishop")
+            .then(Commands.literal("additem")
                 .requires(GuiShopPermission.ADD_ITEM.require())
-                .then(CommandManager.argument("shopName", StringArgumentType.string())
+                .then(Commands.argument("shopName", StringArgumentType.string())
                     .suggests(new ShopNameSuggestionProvider())
-                    .then(CommandManager.argument("itemName", StringArgumentType.string())
-                        .then(CommandManager.argument("item", ItemStackArgumentType.itemStack(commandRegistryAccess))
-                            .then(CommandManager.argument("buyItemPrice", LongArgumentType.longArg(-1))
-                                .then(CommandManager.argument("sellItemPrice", LongArgumentType.longArg(-1))
-                                    .then(CommandManager.argument("currency", IdentifierArgumentType.identifier())
+                    .then(Commands.argument("itemName", StringArgumentType.string())
+                        .then(Commands.argument("item", ItemArgument.item(commandRegistryAccess))
+                            .then(Commands.argument("buyItemPrice", LongArgumentType.longArg(-1))
+                                .then(Commands.argument("sellItemPrice", LongArgumentType.longArg(-1))
+                                    .then(Commands.argument("currency", IdentifierArgument.id())
                                         .suggests(new CurrencySuggestionProvider())
                                         .executes(GUIShopAddItemCommand::run)
-                                        .then(CommandManager.argument("description", StringArgumentType.string())
+                                        .then(Commands.argument("description", StringArgumentType.string())
                                             .executes(GUIShopAddItemCommand::run)
                                         )))))))));
     }
 
-    public static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
-        var itemStackArgument = ItemStackArgumentType.getItemStackArgument(context, "item");
-        var itemStack = itemStackArgument.createStack(1, false);
+    public static int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        var itemStackArgument = ItemArgument.getItem(context, "item");
+        var itemStack = itemStackArgument.createItemStack(1, false);
 
         String shopName = StringArgumentType.getString(context, "shopName");
         String itemName = StringArgumentType.getString(context, "itemName");
@@ -56,7 +56,7 @@ public class GUIShopAddItemCommand {
 
         Identifier currency = GuiShopEconomyCurrency.DEFAULT_ID;
         try {
-            currency = IdentifierArgumentType.getIdentifier(context, "currency");
+            currency = IdentifierArgument.getId(context, "currency");
         } catch (IllegalArgumentException ignored) {}
 
         String descriptionLine = "";
@@ -71,7 +71,7 @@ public class GUIShopAddItemCommand {
 
         foundShop.getItems().add(new ShopItem(itemName, new MinecraftItemStack(itemStack.copyWithCount(1)), buyItemPrice, sellItemPrice, currency, description));
         GUIShop.shopStore.writeShop(foundShop);
-        context.getSource().sendFeedback(() -> Text.literal("Item successfully added").formatted(Formatting.GREEN), false);
+        context.getSource().sendSuccess(() -> Component.literal("Item successfully added").withStyle(ChatFormatting.GREEN), false);
 
         return 0;
     }

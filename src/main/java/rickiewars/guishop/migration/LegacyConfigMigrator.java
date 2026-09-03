@@ -3,7 +3,7 @@ package rickiewars.guishop.migration;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.config.ConfigManager;
 import rickiewars.guishop.config.GuiShopConfig;
@@ -45,6 +45,9 @@ public final class LegacyConfigMigrator {
 
             GUIShop.LOGGER.info("Legacy config migrated successfully");
             return true;
+        } catch (com.google.gson.JsonSyntaxException e) {
+            GUIShop.LOGGER.error("Legacy config migration failed: one of the legacy files is not valid JSON ({})", e.getMessage());
+            return false;
         } catch (Exception e) {
             GUIShop.LOGGER.error("Legacy config migration failed: {}", e.getMessage(), e);
             return false;
@@ -64,7 +67,7 @@ public final class LegacyConfigMigrator {
         JsonObject economyProviders = root.getAsJsonObject("economyProviders");
         economyProviders.asMap().forEach((key, value) -> {
             try {
-                Identifier id = key.contains(":") ? Identifier.of(key) : Identifier.of(GUIShop.MODID, key);
+                Identifier id = key.contains(":") ? Identifier.parse(key) : Identifier.fromNamespaceAndPath(GUIShop.MODID, key);
                 List<String> accounts = value.getAsJsonArray().asList().stream().map(JsonElement::getAsString).toList();
                 providers.put(id, accounts);
             } catch (Exception e) {
@@ -158,7 +161,7 @@ public final class LegacyConfigMigrator {
     private static Identifier readIcon(JsonObject object, Identifier fallback) {
         if (!object.has("icon")) return fallback;
         try {
-            return Identifier.of(object.get("icon").getAsString());
+            return Identifier.parse(object.get("icon").getAsString());
         } catch (Exception e) {
             GUIShop.LOGGER.warn("Legacy icon value was not a plain item id string, using default: {}", e.getMessage());
             return fallback;

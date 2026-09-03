@@ -2,8 +2,8 @@ package rickiewars.guishop.shop.gui;
 
 import eu.pb4.common.economy.api.EconomyAccount;
 import eu.pb4.sgui.api.ClickType;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.inventory.MenuType;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.EconomyTest;
 import rickiewars.guishop.api.gui.impl.TestMenuController;
@@ -30,18 +30,18 @@ public class SelectShopMenuTest extends EconomyTest {
 
         player.addDefaultAccount(economy.currencyCreditsId);
         EconomyAccount account = player.getAccount(economy.currencyCreditsId);
-        String balance = account.formattedBalance().getLiteralString();
+        String balance = account.formattedBalance().tryCollapseToString();
 
         TestMenuController controller = new TestMenuController(player);
         var menu = new SelectShopMenu(List.of(shop1, shop2), player);
         controller.open(menu);
 
-        assertEquals(Text.of("Select Shop"), controller.title);
+        assertEquals(Component.nullToEmpty("Select Shop"), controller.title);
         assertInstanceOf(ShopEntrySlot.class, controller.slots.get(0));
         controller.simulateClick(0, ClickType.MOUSE_LEFT);
 
         assertTrue(controller.opened);
-        assertEquals(Text.of(shop1.getDisplayName() + " (Balance: " + balance + ")"), controller.title);
+        assertEquals(Component.nullToEmpty(shop1.getDisplayName() + " (Balance: " + balance + ")"), controller.title);
     }
 
     @Test
@@ -52,18 +52,18 @@ public class SelectShopMenuTest extends EconomyTest {
 
         player.addDefaultAccount(economy.currencyCreditsId);
         EconomyAccount account = player.getAccount(economy.currencyCreditsId);
-        String balance = account.formattedBalance().getLiteralString();
+        String balance = account.formattedBalance().tryCollapseToString();
 
         TestMenuController controller = new TestMenuController(player);
         var menu = new SelectShopMenu(List.of(shop1, shop2), player);
         controller.open(menu);
 
-        assertEquals(Text.of("Select Shop"), controller.title);
+        assertEquals(Component.nullToEmpty("Select Shop"), controller.title);
         assertInstanceOf(ShopEntrySlot.class, controller.slots.get(1));
         controller.simulateClick(1, ClickType.MOUSE_LEFT);
 
         assertTrue(controller.opened);
-        assertEquals(Text.of(shop2.getDisplayName() + " (Balance: " + balance + ")"), controller.title);
+        assertEquals(Component.nullToEmpty(shop2.getDisplayName() + " (Balance: " + balance + ")"), controller.title);
     }
 
     @Test
@@ -80,9 +80,9 @@ public class SelectShopMenuTest extends EconomyTest {
         var menu = new SelectShopMenu(shops, player);
         controller.open(menu);
 
-        assertEquals(ScreenHandlerType.GENERIC_9X1, menu.config().handlerType());
-        assertEquals(Text.of(shops.getFirst().getDisplayName()), controller.slots.get(0).name());
-        assertEquals(Text.of(shops.getLast().getDisplayName()), controller.slots.get(7).name());
+        assertEquals(MenuType.GENERIC_9x1, menu.config().handlerType());
+        assertEquals(Component.nullToEmpty(shops.getFirst().getDisplayName()), controller.slots.get(0).name());
+        assertEquals(Component.nullToEmpty(shops.getLast().getDisplayName()), controller.slots.get(7).name());
         assertInstanceOf(ExitSlot.class, controller.slots.get(8));
     }
 
@@ -100,9 +100,9 @@ public class SelectShopMenuTest extends EconomyTest {
         var menu = new SelectShopMenu(shops, player);
         controller.open(menu);
 
-        assertEquals(ScreenHandlerType.GENERIC_9X2, menu.config().handlerType());
-        assertEquals(Text.of(shops.getFirst().getDisplayName()), controller.slots.get(0).name());
-        assertEquals(Text.of(shops.getLast().getDisplayName()), controller.slots.get(8).name());
+        assertEquals(MenuType.GENERIC_9x2, menu.config().handlerType());
+        assertEquals(Component.nullToEmpty(shops.getFirst().getDisplayName()), controller.slots.get(0).name());
+        assertEquals(Component.nullToEmpty(shops.getLast().getDisplayName()), controller.slots.get(8).name());
         var exitSlotIndex = menu.config().indexOf(SelectShopMenu.SlotType.EXIT).orElseThrow();
         assertInstanceOf(ExitSlot.class, controller.slots.get(exitSlotIndex));
     }
@@ -161,23 +161,23 @@ public class SelectShopMenuTest extends EconomyTest {
         var pageIndicatorSlotIndex = menu.config().indexOf(SelectShopMenu.SlotType.PAGE_INDICATOR).orElseThrow();
         var nextPageSlotIndex = menu.config().indexOf(SelectShopMenu.SlotType.NEXT_PAGE).orElseThrow();
 
-        assertEquals(Text.of("Page 1 / 3"), controller.slots.get(pageIndicatorSlotIndex).name());
+        assertEquals(Component.nullToEmpty("Page 1 / 3"), controller.slots.get(pageIndicatorSlotIndex).name());
 
         controller.simulateClick(nextPageSlotIndex, ClickType.MOUSE_LEFT);
-        assertEquals(Text.of("Page 2 / 3"), controller.slots.get(pageIndicatorSlotIndex).name());
+        assertEquals(Component.nullToEmpty("Page 2 / 3"), controller.slots.get(pageIndicatorSlotIndex).name());
         controller.simulateClick(nextPageSlotIndex, ClickType.MOUSE_LEFT);
-        assertEquals(Text.of("Page 3 / 3"), controller.slots.get(pageIndicatorSlotIndex).name());
+        assertEquals(Component.nullToEmpty("Page 3 / 3"), controller.slots.get(pageIndicatorSlotIndex).name());
 
         controller.simulateClick(nextPageSlotIndex, ClickType.MOUSE_LEFT);
-        assertEquals(Text.of("Page 3 / 3"), controller.slots.get(pageIndicatorSlotIndex).name());
+        assertEquals(Component.nullToEmpty("Page 3 / 3"), controller.slots.get(pageIndicatorSlotIndex).name());
 
         controller.simulateClick(previousPageSlotIndex, ClickType.MOUSE_LEFT);
-        assertEquals(Text.of("Page 2 / 3"), controller.slots.get(pageIndicatorSlotIndex).name());
+        assertEquals(Component.nullToEmpty("Page 2 / 3"), controller.slots.get(pageIndicatorSlotIndex).name());
         controller.simulateClick(previousPageSlotIndex, ClickType.MOUSE_LEFT);
-        assertEquals(Text.of("Page 1 / 3"), controller.slots.get(pageIndicatorSlotIndex).name());
+        assertEquals(Component.nullToEmpty("Page 1 / 3"), controller.slots.get(pageIndicatorSlotIndex).name());
 
         controller.simulateClick(previousPageSlotIndex, ClickType.MOUSE_LEFT);
-        assertEquals(Text.of("Page 1 / 3"), controller.slots.get(pageIndicatorSlotIndex).name());
+        assertEquals(Component.nullToEmpty("Page 1 / 3"), controller.slots.get(pageIndicatorSlotIndex).name());
     }
 
     @Test
@@ -195,8 +195,8 @@ public class SelectShopMenuTest extends EconomyTest {
         controller.open(menu);
 
         controller.context.goToPage(2);
-        assertEquals(Text.of("shop 9"), controller.slots.get(0).name());
-        assertEquals(Text.of("shop 17"), controller.slots.get(8).name());
+        assertEquals(Component.nullToEmpty("shop 9"), controller.slots.get(0).name());
+        assertEquals(Component.nullToEmpty("shop 17"), controller.slots.get(8).name());
     }
 
     @Test

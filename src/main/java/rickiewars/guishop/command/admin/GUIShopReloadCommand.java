@@ -2,11 +2,11 @@ package rickiewars.guishop.command.admin;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
-import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.Component;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.command.GuiShopPermission;
 import rickiewars.guishop.config.ConfigManager;
@@ -14,18 +14,18 @@ import rickiewars.guishop.config.ConfigManager;
 import java.io.IOException;
 
 public class GUIShopReloadCommand {
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment){
-        dispatcher.register(CommandManager.literal("guishop")
-            .then(CommandManager.literal("reload")
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandRegistryAccess, Commands.CommandSelection registrationEnvironment){
+        dispatcher.register(Commands.literal("guishop")
+            .then(Commands.literal("reload")
                 .requires(GuiShopPermission.RELOAD.require())
                 .executes(GUIShopReloadCommand::run)));
     }
 
-    public static int run(CommandContext<ServerCommandSource> context){
+    public static int run(CommandContext<CommandSourceStack> context){
         try {
             ConfigManager.loadConfig();
         } catch (IOException e) {
-            context.getSource().sendError(Text.literal("Error accrued while reloading config!").formatted(Formatting.RED));
+            context.getSource().sendFailure(Component.literal("Error accrued while reloading config!").withStyle(ChatFormatting.RED));
             GUIShop.LOGGER.error("Could not load config file", e);
             return -1;
         }

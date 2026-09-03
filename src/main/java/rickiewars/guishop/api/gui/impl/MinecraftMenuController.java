@@ -2,8 +2,8 @@ package rickiewars.guishop.api.gui.impl;
 
 import eu.pb4.sgui.api.elements.GuiElementBuilder;
 import eu.pb4.sgui.api.gui.SimpleGui;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import rickiewars.guishop.api.gui.Menu;
 import rickiewars.guishop.api.gui.MenuContext;
 import rickiewars.guishop.api.gui.MenuController;
@@ -13,9 +13,9 @@ import rickiewars.guishop.api.minecraft.impl.MinecraftPlayer;
 public class MinecraftMenuController implements MenuController {
     SimpleGui gui;
     MenuContext context;
-    final ServerPlayerEntity player;
+    final ServerPlayer player;
 
-    public MinecraftMenuController(ServerPlayerEntity player) {
+    public MinecraftMenuController(ServerPlayer player) {
         this.player = player;
     }
 
@@ -50,14 +50,14 @@ public class MinecraftMenuController implements MenuController {
     }
 
     @Override
-    public void setTitle(Text title) {
+    public void setTitle(Component title) {
         gui.setTitle(title);
     }
 
     private GuiElementBuilder buildElement(MenuSlot slot) {
         GuiElementBuilder b = GuiElementBuilder.from(slot.icon());
 
-        Text name = slot.name();
+        Component name = slot.name();
         if (name != null) b.setName(name);
 
         var lore = slot.lore();

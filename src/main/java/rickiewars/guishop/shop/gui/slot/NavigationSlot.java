@@ -1,8 +1,8 @@
 package rickiewars.guishop.shop.gui.slot;
 
 import eu.pb4.sgui.api.ClickType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 import rickiewars.guishop.api.gui.MenuContext;
 import rickiewars.guishop.api.gui.MenuSlot;
 import rickiewars.guishop.api.minecraft.IPlayer;
@@ -30,11 +30,11 @@ public class NavigationSlot implements MenuSlot {
         );
     }
 
-    public Text name() {
-        return Text.literal(label);
+    public Component name() {
+        return Component.literal(label);
     }
 
-    public List<Text> lore() {
+    public List<Component> lore() {
         return List.of();
     }
 

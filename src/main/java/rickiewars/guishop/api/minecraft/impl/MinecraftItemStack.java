@@ -1,10 +1,10 @@
 package rickiewars.guishop.api.minecraft.impl;
 
-import net.minecraft.component.ComponentType;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
 import rickiewars.guishop.api.minecraft.IItemStack;
 import rickiewars.guishop.api.minecraft.ResourceId;
 
@@ -14,12 +14,12 @@ import java.util.Objects;
 import java.util.Set;
 
 public class MinecraftItemStack implements IItemStack {
-    private static final Map<ComponentKey, ComponentType<?>> COMPONENT_TYPES = new EnumMap<>(ComponentKey.class);
+    private static final Map<ComponentKey, DataComponentType<?>> COMPONENT_TYPES = new EnumMap<>(ComponentKey.class);
     static {
-        COMPONENT_TYPES.put(ComponentKey.DAMAGE, DataComponentTypes.DAMAGE);
-        COMPONENT_TYPES.put(ComponentKey.REPAIR_COST, DataComponentTypes.REPAIR_COST);
-        COMPONENT_TYPES.put(ComponentKey.CUSTOM_NAME, DataComponentTypes.CUSTOM_NAME);
-        COMPONENT_TYPES.put(ComponentKey.LORE, DataComponentTypes.LORE);
+        COMPONENT_TYPES.put(ComponentKey.DAMAGE, DataComponents.DAMAGE);
+        COMPONENT_TYPES.put(ComponentKey.REPAIR_COST, DataComponents.REPAIR_COST);
+        COMPONENT_TYPES.put(ComponentKey.CUSTOM_NAME, DataComponents.CUSTOM_NAME);
+        COMPONENT_TYPES.put(ComponentKey.LORE, DataComponents.LORE);
     }
 
     private final ItemStack stack;
@@ -34,7 +34,7 @@ public class MinecraftItemStack implements IItemStack {
 
     @Override
     public ResourceId itemId() {
-        Identifier id = Registries.ITEM.getId(stack.getItem());
+        Identifier id = BuiltInRegistries.ITEM.getKey(stack.getItem());
         return ResourceId.of(id.getNamespace(), id.getPath());
     }
 
@@ -45,7 +45,7 @@ public class MinecraftItemStack implements IItemStack {
 
     @Override
     public int maxStackSize() {
-        return stack.getMaxCount();
+        return stack.getMaxStackSize();
     }
 
     @Override
@@ -55,7 +55,7 @@ public class MinecraftItemStack implements IItemStack {
 
     @Override
     public boolean hasComponentChanges() {
-        return !stack.getComponentChanges().isEmpty();
+        return !stack.getComponentsPatch().isEmpty();
     }
 
     @Override
@@ -66,16 +66,16 @@ public class MinecraftItemStack implements IItemStack {
         ItemStack a = stack.copy();
         ItemStack b = otherStack.copy();
         for (ComponentKey key : ignored) {
-            ComponentType<?> type = COMPONENT_TYPES.get(key);
+            DataComponentType<?> type = COMPONENT_TYPES.get(key);
             a.remove(type);
             b.remove(type);
         }
-        return ItemStack.areItemsAndComponentsEqual(a, b);
+        return ItemStack.isSameItemSameComponents(a, b);
     }
 
     @Override
     public boolean equalsExact(IItemStack other) {
-        return ItemStack.areItemsAndComponentsEqual(stack, unwrap(other));
+        return ItemStack.isSameItemSameComponents(stack, unwrap(other));
     }
 
     @Override
@@ -92,17 +92,17 @@ public class MinecraftItemStack implements IItemStack {
 
     @Override
     public void decrement(int amount) {
-        stack.decrement(amount);
+        stack.shrink(amount);
     }
 
     @Override
     public boolean isDamageable() {
-        return stack.isDamageable();
+        return stack.isDamageableItem();
     }
 
     @Override
     public int damage() {
-        return stack.getDamage();
+        return stack.getDamageValue();
     }
 
     @Override
@@ -112,12 +112,12 @@ public class MinecraftItemStack implements IItemStack {
 
     @Override
     public int repairCost() {
-        return stack.getOrDefault(DataComponentTypes.REPAIR_COST, 0);
+        return stack.getOrDefault(DataComponents.REPAIR_COST, 0);
     }
 
     @Override
     public boolean componentDiffers(ComponentKey key, IItemStack other) {
-        ComponentType<?> type = COMPONENT_TYPES.get(key);
+        DataComponentType<?> type = COMPONENT_TYPES.get(key);
         return !Objects.equals(stack.get(type), unwrap(other).get(type));
     }
 
@@ -125,12 +125,12 @@ public class MinecraftItemStack implements IItemStack {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof MinecraftItemStack other)) return false;
-        return ItemStack.areItemsAndComponentsEqual(stack, other.stack) && stack.getCount() == other.stack.getCount();
+        return ItemStack.isSameItemSameComponents(stack, other.stack) && stack.getCount() == other.stack.getCount();
     }
 
     @Override
     public int hashCode() {
-        return ItemStack.hashCode(stack);
+        return ItemStack.hashItemAndComponents(stack);
     }
 
     private static ItemStack unwrap(IItemStack other) {

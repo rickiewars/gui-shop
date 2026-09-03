@@ -4,11 +4,11 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.server.level.ServerPlayer;
 import rickiewars.guishop.api.gui.impl.MinecraftMenuController;
 import rickiewars.guishop.api.minecraft.impl.MinecraftPlayer;
 import rickiewars.guishop.command.GuiShopPermission;
@@ -21,22 +21,22 @@ import rickiewars.guishop.util.CommonMethods;
 import java.util.Optional;
 
 public class GUIShopOpenCommand {
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment){
-        dispatcher.register(CommandManager.literal("guishop")
-                .then(CommandManager.literal("open")
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandRegistryAccess, Commands.CommandSelection registrationEnvironment){
+        dispatcher.register(Commands.literal("guishop")
+                .then(Commands.literal("open")
                     .requires(GuiShopPermission.OPEN.require())
-                    .then(CommandManager.argument("shopName", StringArgumentType.string())
+                    .then(Commands.argument("shopName", StringArgumentType.string())
                         .suggests(new ShopNameSuggestionProvider())
                         .executes(GUIShopOpenCommand::run)
-                        .then(CommandManager.argument("playerName", EntityArgumentType.player())
+                        .then(Commands.argument("playerName", EntityArgument.player())
                             .requires(GuiShopPermission.OPEN_FOR_PLAYER.require())
                             .executes(GUIShopOpenCommand::run)))));
     }
 
-    public static int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    public static int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         String shopName = StringArgumentType.getString(context, "shopName");
         Shop selectedShop = CommonMethods.getShopByName(shopName);
-        ServerPlayerEntity player = getPlayer(context)
+        ServerPlayer player = getPlayer(context)
             .orElse(context.getSource().getPlayer());
 
         if (player == null) throw CommandErrors.NEED_PLAYER.create();
@@ -48,9 +48,9 @@ public class GUIShopOpenCommand {
         return controller.open(menu) ? 0 : -1;
     }
 
-    private static Optional<ServerPlayerEntity> getPlayer(CommandContext<ServerCommandSource> context) {
+    private static Optional<ServerPlayer> getPlayer(CommandContext<CommandSourceStack> context) {
         try {
-            return Optional.ofNullable(EntityArgumentType.getPlayer(context, "playerName"));
+            return Optional.ofNullable(EntityArgument.getPlayer(context, "playerName"));
         } catch (IllegalArgumentException | CommandSyntaxException e) {
             return Optional.empty();
         }

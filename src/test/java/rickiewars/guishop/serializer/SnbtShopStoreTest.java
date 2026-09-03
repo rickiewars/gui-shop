@@ -1,11 +1,11 @@
 package rickiewars.guishop.serializer;
 
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.BuiltinRegistries;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.data.registries.VanillaRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantments;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -34,11 +34,11 @@ public class SnbtShopStoreTest extends MinecraftTest {
     private VanillaItemCodec itemCodec;
     private SnbtShopStore store;
 
-    private net.minecraft.registry.RegistryWrapper.WrapperLookup registryLookup;
+    private net.minecraft.core.HolderLookup.Provider registryLookup;
 
     @BeforeEach
     void setup() {
-        registryLookup = BuiltinRegistries.createWrapperLookup();
+        registryLookup = VanillaRegistries.createLookup();
         itemCodec = new VanillaItemCodec(registryLookup);
         store = new SnbtShopStore(itemCodec, tempDir);
     }
@@ -46,12 +46,12 @@ public class SnbtShopStoreTest extends MinecraftTest {
     @Test
     void writeThenReadRoundTripsEnchantedItem() {
         ItemStack sword = new ItemStack(Items.DIAMOND_SWORD);
-        sword.set(DataComponentTypes.ENCHANTMENTS, TestUtils.buildEnchantmentsComponent(
+        sword.set(DataComponents.ENCHANTMENTS, TestUtils.buildEnchantmentsComponent(
             Map.of(Enchantments.SHARPNESS, 5), registryLookup
         ));
 
         ShopItem item = new ShopItem("Sharp Sword", new MinecraftItemStack(sword), 50000, 25000, null, List.of("Freshly ground"));
-        Shop shop = new Shop("enchanted_gear", "Enchanted Gear", List.of(item), null, Identifier.ofVanilla("enchanting_table"));
+        Shop shop = new Shop("enchanted_gear", "Enchanted Gear", List.of(item), null, Identifier.withDefaultNamespace("enchanting_table"));
 
         store.writeShop(shop);
         List<Shop> loaded = store.readAll();

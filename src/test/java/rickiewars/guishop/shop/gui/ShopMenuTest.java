@@ -1,6 +1,6 @@
 package rickiewars.guishop.shop.gui;
 
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.MinecraftTest;
 import rickiewars.guishop.api.gui.MenuSlot;
@@ -43,8 +43,8 @@ class ShopMenuTest extends MinecraftTest {
         ShopMenu menu = new ShopMenu(shop, player);
         List<MenuSlot> slots = menu.getPageContent(2);
 
-        assertEquals(Text.of("Item 46"), slots.getFirst().name());
-        assertEquals(Text.of("Item 90"), slots.getLast().name());
+        assertEquals(Component.nullToEmpty("Item 46"), slots.getFirst().name());
+        assertEquals(Component.nullToEmpty("Item 90"), slots.getLast().name());
     }
 
     @Test

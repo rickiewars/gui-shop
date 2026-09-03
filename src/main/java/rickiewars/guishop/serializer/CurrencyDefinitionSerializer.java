@@ -1,8 +1,8 @@
 package rickiewars.guishop.serializer;
 
 import com.google.gson.*;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 import rickiewars.guishop.config.GuiShopConfig.CurrencyDefinition;
@@ -18,8 +18,8 @@ public class CurrencyDefinitionSerializer implements JsonSerializer<CurrencyDefi
                 ? currency.get("icon").getAsString()
                 : GuiShopEconomyCurrency.DEFAULT_ICON_ID.toString();
 
-        Identifier icon = Identifier.of(iconString);
-        if (!Registries.ITEM.containsId(icon)) {
+        Identifier icon = Identifier.parse(iconString);
+        if (!BuiltInRegistries.ITEM.containsKey(icon)) {
             GUIShop.LOGGER.warn("Invalid item id for currency icon: " + iconString);
             icon = GuiShopEconomyCurrency.DEFAULT_ICON_ID;
         }
