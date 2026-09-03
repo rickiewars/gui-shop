@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rickiewars.guishop.api.database.DatabaseManager;
+import rickiewars.guishop.api.database.DatabaseManagerFactory;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyProvider;
 import rickiewars.guishop.api.minecraft.IServer;
 import rickiewars.guishop.api.minecraft.impl.MinecraftServer;
@@ -42,7 +43,7 @@ public class GUIShop implements ModInitializer {
 
 	static {
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> onServerShutdown());
-		ServerLifecycleEvents.SERVER_STARTING.register(server -> minecraftServer = new MinecraftServer(server));
+		ServerLifecycleEvents.SERVER_STARTING.register(GUIShop::onServerStarting);
 		ServerLifecycleEvents.SERVER_STARTED.register(GUIShop::onServerStarted);
 	}
 
@@ -51,6 +52,14 @@ public class GUIShop implements ModInitializer {
 			ConfigManager.loadConfig();
 		} catch (IOException e) {
 			throw new RuntimeException("Could not load config file", e);
+		}
+	}
+
+	private static void onServerStarting(net.minecraft.server.MinecraftServer server) {
+		minecraftServer = new MinecraftServer(server);
+
+		if (!config.economyDisabled) {
+			databaseManager = DatabaseManagerFactory.create(config);
 		}
 	}
 

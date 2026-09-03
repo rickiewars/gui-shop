@@ -3,7 +3,6 @@ package rickiewars.guishop.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import rickiewars.guishop.GUIShop;
-import rickiewars.guishop.api.database.impl.SQLiteDatabaseManager;
 import rickiewars.guishop.serializer.*;
 
 import java.io.*;
@@ -116,13 +115,6 @@ public class ConfigManager {
                         "No database configuration found. Adding the default SQLite configuration."
                 );
                 config.database = new GuiShopConfig.DatabaseConfig();
-            }
-
-            GuiShopConfig.DatabaseConfig.DatabaseType type = config.database.type;
-            if (type == GuiShopConfig.DatabaseConfig.DatabaseType.SQLITE) {
-                GUIShop.databaseManager = new SQLiteDatabaseManager(config);
-            } else {
-                throw new RuntimeException("Unsupported database type: " + type);
             }
         }
 
