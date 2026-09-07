@@ -7,6 +7,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import rickiewars.guishop.GUIShop;
+import rickiewars.guishop.api.database.DatabaseManager;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 
 import java.util.Collection;
@@ -16,6 +17,11 @@ public class EconomyUtils {
 
     public static Collection<EconomyCurrency> getCurrencies(MinecraftServer server) {
         return CommonEconomy.getCurrencies(server);
+    }
+
+    /** Registers (or refreshes) a player's account for every currency. */
+    public static void registerAccounts(DatabaseManager databaseManager, Collection<EconomyCurrency> currencies, String uuid, String name) {
+        currencies.forEach(currency -> databaseManager.updateAccount(currency.id().toString(), uuid, name));
     }
 
     public static Identifier getFirstCurrencyId() {

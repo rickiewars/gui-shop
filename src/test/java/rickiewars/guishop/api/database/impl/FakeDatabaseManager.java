@@ -8,6 +8,7 @@ import java.util.Map;
 
 public class FakeDatabaseManager implements DatabaseManager {
     private final Map<String, Integer> balances = new HashMap<>();
+    public final Map<String, String> updatedAccounts = new HashMap<>();
 
     private String key(String currency, String uuid) {
         return currency + "|" + uuid;
@@ -54,7 +55,9 @@ public class FakeDatabaseManager implements DatabaseManager {
     }
 
     @Override
-    public void updateAccount(String currency, String uuid, String name) {}
+    public void updateAccount(String currency, String uuid, String name) {
+        updatedAccounts.put(currency, name);
+    }
 
     @Override
     public String getName(String currency, String uuid) {

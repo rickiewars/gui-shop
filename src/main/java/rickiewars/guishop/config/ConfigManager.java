@@ -75,10 +75,11 @@ public class ConfigManager {
      * Try to load the configuration data from config/gui-shop/config.json
      */
     private static GuiShopConfig getConfigData(File configFile) throws IOException {
-        return configFile.exists() ? GSON.fromJson(
-            new InputStreamReader(new FileInputStream(configFile), StandardCharsets.UTF_8),
-            GuiShopConfig.class
-        ) : initConfigFile(configFile);
+        if (!configFile.exists()) return initConfigFile(configFile);
+
+        try (InputStreamReader reader = new InputStreamReader(new FileInputStream(configFile), StandardCharsets.UTF_8)) {
+            return GSON.fromJson(reader, GuiShopConfig.class);
+        }
     }
 
     /**

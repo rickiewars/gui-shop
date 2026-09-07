@@ -72,4 +72,9 @@ public class CommandErrors {
         new DynamicCommandExceptionType(reason -> Component.literal(
             "Transaction failed: " + reason
         ).withStyle(ChatFormatting.RED));
+
+    public static final SimpleCommandExceptionType BUY_AND_SELL_BOTH_DISABLED =
+        new SimpleCommandExceptionType(Component.literal(
+            "An item cannot have both its buy and sell price disabled."
+        ).withStyle(ChatFormatting.RED));
 }

@@ -1,3 +1,5 @@
+import groovy.json.JsonOutput
+
 plugins {
 	id 'fabric-loom' version "${loom_version}"
 	id 'maven-publish'
@@ -134,6 +136,53 @@ jacocoTestReport {
 		html.required = true
 		xml.required = true
 	}
+}
+
+fabricApi {
+	configureTests {
+		createSourceSet = true
+		modId = "guishop-test"
+		enableGameTests = true
+		enableClientGameTests = false
+		eula = true
+	}
+}
+
+def gametestSrcDir = file("src/gametest/java")
+
+tasks.register("generateGametestModJson") {
+	inputs.dir(gametestSrcDir)
+	def outputFile = layout.buildDirectory.file("generated/gametest/resources/fabric.mod.json")
+	outputs.file(outputFile)
+
+	doLast {
+		def testClasses = []
+		gametestSrcDir.eachFileRecurse(groovy.io.FileType.FILES) { f ->
+			if (f.name.endsWith(".java") && f.text.contains("@GameTest")) {
+				def relative = gametestSrcDir.toPath().relativize(f.toPath()).toString()
+				testClasses << relative.replace(File.separator, ".").replace(".java", "")
+			}
+		}
+
+		def json = [
+			schemaVersion: 1,
+			id: "guishop-test",
+			version: "1.0.0",
+			name: "GuiShop Tests",
+			environment: "*",
+			entrypoints: ["fabric-gametest": testClasses]
+		]
+
+		def out = outputFile.get().asFile
+		out.parentFile.mkdirs()
+		out.text = JsonOutput.prettyPrint(JsonOutput.toJson(json))
+	}
+}
+
+sourceSets.gametest.resources.srcDir(layout.buildDirectory.dir("generated/gametest/resources"))
+
+tasks.named("processGametestResources") {
+	dependsOn "generateGametestModJson"
 }
 
 tasks.withType(JavaCompile).configureEach {

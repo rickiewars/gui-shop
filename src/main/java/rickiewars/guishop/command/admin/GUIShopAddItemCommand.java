@@ -14,7 +14,6 @@ import net.minecraft.commands.arguments.item.ItemArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import rickiewars.guishop.GUIShop;
-import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.command.GuiShopPermission;
 import rickiewars.guishop.command.suggestions.CurrencySuggestionProvider;
@@ -35,8 +34,9 @@ public class GUIShopAddItemCommand {
                     .suggests(new ShopNameSuggestionProvider())
                     .then(Commands.argument("itemName", StringArgumentType.string())
                         .then(Commands.argument("item", ItemArgument.item(commandRegistryAccess))
-                            .then(Commands.argument("buyItemPrice", LongArgumentType.longArg(-1))
-                                .then(Commands.argument("sellItemPrice", LongArgumentType.longArg(-1))
+                            .then(Commands.argument("buyItemPrice", LongArgumentType.longArg())
+                                .then(Commands.argument("sellItemPrice", LongArgumentType.longArg())
+                                    .executes(GUIShopAddItemCommand::run)
                                     .then(Commands.argument("currency", IdentifierArgument.id())
                                         .suggests(new CurrencySuggestionProvider())
                                         .executes(GUIShopAddItemCommand::run)
@@ -51,10 +51,10 @@ public class GUIShopAddItemCommand {
 
         String shopName = StringArgumentType.getString(context, "shopName");
         String itemName = StringArgumentType.getString(context, "itemName");
-        long buyItemPrice = LongArgumentType.getLong(context, "buyItemPrice");
-        long sellItemPrice = LongArgumentType.getLong(context, "sellItemPrice");
+        long buyItemPrice = normalizePrice(LongArgumentType.getLong(context, "buyItemPrice"));
+        long sellItemPrice = normalizePrice(LongArgumentType.getLong(context, "sellItemPrice"));
 
-        Identifier currency = GuiShopEconomyCurrency.DEFAULT_ID;
+        Identifier currency = null;
         try {
             currency = IdentifierArgument.getId(context, "currency");
         } catch (IllegalArgumentException ignored) {}
@@ -67,12 +67,18 @@ public class GUIShopAddItemCommand {
         Shop foundShop = CommonMethods.getShopByName(shopName);
         if (foundShop == null) throw CommandErrors.SHOP_NOT_FOUND.create(shopName);
 
-        List<String> description = List.of(descriptionLine.split("\\\\"));
+        if (buyItemPrice == -1 && sellItemPrice == -1) throw CommandErrors.BUY_AND_SELL_BOTH_DISABLED.create();
+
+        List<String> description = descriptionLine.isEmpty() ? List.of() : List.of(descriptionLine.split("\\\\"));
 
         foundShop.getItems().add(new ShopItem(itemName, new MinecraftItemStack(itemStack.copyWithCount(1)), buyItemPrice, sellItemPrice, currency, description));
         GUIShop.shopStore.writeShop(foundShop);
         context.getSource().sendSuccess(() -> Component.literal("Item successfully added").withStyle(ChatFormatting.GREEN), false);
 
         return 0;
+    }
+
+    private static long normalizePrice(long price) {
+        return price < 0 ? -1 : price;
     }
 }

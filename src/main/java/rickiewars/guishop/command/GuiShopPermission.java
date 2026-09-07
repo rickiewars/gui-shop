@@ -49,4 +49,12 @@ public enum GuiShopPermission {
     public Predicate<CommandSourceStack> require() {
         return Permissions.require(this.permission, this.defaultLevel);
     }
+
+    public String node() {
+        return this.permission;
+    }
+
+    public int defaultLevel() {
+        return this.defaultLevel;
+    }
 }
