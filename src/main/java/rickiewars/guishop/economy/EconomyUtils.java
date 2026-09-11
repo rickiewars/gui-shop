@@ -21,6 +21,7 @@ public class EconomyUtils {
 
     /** Registers (or refreshes) a player's account for every currency. */
     public static void registerAccounts(DatabaseManager databaseManager, Collection<EconomyCurrency> currencies, String uuid, String name) {
+        if (GUIShop.config.economyDisabled) return;
         currencies.forEach(currency -> databaseManager.updateAccount(currency.id().toString(), uuid, name));
     }
 

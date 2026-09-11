@@ -15,10 +15,6 @@ import rickiewars.guishop.economy.EconomyUtils;
 public class PlayerManagerMixin {
     @Inject(method = "placeNewPlayer", at = @At("TAIL"))
     private void guishop_onPlayerConnectMixin(Connection connection, ServerPlayer player, CommonListenerCookie commonListenerCookie, CallbackInfo ci) {
-        if (GUIShop.config.economyDisabled) {
-            return;
-        }
-
         EconomyUtils.registerAccounts(
             GUIShop.databaseManager,
             EconomyUtils.getCurrencies(GUIShop.minecraftServer.getInstance()),
