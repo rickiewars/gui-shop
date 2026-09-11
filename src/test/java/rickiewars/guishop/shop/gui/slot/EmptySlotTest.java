@@ -1,12 +1,12 @@
 package rickiewars.guishop.shop.gui.slot;
 
 import eu.pb4.sgui.api.ClickType;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.EconomyTest;
 import rickiewars.guishop.api.gui.impl.TestMenuController;
+import rickiewars.guishop.api.minecraft.impl.ItemRegistry;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.api.minecraft.impl.TestPlayer;
 import rickiewars.guishop.shop.Shop;
@@ -32,7 +32,7 @@ public class EmptySlotTest extends EconomyTest {
         var ctx = controller.context;
 
         ShopItem shopItem = shop.getItems().getFirst();
-        Item item = BuiltInRegistries.ITEM.getValue(shopItem.itemId());
+        Item item = ItemRegistry.get(shopItem.itemId());
         player.setCursorStack(new MinecraftItemStack(new ItemStack(item, 10)));
 
         assertEquals(0, player.getAccount(economy.currencyCreditsId).balance());
@@ -56,7 +56,7 @@ public class EmptySlotTest extends EconomyTest {
         var ctx = controller.context;
 
         ShopItem shopItem = shop.getItems().getFirst();
-        Item item = BuiltInRegistries.ITEM.getValue(shopItem.itemId());
+        Item item = ItemRegistry.get(shopItem.itemId());
         player.setCursorStack(new MinecraftItemStack(new ItemStack(item, 10)));
 
         assertEquals(0, player.getAccount(economy.currencyCreditsId).balance());
@@ -80,7 +80,7 @@ public class EmptySlotTest extends EconomyTest {
         var ctx = controller.context;
 
         ShopItem shopItem = shop.getItems().getFirst();
-        Item item = BuiltInRegistries.ITEM.getValue(shopItem.itemId());
+        Item item = ItemRegistry.get(shopItem.itemId());
         player.setCursorStack(new MinecraftItemStack(new ItemStack(item, 10)));
 
         var balanceSlot = menu.config().indexOf(ShopMenu.SlotType.BALANCE).orElseThrow();

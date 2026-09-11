@@ -1,7 +1,5 @@
 package rickiewars.guishop.api.minecraft.impl;
 
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import rickiewars.guishop.api.minecraft.IInventory;
 import rickiewars.guishop.api.minecraft.IItemStack;
@@ -97,8 +95,7 @@ public class TestInventory implements IInventory {
     }
 
     private static boolean matchesId(ItemStack stack, ResourceId itemId) {
-        Identifier id = BuiltInRegistries.ITEM.getKey(stack.getItem());
-        return id.getNamespace().equals(itemId.namespace()) && id.getPath().equals(itemId.path());
+        return ItemRegistry.idOf(stack.getItem()).equals(itemId);
     }
 
     private static ItemStack unwrap(IItemStack stack) {

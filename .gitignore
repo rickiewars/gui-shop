@@ -1,7 +1,7 @@
 # gradle
 
-.gradle/
-build/
+**/.gradle/
+**/build/
 out/
 classes/
 
@@ -32,6 +32,7 @@ bin/
 
 run/
 logs/
+versions/*/logs/
 
 # java
 
@@ -42,3 +43,4 @@ replay_*.log
 
 Wrapper/
 config/
+versions/*/config/

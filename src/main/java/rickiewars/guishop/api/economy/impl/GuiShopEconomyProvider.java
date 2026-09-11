@@ -12,6 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 import rickiewars.guishop.GUIShop;
+import rickiewars.guishop.api.minecraft.ResourceId;
 import rickiewars.guishop.config.GuiShopConfig;
 
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ public class GuiShopEconomyProvider implements EconomyProvider {
         if (!GUIShop.config.economy.accounts.containsKey(accountId)) return null;
 
         return new GuiShopEconomyAccount(
-                Identifier.fromNamespaceAndPath(GuiShopEconomyProvider.ID, accountId),
+                ResourceId.of(GuiShopEconomyProvider.ID, accountId),
                 GUIShop.config.economy.accounts.get(accountId),
                 gameProfile.id()
         );
@@ -53,7 +54,7 @@ public class GuiShopEconomyProvider implements EconomyProvider {
         Collection<EconomyAccount> accounts = new ArrayList<>();
         GUIShop.config.economy.accounts.forEach(
             (accountId, accountDefinition) -> accounts.add(new GuiShopEconomyAccount(
-                Identifier.fromNamespaceAndPath(GuiShopEconomyProvider.ID, accountId),
+                ResourceId.of(GuiShopEconomyProvider.ID, accountId),
                 accountDefinition, gameProfile.id()
             )));
 
@@ -66,7 +67,7 @@ public class GuiShopEconomyProvider implements EconomyProvider {
         if (!GUIShop.config.economy.currencies.containsKey(currencyId)) return null;
 
         return new GuiShopEconomyCurrency(
-                Identifier.fromNamespaceAndPath(GuiShopEconomyProvider.ID, currencyId),
+                ResourceId.of(GuiShopEconomyProvider.ID, currencyId),
                 GUIShop.config.economy.currencies.get(currencyId)
         );
     }
@@ -79,7 +80,7 @@ public class GuiShopEconomyProvider implements EconomyProvider {
         Collection<EconomyCurrency> currencies = new ArrayList<>();
         GUIShop.config.economy.currencies.forEach(
             (currencyId, currencyDefinition) -> currencies.add(new GuiShopEconomyCurrency(
-                Identifier.fromNamespaceAndPath(GuiShopEconomyProvider.ID, currencyId),
+                ResourceId.of(GuiShopEconomyProvider.ID, currencyId),
                 currencyDefinition
             )));
 
@@ -92,8 +93,10 @@ public class GuiShopEconomyProvider implements EconomyProvider {
     @Override
     public @Nullable String defaultAccount(MinecraftServer minecraftServer, GameProfile gameProfile, EconomyCurrency economyCurrency) {
         if (GUIShop.config.economy == null || GUIShop.config.economyDisabled) return null;
+        Identifier currencyId = economyCurrency.id();
         for (Map.Entry<String, GuiShopConfig.AccountDefinition> entry : GUIShop.config.economy.accounts.entrySet()) {
-            if (entry.getValue().currencyId.equals(economyCurrency.id())) {
+            rickiewars.guishop.api.minecraft.ResourceId entryCurrencyId = entry.getValue().currencyId;
+            if (entryCurrencyId.namespace().equals(currencyId.getNamespace()) && entryCurrencyId.path().equals(currencyId.getPath())) {
                 return entry.getKey();
             }
         }

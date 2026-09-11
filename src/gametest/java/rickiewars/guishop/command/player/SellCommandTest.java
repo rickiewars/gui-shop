@@ -3,6 +3,7 @@ package rickiewars.guishop.command.player;
 import eu.pb4.common.economy.api.EconomyAccount;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
@@ -31,8 +32,8 @@ public class SellCommandTest extends CommandTestBase {
 
         dispatch(context, "sell hand", playerSource(player));
 
-        context.assertTrue(account.balance() > 0, "expected the account to be credited");
-        context.assertTrue(player.getMainHandItem().isEmpty(), "expected the held item to be sold in full");
+        context.assertTrue(account.balance() > 0, Component.literal("expected the account to be credited"));
+        context.assertTrue(player.getMainHandItem().isEmpty(), Component.literal("expected the held item to be sold in full"));
         context.succeed();
     }
 
@@ -43,8 +44,8 @@ public class SellCommandTest extends CommandTestBase {
 
         var capture = dispatch(context, "sell hand", playerSource(player));
 
-        context.assertTrue(capture.anyMessageContains("must be holding an item"), "expected an empty-hand message");
-        context.assertValueEqual(account.balance(), 0L, "balance after an empty-hand attempt");
+        context.assertTrue(capture.anyMessageContains("must be holding an item"), Component.literal("expected an empty-hand message"));
+        context.assertValueEqual(account.balance(), 0L, Component.literal("balance after an empty-hand attempt"));
         context.succeed();
     }
 
@@ -60,9 +61,9 @@ public class SellCommandTest extends CommandTestBase {
 
         var capture = dispatch(context, "sell hand", playerSource(player));
 
-        context.assertTrue(capture.anyMessageContains("is not sellable in this shop"), "expected a not-sellable message");
-        context.assertValueEqual(account.balance(), 0L, "balance after a non-sellable item");
-        context.assertTrue(!player.getMainHandItem().isEmpty(), "the held item should be untouched");
+        context.assertTrue(capture.anyMessageContains("is not sellable in this shop"), Component.literal("expected a not-sellable message"));
+        context.assertValueEqual(account.balance(), 0L, Component.literal("balance after a non-sellable item"));
+        context.assertTrue(!player.getMainHandItem().isEmpty(), Component.literal("the held item should be untouched"));
         context.succeed();
     }
 

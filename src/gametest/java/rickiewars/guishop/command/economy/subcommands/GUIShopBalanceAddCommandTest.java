@@ -3,6 +3,7 @@ package rickiewars.guishop.command.economy.subcommands;
 import eu.pb4.common.economy.api.EconomyAccount;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import rickiewars.guishop.command.GuiShopPermission;
 import rickiewars.guishop.command.economy.EconomyCommandTest;
@@ -17,8 +18,8 @@ public class GUIShopBalanceAddCommandTest extends EconomyCommandTest {
         var capture = dispatch(context,
             "guishop balance guishop:credit add @s 50", playerSource(target));
 
-        context.assertTrue(capture.anyMessageContains("Successfully added"), "expected a success message");
-        context.assertValueEqual(account.balance(), 50L, "balance after add");
+        context.assertTrue(capture.anyMessageContains("Successfully added"), Component.literal("expected a success message"));
+        context.assertValueEqual(account.balance(), 50L, Component.literal("balance after add"));
         context.succeed();
     }
 
@@ -30,8 +31,8 @@ public class GUIShopBalanceAddCommandTest extends EconomyCommandTest {
         var capture = dispatch(context,
             "guishop balance guishop:credit add @s 0", playerSource(target));
 
-        context.assertTrue(capture.anyMessageContains("must be greater than 0"), "expected a validation message");
-        context.assertValueEqual(account.balance(), 0L, "balance after a rejected add");
+        context.assertTrue(capture.anyMessageContains("must be greater than 0"), Component.literal("expected a validation message"));
+        context.assertValueEqual(account.balance(), 0L, Component.literal("balance after a rejected add"));
         context.succeed();
     }
 

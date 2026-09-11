@@ -1,8 +1,8 @@
 package rickiewars.guishop.serializer;
 
 import com.google.gson.*;
-import net.minecraft.resources.Identifier;
 import rickiewars.guishop.GUIShop;
+import rickiewars.guishop.api.minecraft.ResourceId;
 import rickiewars.guishop.config.GuiShopConfig;
 
 import java.lang.reflect.Type;
@@ -15,9 +15,9 @@ public class EconomyProvidersSerializer implements JsonSerializer<GuiShopConfig.
         GuiShopConfig.EconomyProviders economyProviders = new GuiShopConfig.EconomyProviders();
 
         economy.asMap().forEach((key, value) -> {
-            Identifier id = key.contains(":")
-                ? Identifier.parse(key)
-                : Identifier.fromNamespaceAndPath(GUIShop.MODID, key);
+            ResourceId id = key.contains(":")
+                ? ResourceId.parse(key)
+                : ResourceId.of(GUIShop.MODID, key);
             List<String> accounts = value.getAsJsonArray().asList().stream()
                 .map(JsonElement::getAsString)
                 .toList();

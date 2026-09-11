@@ -1,13 +1,13 @@
 package rickiewars.guishop.shop.gui.slot;
 
 import eu.pb4.sgui.api.ClickType;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.EconomyTest;
 import rickiewars.guishop.api.gui.impl.TestMenuController;
+import rickiewars.guishop.api.minecraft.ResourceId;
+import rickiewars.guishop.api.minecraft.impl.ItemRegistry;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.api.minecraft.impl.TestPlayer;
 import rickiewars.guishop.shop.Shop;
@@ -157,7 +157,7 @@ public class FixedSlotTest extends EconomyTest {
         var shop = new Shop("test_shop", "Test shop", List.of(
             new ShopItem(
                 "Item 1",
-                new MinecraftItemStack(new ItemStack(BuiltInRegistries.ITEM.getValue(Identifier.parse("minecraft:stone")))),
+                new MinecraftItemStack(new ItemStack(ItemRegistry.get(ResourceId.ofVanilla("stone")))),
                 10,
                 10,
                 currencyId1,
@@ -165,7 +165,7 @@ public class FixedSlotTest extends EconomyTest {
             ),
             new ShopItem(
                 "Item 2",
-                new MinecraftItemStack(new ItemStack(BuiltInRegistries.ITEM.getValue(Identifier.parse("minecraft:stone")))),
+                new MinecraftItemStack(new ItemStack(ItemRegistry.get(ResourceId.ofVanilla("stone")))),
                 10,
                 10,
                 currencyId2,

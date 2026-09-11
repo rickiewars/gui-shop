@@ -2,6 +2,7 @@ package rickiewars.guishop.command.admin;
 
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.chat.Component;
 import rickiewars.guishop.command.CommandTestBase;
 import rickiewars.guishop.command.GuiShopPermission;
 
@@ -11,7 +12,7 @@ public class GUIShopForceSaveCommandTest extends CommandTestBase {
     public void forceSaveSucceedsForAdmin(GameTestHelper context) {
         var capture = dispatch(context, "guishop forcesave");
 
-        context.assertTrue(capture.anyMessageContains("successfully saved"), "expected a success message");
+        context.assertTrue(capture.anyMessageContains("successfully saved"), Component.literal("expected a success message"));
         context.succeed();
     }
 

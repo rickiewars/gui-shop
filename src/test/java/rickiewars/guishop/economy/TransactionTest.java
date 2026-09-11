@@ -1,7 +1,5 @@
 package rickiewars.guishop.economy;
 
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import rickiewars.guishop.EconomyTest;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyProvider;
 import rickiewars.guishop.api.minecraft.ResourceId;
+import rickiewars.guishop.api.minecraft.impl.ItemRegistry;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.api.minecraft.impl.TestPlayer;
 import rickiewars.guishop.shop.Shop;
@@ -43,7 +42,7 @@ public class TransactionTest extends EconomyTest {
         player.getAccount(economy.currencyCreditsId).setBalance(1_000);
 
         shopItem = shop.getItems().getFirst();
-        item = BuiltInRegistries.ITEM.getValue(shopItem.itemId());
+        item = ItemRegistry.get(shopItem.itemId());
 
         transaction = new Transaction(player, shop);
     }
@@ -118,7 +117,7 @@ public class TransactionTest extends EconomyTest {
 
     @Test
     void buyToItemStackThrowsIfItemStackDoesNotMatch() {
-        ItemStack cursor = new ItemStack(BuiltInRegistries.ITEM.getValue(Identifier.parse("minecraft:dirt")), 1);
+        ItemStack cursor = new ItemStack(ItemRegistry.get(ResourceId.ofVanilla("dirt")), 1);
 
         assertThrows(
             IllegalStateException.class,
@@ -215,7 +214,7 @@ public class TransactionTest extends EconomyTest {
 
     @Test
     void sellFromInventoryDoesNotSellDamagedItem() {
-        Item pickaxe = BuiltInRegistries.ITEM.getValue(Identifier.parse("minecraft:netherite_pickaxe"));
+        Item pickaxe = ItemRegistry.get(ResourceId.ofVanilla("netherite_pickaxe"));
         ShopItem pickaxeShopItem = new ShopItem(
             "My faforite pickaxe",
             new MinecraftItemStack(new ItemStack(pickaxe)),
@@ -266,7 +265,7 @@ public class TransactionTest extends EconomyTest {
     @Test
     void sellFromItemStackDoesNothingIfItemNotInShop() {
         ItemStack cursor = new ItemStack(
-            BuiltInRegistries.ITEM.getValue(Identifier.parse("minecraft:dirt")),
+            ItemRegistry.get(ResourceId.ofVanilla("dirt")),
             5
         );
 
@@ -282,7 +281,7 @@ public class TransactionTest extends EconomyTest {
             GuiShopEconomyProvider.init();
         }
 
-        Item pickaxe = BuiltInRegistries.ITEM.getValue(Identifier.parse("minecraft:iron_pickaxe"));
+        Item pickaxe = ItemRegistry.get(ResourceId.ofVanilla("iron_pickaxe"));
         ShopItem pickaxeShopItem = new ShopItem(
             "Pickaxe",
             new MinecraftItemStack(new ItemStack(pickaxe)),
@@ -343,7 +342,7 @@ public class TransactionTest extends EconomyTest {
 
         var nonBuyableItem = new ShopItem(
             "Non-buyable Item",
-            new MinecraftItemStack(new ItemStack(BuiltInRegistries.ITEM.getValue(Identifier.parse("minecraft:stone")))),
+            new MinecraftItemStack(new ItemStack(ItemRegistry.get(ResourceId.ofVanilla("stone")))),
             -1,
             10,
             null,
@@ -362,13 +361,13 @@ public class TransactionTest extends EconomyTest {
     @Test
     void buyToItemStackThrowsErrorIfNotBuyable() {
         ItemStack cursor = new ItemStack(
-            BuiltInRegistries.ITEM.getValue(Identifier.parse("minecraft:stone")),
+            ItemRegistry.get(ResourceId.ofVanilla("stone")),
             5
         );
 
         var nonBuyableItem = new ShopItem(
             "Non-buyable Item",
-            new MinecraftItemStack(new ItemStack(BuiltInRegistries.ITEM.getValue(Identifier.parse("minecraft:stone")))),
+            new MinecraftItemStack(new ItemStack(ItemRegistry.get(ResourceId.ofVanilla("stone")))),
             -1,
             10,
             null,
@@ -399,7 +398,7 @@ public class TransactionTest extends EconomyTest {
 
         var nonSellableItem = new ShopItem(
             "Non-sellable Item",
-            new MinecraftItemStack(new ItemStack(BuiltInRegistries.ITEM.getValue(Identifier.parse("minecraft:stone")))),
+            new MinecraftItemStack(new ItemStack(ItemRegistry.get(ResourceId.ofVanilla("stone")))),
             10,
             -1,
             null,
@@ -419,13 +418,13 @@ public class TransactionTest extends EconomyTest {
     @Test
     void sellFromItemStackDoesNothingWhenListingIsNotSellable() {
         ItemStack cursor = new ItemStack(
-            BuiltInRegistries.ITEM.getValue(Identifier.parse("minecraft:stone")),
+            ItemRegistry.get(ResourceId.ofVanilla("stone")),
             5
         );
 
         var nonSellableItem = new ShopItem(
             "Non-sellable Item",
-            new MinecraftItemStack(new ItemStack(BuiltInRegistries.ITEM.getValue(Identifier.parse("minecraft:stone")))),
+            new MinecraftItemStack(new ItemStack(ItemRegistry.get(ResourceId.ofVanilla("stone")))),
             10,
             -1,
             null,

@@ -3,7 +3,6 @@ package rickiewars.guishop.api.minecraft.impl;
 import eu.pb4.common.economy.api.EconomyAccount;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -12,6 +11,7 @@ import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 import rickiewars.guishop.api.minecraft.IInventory;
 import rickiewars.guishop.api.minecraft.IItemStack;
 import rickiewars.guishop.api.minecraft.IPlayer;
+import rickiewars.guishop.api.minecraft.ResourceId;
 import rickiewars.guishop.config.GuiShopConfig;
 
 import java.util.*;
@@ -19,7 +19,7 @@ import java.util.*;
 public class TestPlayer implements IPlayer {
     private final UUID uuid;
     private final TestInventory inv = new TestInventory();
-    private final Map<Identifier, EconomyAccount> accounts = new HashMap<>();
+    private final Map<ResourceId, EconomyAccount> accounts = new HashMap<>();
     private final List<Component> receivedMessages = new ArrayList<>();
     private IItemStack cursorStack = new MinecraftItemStack(ItemStack.EMPTY);
     private IItemStack mainHandStack = new MinecraftItemStack(ItemStack.EMPTY);
@@ -29,15 +29,15 @@ public class TestPlayer implements IPlayer {
         this.uuid = uuid;
     }
 
-    public void addAccount(Identifier currencyId, EconomyAccount account) {
+    public void addAccount(ResourceId currencyId, EconomyAccount account) {
         this.accounts.put(currencyId, account);
     }
 
-    public void addDefaultAccount(Identifier currencyId) {
+    public void addDefaultAccount(ResourceId currencyId) {
         this.addAccount(currencyId, new GuiShopEconomyAccount(
             GuiShopEconomyAccount.DEFAULT_ID,
             new GuiShopConfig.AccountDefinition(
-                currencyId.getPath(),
+                currencyId.path(),
                 "account",
                 GuiShopEconomyCurrency.DEFAULT_ICON_ID
             ),
@@ -59,7 +59,7 @@ public class TestPlayer implements IPlayer {
     }
 
     @Override
-    public EconomyAccount getAccount(Identifier currencyId) {
+    public EconomyAccount getAccount(ResourceId currencyId) {
         return accounts.get(currencyId);
     }
 

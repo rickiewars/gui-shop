@@ -1,7 +1,5 @@
 package rickiewars.guishop.api.minecraft.impl;
 
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -46,7 +44,7 @@ public class MinecraftInventory implements IInventory {
     }
 
     private static Item resolveItem(ResourceId itemId) {
-        return BuiltInRegistries.ITEM.getValue(Identifier.fromNamespaceAndPath(itemId.namespace(), itemId.path()));
+        return ItemRegistry.get(itemId);
     }
 
     private static ItemStack unwrap(IItemStack stack) {

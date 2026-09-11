@@ -26,7 +26,7 @@ public abstract class EconomyCommandTest extends CommandTestBase {
     /** The built-in economy's default currency ("guishop:credit"), configured out of the box in config.json. */
     public static EconomyCurrency creditCurrency(GameTestHelper context) {
         MinecraftServer server = context.getLevel().getServer();
-        EconomyCurrency currency = CommonEconomy.getCurrency(server, GuiShopEconomyCurrency.DEFAULT_ID);
+        EconomyCurrency currency = CommonEconomy.getCurrency(server, GuiShopEconomyCurrency.DEFAULT_ID.toIdentifier());
         if (currency == null) {
             throw new IllegalStateException(
                 "guishop:credit currency is not configured, check config/gui-shop/config.json in the test run directory"

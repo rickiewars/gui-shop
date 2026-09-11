@@ -2,25 +2,26 @@ package rickiewars.guishop.api.economy.impl;
 
 import eu.pb4.common.economy.api.EconomyCurrency;
 import eu.pb4.common.economy.api.EconomyProvider;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import rickiewars.guishop.api.minecraft.ResourceId;
+import rickiewars.guishop.api.minecraft.impl.ItemRegistry;
 import rickiewars.guishop.config.GuiShopConfig;
 import rickiewars.guishop.util.CommonMethods;
 
 public class GuiShopEconomyCurrency implements EconomyCurrency {
-    public static Identifier DEFAULT_ID = Identifier.fromNamespaceAndPath(GuiShopEconomyProvider.ID, "credit");
+    public static ResourceId DEFAULT_ID = ResourceId.of(GuiShopEconomyProvider.ID, "credit");
     public static final Item DEFAULT_ICON = Items.DIAMOND;
-    public static final Identifier DEFAULT_ICON_ID = BuiltInRegistries.ITEM.getKey(DEFAULT_ICON);
+    public static final ResourceId DEFAULT_ICON_ID = ItemRegistry.idOf(DEFAULT_ICON);
 
     private final Identifier id;
     private final GuiShopConfig.CurrencyDefinition currencyDefinition;
 
-    public GuiShopEconomyCurrency(Identifier id, GuiShopConfig.CurrencyDefinition currencyDefinition) {
-        this.id = id;
+    public GuiShopEconomyCurrency(ResourceId id, GuiShopConfig.CurrencyDefinition currencyDefinition) {
+        this.id = id.toIdentifier();
         this.currencyDefinition = currencyDefinition;
     }
 
@@ -88,6 +89,6 @@ public class GuiShopEconomyCurrency implements EconomyCurrency {
 
     @Override
     public ItemStack icon() {
-        return new ItemStack(CommonMethods.getItem(this.currencyDefinition.icon.toString(), DEFAULT_ICON));
+        return new ItemStack(ItemRegistry.getOptional(this.currencyDefinition.icon).orElse(DEFAULT_ICON));
     }
 }

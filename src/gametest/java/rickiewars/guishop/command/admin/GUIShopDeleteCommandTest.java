@@ -2,6 +2,7 @@ package rickiewars.guishop.command.admin;
 
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.chat.Component;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.command.CommandTestBase;
 import rickiewars.guishop.command.GuiShopPermission;
@@ -15,8 +16,8 @@ public class GUIShopDeleteCommandTest extends CommandTestBase {
 
         var capture = dispatch(context, "guishop delete \"To Delete\"");
 
-        context.assertTrue(capture.anyMessageContains("successfully removed"), "expected a success message");
-        context.assertValueEqual(GUIShop.shops.size(), 0, "shop count after delete");
+        context.assertTrue(capture.anyMessageContains("successfully removed"), Component.literal("expected a success message"));
+        context.assertValueEqual(GUIShop.shops.size(), 0, Component.literal("shop count after delete"));
         context.succeed();
     }
 
@@ -24,8 +25,8 @@ public class GUIShopDeleteCommandTest extends CommandTestBase {
     public void deleteShopReportsErrorWhenNotFound(GameTestHelper context) {
         var capture = dispatch(context, "guishop delete \"Ghost Shop\"");
 
-        context.assertTrue(capture.anyMessageContains("does not exist"), "expected a not-found message");
-        context.assertValueEqual(GUIShop.shops.size(), 0, "shop count after deleting an unknown shop");
+        context.assertTrue(capture.anyMessageContains("does not exist"), Component.literal("expected a not-found message"));
+        context.assertValueEqual(GUIShop.shops.size(), 0, Component.literal("shop count after deleting an unknown shop"));
         context.succeed();
     }
 
@@ -35,8 +36,8 @@ public class GUIShopDeleteCommandTest extends CommandTestBase {
 
         var capture = dispatch(context, "guishop delete \"cool shop\"");
 
-        context.assertTrue(capture.anyMessageContains("does not exist"), "display name match should be case-sensitive");
-        context.assertValueEqual(GUIShop.shops.size(), 1, "shop count after a case-mismatched delete");
+        context.assertTrue(capture.anyMessageContains("does not exist"), Component.literal("display name match should be case-sensitive"));
+        context.assertValueEqual(GUIShop.shops.size(), 1, Component.literal("shop count after a case-mismatched delete"));
         context.succeed();
     }
 

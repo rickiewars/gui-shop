@@ -2,13 +2,16 @@ package rickiewars.guishop;
 
 import net.fabricmc.fabric.api.gametest.v1.CustomTestMethodInvoker;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.filter.RegexFilter;
+//? if >=1.21.11 {
 import org.jspecify.annotations.NonNull;
+//?}
 import rickiewars.guishop.api.minecraft.impl.VanillaItemCodec;
 import rickiewars.guishop.serializer.SnbtShopStore;
 
@@ -62,16 +65,23 @@ public abstract class GuiShopGameTestBase implements CustomTestMethodInvoker {
     }
 
     @Override
-    public final void invokeTestMethod(@NonNull GameTestHelper context, Method method) throws ReflectiveOperationException {
+    public final void invokeTestMethod(
+        //? if >=1.21.11 {
+        @NonNull GameTestHelper context,
+        //?} else {
+        /*GameTestHelper context,
+        *///?}
+        Method method
+    ) throws ReflectiveOperationException {
         resetShops();
         Path shopStoreTempDir = installTempShopStore(context);
         setUp(context);
-        context.assertTrue(setUpCalled, getClass().getSimpleName() + ".setUp() must call super.setUp()");
+        context.assertTrue(setUpCalled, Component.literal(getClass().getSimpleName() + ".setUp() must call super.setUp()"));
         try {
             method.invoke(this, context);
         } finally {
             tearDown(context);
-            context.assertTrue(teardownCalled, getClass().getSimpleName() + ".tearDown() must call super.tearDown()");
+            context.assertTrue(teardownCalled, Component.literal(getClass().getSimpleName() + ".tearDown() must call super.tearDown()"));
             cleanupShopStore(shopStoreTempDir);
         }
     }

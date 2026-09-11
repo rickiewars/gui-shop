@@ -2,13 +2,13 @@ package rickiewars.guishop.shop;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.MinecraftTest;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 import rickiewars.guishop.api.minecraft.IItemStack;
+import rickiewars.guishop.api.minecraft.ResourceId;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 
 import java.util.List;
@@ -34,7 +34,7 @@ public class ShopItemTest extends MinecraftTest {
         ShopItem item = item(new ItemStack(Items.DIAMOND_SWORD));
 
         assertEquals("Test Item", item.displayName());
-        assertEquals(Identifier.withDefaultNamespace("diamond_sword"), item.itemId());
+        assertEquals(ResourceId.ofVanilla("diamond_sword"), item.itemId());
         assertEquals(100, item.buyPrice());
         assertEquals(50, item.sellPrice());
         assertEquals(List.of("A blade"), item.description());
@@ -45,7 +45,7 @@ public class ShopItemTest extends MinecraftTest {
 
     @Test
     void shopItemStoresCurrency() {
-        Identifier currency = Identifier.parse("guishop:credit");
+        ResourceId currency = ResourceId.parse("guishop:credit");
         ShopItem item = new ShopItem("Credit Item", wrap(new ItemStack(Items.STONE)), 10, 5, currency, List.of());
 
         assertTrue(item.hasCurrency());

@@ -7,11 +7,11 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import rickiewars.guishop.api.gui.MenuContext;
 import rickiewars.guishop.api.gui.MenuSlot;
 import rickiewars.guishop.api.minecraft.IPlayer;
+import rickiewars.guishop.api.minecraft.ResourceId;
 import rickiewars.guishop.shop.Shop;
 
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ public class BalanceSlot implements MenuSlot {
     }
 
     public ItemStack icon() {
-        Identifier currencyId = shop.getDefaultCurrencyId();
+        ResourceId currencyId = shop.getDefaultCurrencyId();
         EconomyCurrency currency = player.getAccount(currencyId).currency();
         return currency.icon().copy();
     }

@@ -3,7 +3,6 @@ package rickiewars.guishop.api.minecraft.impl;
 import eu.pb4.common.economy.api.EconomyAccount;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -12,6 +11,7 @@ import net.minecraft.world.level.Level;
 import rickiewars.guishop.api.minecraft.IInventory;
 import rickiewars.guishop.api.minecraft.IItemStack;
 import rickiewars.guishop.api.minecraft.IPlayer;
+import rickiewars.guishop.api.minecraft.ResourceId;
 import rickiewars.guishop.economy.EconomyUtils;
 
 public class MinecraftPlayer implements IPlayer {
@@ -28,7 +28,7 @@ public class MinecraftPlayer implements IPlayer {
     }
 
     @Override
-    public EconomyAccount getAccount(Identifier currencyId) {
+    public EconomyAccount getAccount(ResourceId currencyId) {
         return EconomyUtils.getDefaultAccount(player, currencyId);
     }
 

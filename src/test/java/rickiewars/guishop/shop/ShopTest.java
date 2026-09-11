@@ -1,11 +1,11 @@
 package rickiewars.guishop.shop;
 
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.MinecraftTest;
+import rickiewars.guishop.api.minecraft.ResourceId;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.economy.EconomyUtils;
 
@@ -17,7 +17,7 @@ class ShopTest extends MinecraftTest {
 
     ShopItem stoneItem;
     ShopItem dirtItem;
-    Identifier defaultCurrency;
+    ResourceId defaultCurrency;
 
     Shop shop;
 
@@ -37,18 +37,18 @@ class ShopTest extends MinecraftTest {
             new MinecraftItemStack(new ItemStack(Items.DIRT)),
             20,
             10,
-            Identifier.parse("test:currency"),
+            ResourceId.parse("test:currency"),
             List.of("Just some dirt")
         );
 
-        defaultCurrency = Identifier.parse("test:default");
+        defaultCurrency = ResourceId.parse("test:default");
 
         shop = new Shop(
             "test_shop",
             "TestShop",
             List.of(stoneItem, dirtItem),
             defaultCurrency,
-            Identifier.withDefaultNamespace("ender_chest"),
+            ResourceId.ofVanilla("ender_chest"),
             SellPricing.DEFAULT
         );
     }
@@ -101,14 +101,14 @@ class ShopTest extends MinecraftTest {
 
     @Test
     void getCurrencyIdReturnsItemCurrencyIfPresent() {
-        Identifier currency = shop.getCurrencyId(dirtItem);
+        ResourceId currency = shop.getCurrencyId(dirtItem);
 
         assertEquals(dirtItem.resolvedCurrencyId(), currency);
     }
 
     @Test
     void getCurrencyIdFallsBackToDefaultCurrency() {
-        Identifier currency = shop.getCurrencyId(stoneItem);
+        ResourceId currency = shop.getCurrencyId(stoneItem);
 
         assertEquals(defaultCurrency, currency);
     }
@@ -122,7 +122,7 @@ class ShopTest extends MinecraftTest {
             null
         );
 
-        Identifier currency = noDefaultCurrencyShop.getDefaultCurrencyId();
+        ResourceId currency = noDefaultCurrencyShop.getDefaultCurrencyId();
 
         assertEquals(EconomyUtils.getFirstCurrencyId(), currency);
     }

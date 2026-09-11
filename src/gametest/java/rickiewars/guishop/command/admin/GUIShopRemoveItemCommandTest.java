@@ -2,6 +2,7 @@ package rickiewars.guishop.command.admin;
 
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import rickiewars.guishop.GUIShop;
@@ -23,8 +24,8 @@ public class GUIShopRemoveItemCommandTest extends CommandTestBase {
 
         var capture = dispatch(context, "guishop removeitem \"Remove Shop\" \"Sword\"");
 
-        context.assertTrue(capture.anyMessageContains("successfully removed"), "expected a success message");
-        context.assertValueEqual(shop.getItems().size(), 0, "item count after removeitem");
+        context.assertTrue(capture.anyMessageContains("successfully removed"), Component.literal("expected a success message"));
+        context.assertValueEqual(shop.getItems().size(), 0, Component.literal("item count after removeitem"));
         context.succeed();
     }
 
@@ -32,7 +33,7 @@ public class GUIShopRemoveItemCommandTest extends CommandTestBase {
     public void removeItemReportsErrorWhenShopNotFound(GameTestHelper context) {
         var capture = dispatch(context, "guishop removeitem \"Ghost Shop\" \"Sword\"");
 
-        context.assertTrue(capture.anyMessageContains("does not exist"), "expected a not-found message");
+        context.assertTrue(capture.anyMessageContains("does not exist"), Component.literal("expected a not-found message"));
         context.succeed();
     }
 
@@ -43,7 +44,7 @@ public class GUIShopRemoveItemCommandTest extends CommandTestBase {
 
         var capture = dispatch(context, "guishop removeitem \"Remove Shop\" \"Sword\"");
 
-        context.assertTrue(capture.anyMessageContains("was not found in this shop"), "expected an item-not-found message");
+        context.assertTrue(capture.anyMessageContains("was not found in this shop"), Component.literal("expected an item-not-found message"));
         context.succeed();
     }
 
@@ -55,8 +56,8 @@ public class GUIShopRemoveItemCommandTest extends CommandTestBase {
 
         var capture = dispatch(context, "guishop removeitem \"Remove Shop\" \"sword\"");
 
-        context.assertTrue(capture.anyMessageContains("was not found in this shop"), "item name match should be case-sensitive");
-        context.assertValueEqual(shop.getItems().size(), 1, "item count after a case-mismatched removeitem");
+        context.assertTrue(capture.anyMessageContains("was not found in this shop"), Component.literal("item name match should be case-sensitive"));
+        context.assertValueEqual(shop.getItems().size(), 1, Component.literal("item count after a case-mismatched removeitem"));
         context.succeed();
     }
 

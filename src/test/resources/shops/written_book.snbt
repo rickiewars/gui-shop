@@ -1,0 +1,1 @@
+{DataVersion:4554,displayName:"Fixture Shop",entries:[{buyPrice:1000L,displayName:"Old Tome",sellPrice:500L,stack:{components:{"minecraft:written_book_content":{author:"Author",pages:[{raw:"Page 1"}],title:{raw:"My Book"}}},id:"minecraft:written_book"}}]}

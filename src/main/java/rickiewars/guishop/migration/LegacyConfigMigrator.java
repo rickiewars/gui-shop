@@ -3,8 +3,8 @@ package rickiewars.guishop.migration;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.minecraft.resources.Identifier;
 import rickiewars.guishop.GUIShop;
+import rickiewars.guishop.api.minecraft.ResourceId;
 import rickiewars.guishop.config.ConfigManager;
 import rickiewars.guishop.config.GuiShopConfig;
 
@@ -67,7 +67,7 @@ public final class LegacyConfigMigrator {
         JsonObject economyProviders = root.getAsJsonObject("economyProviders");
         economyProviders.asMap().forEach((key, value) -> {
             try {
-                Identifier id = key.contains(":") ? Identifier.parse(key) : Identifier.fromNamespaceAndPath(GUIShop.MODID, key);
+                ResourceId id = key.contains(":") ? ResourceId.parse(key) : ResourceId.of(GUIShop.MODID, key);
                 List<String> accounts = value.getAsJsonArray().asList().stream().map(JsonElement::getAsString).toList();
                 providers.put(id, accounts);
             } catch (Exception e) {
@@ -131,7 +131,7 @@ public final class LegacyConfigMigrator {
     /// Display fields are cosmetic and are defaulted when a hand-edited file omits them. Only a
     /// field the entry cannot function without throws, which skips that one entry.
     private static GuiShopConfig.CurrencyDefinition readCurrencyDefinition(String id, JsonObject currency) {
-        Identifier icon = readIcon(currency, rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency.DEFAULT_ICON_ID);
+        ResourceId icon = readIcon(currency, rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency.DEFAULT_ICON_ID);
         return new GuiShopConfig.CurrencyDefinition(
             readString(currency, "name", id),
             readString(currency, "prefix", ""),
@@ -146,7 +146,7 @@ public final class LegacyConfigMigrator {
             throw new IllegalArgumentException("account has no currency, so it cannot be resolved");
         }
 
-        Identifier icon = readIcon(account, rickiewars.guishop.api.economy.impl.GuiShopEconomyAccount.DEFAULT_ICON_ID);
+        ResourceId icon = readIcon(account, rickiewars.guishop.api.economy.impl.GuiShopEconomyAccount.DEFAULT_ICON_ID);
         return new GuiShopConfig.AccountDefinition(
             account.get("currency").getAsString(),
             readString(account, "name", id),
@@ -158,10 +158,10 @@ public final class LegacyConfigMigrator {
         return object.has(key) ? object.get(key).getAsString() : fallback;
     }
 
-    private static Identifier readIcon(JsonObject object, Identifier fallback) {
+    private static ResourceId readIcon(JsonObject object, ResourceId fallback) {
         if (!object.has("icon")) return fallback;
         try {
-            return Identifier.parse(object.get("icon").getAsString());
+            return ResourceId.parse(object.get("icon").getAsString());
         } catch (Exception e) {
             GUIShop.LOGGER.warn("Legacy icon value was not a plain item id string, using default: {}", e.getMessage());
             return fallback;

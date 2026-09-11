@@ -7,11 +7,11 @@ import net.minecraft.SharedConstants;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
 import org.junit.jupiter.api.Test;
+import rickiewars.guishop.api.minecraft.ResourceId;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.serializer.SnbtShopStore;
 import rickiewars.guishop.shop.Shop;
@@ -91,7 +91,7 @@ public class LegacyShopConverterTest extends MigrationTestBase {
             Shop shop = readShop(idByIndex.get(String.valueOf(i)));
 
             assertEquals(legacy.get("shopName").getAsString(), shop.getDisplayName());
-            assertEquals(Identifier.parse(legacy.get("icon").getAsString()), shop.iconId());
+            assertEquals(ResourceId.parse(legacy.get("icon").getAsString()), shop.iconId());
 
             JsonArray legacyItems = legacy.getAsJsonArray("items");
             assertEquals(legacyItems.size(), shop.getItems().size(), "item count changed for shop " + shop.getId());
@@ -104,9 +104,9 @@ public class LegacyShopConverterTest extends MigrationTestBase {
                 assertEquals(legacyItem.get("name").getAsString(), item.displayName());
                 assertEquals(legacyItem.get("buyPrice").getAsLong(), item.buyPrice());
                 assertEquals(legacyItem.get("sellPrice").getAsLong(), item.sellPrice());
-                assertEquals(Identifier.parse(legacyItem.get("itemId").getAsString()), item.itemId());
+                assertEquals(ResourceId.parse(legacyItem.get("itemId").getAsString()), item.itemId());
                 assertEquals(
-                    Identifier.parse(legacyItem.get("currency").getAsString()),
+                    ResourceId.parse(legacyItem.get("currency").getAsString()),
                     item.explicitCurrencyId(),
                     "currency changed for '" + item.displayName() + "'"
                 );
@@ -178,15 +178,15 @@ public class LegacyShopConverterTest extends MigrationTestBase {
 
         Shop shop = readShop("fancy");
         assertEquals("Fancy", shop.getDisplayName());
-        assertEquals(Identifier.parse("minecraft:diamond"), shop.iconId());
+        assertEquals(ResourceId.ofVanilla("diamond"), shop.iconId());
         assertTrue(shop.hasDefaultCurrency());
-        assertEquals(Identifier.parse("guishop:coins"), shop.getDefaultCurrencyId());
+        assertEquals(ResourceId.parse("guishop:coins"), shop.getDefaultCurrencyId());
 
         ShopItem item = shop.getItems().getFirst();
         assertEquals(List.of("first", "second", "third"), item.description());
         assertEquals(10, item.buyPrice());
         assertEquals(4, item.sellPrice());
-        assertEquals(Identifier.parse("guishop:credit"), item.explicitCurrencyId());
+        assertEquals(ResourceId.parse("guishop:credit"), item.explicitCurrencyId());
     }
 
     @Test
@@ -199,7 +199,7 @@ public class LegacyShopConverterTest extends MigrationTestBase {
 
         assertTrue(convert());
 
-        assertEquals(Identifier.withDefaultNamespace("chest"), readShop("no_icon").iconId());
+        assertEquals(ResourceId.ofVanilla("chest"), readShop("no_icon").iconId());
     }
 
     @Test
@@ -565,7 +565,7 @@ public class LegacyShopConverterTest extends MigrationTestBase {
         assertTrue(convert());
 
         Shop shop = readShop("bad_icon");
-        assertEquals(Identifier.withDefaultNamespace("chest"), shop.iconId());
+        assertEquals(ResourceId.ofVanilla("chest"), shop.iconId());
         assertEquals(1, shop.getItems().size(), "the listings must survive a bad icon");
     }
 }

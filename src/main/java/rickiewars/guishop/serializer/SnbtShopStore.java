@@ -4,8 +4,8 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.TagParser;
-import net.minecraft.resources.Identifier;
 import rickiewars.guishop.GUIShop;
+import rickiewars.guishop.api.minecraft.ResourceId;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.api.minecraft.impl.VanillaItemCodec;
 import rickiewars.guishop.shop.SellPricing;
@@ -78,8 +78,8 @@ public class SnbtShopStore {
         }
 
         String displayName = envelope.getString("displayName").orElse(id);
-        Identifier icon = envelope.getString("icon").map(raw -> parseIdentifier(raw, "icon", "Shop file " + file)).orElse(null);
-        Identifier defaultCurrency = envelope.getString("defaultCurrency").map(raw -> parseIdentifier(raw, "defaultCurrency", "Shop file " + file)).orElse(null);
+        ResourceId icon = envelope.getString("icon").map(raw -> parseIdentifier(raw, "icon", "Shop file " + file)).orElse(null);
+        ResourceId defaultCurrency = envelope.getString("defaultCurrency").map(raw -> parseIdentifier(raw, "defaultCurrency", "Shop file " + file)).orElse(null);
         SellPricing sellPricing = readSellPricing(envelope).orElse(null);
 
         List<ShopItem> items = new LinkedList<>();
@@ -132,7 +132,7 @@ public class SnbtShopStore {
             }
         });
 
-        Identifier explicitCurrency = entry.getString("currency")
+        ResourceId explicitCurrency = entry.getString("currency")
             .map(raw -> parseIdentifier(raw, "currency", "Shop '" + shopId + "' in " + file + ", entry '" + displayName.get() + "'"))
             .orElse(null);
 
@@ -177,7 +177,7 @@ public class SnbtShopStore {
                 }
                 entry.putLong("buyPrice", item.buyPrice());
                 entry.putLong("sellPrice", item.sellPrice());
-                Identifier explicitCurrencyId = item.explicitCurrencyId();
+                ResourceId explicitCurrencyId = item.explicitCurrencyId();
                 if (explicitCurrencyId != null) {
                     entry.putString("currency", explicitCurrencyId.toString());
                 }
@@ -220,8 +220,8 @@ public class SnbtShopStore {
         ));
     }
 
-    private static Identifier parseIdentifier(String raw, String field, String context) {
-        Identifier id = Identifier.tryParse(raw);
+    private static ResourceId parseIdentifier(String raw, String field, String context) {
+        ResourceId id = ResourceId.tryParse(raw);
         if (id == null) {
             GUIShop.LOGGER.warn("{}: invalid identifier '{}' for '{}', ignoring", context, raw, field);
         }

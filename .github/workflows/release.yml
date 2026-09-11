@@ -45,7 +45,7 @@ jobs:
       - name: Upload GitHub release
         uses: AButler/upload-release-assets@v3.0
         with:
-          files: build/libs/gui-shop-${{ github.event.release.tag_name }}.jar
+          files: versions/1.21.11/build/libs/gui-shop-${{ github.event.release.tag_name }}.jar
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Extract Minecraft version
         id: extract_mc
@@ -63,4 +63,4 @@ jobs:
           changelog: ${{ github.event.release.body }}
           loaders: fabric
           game-versions: ${{ steps.extract_mc.outputs.mc_version }}
-          files: build/libs/gui-shop-${{ github.event.release.tag_name }}.jar
+          files: versions/1.21.11/build/libs/gui-shop-${{ github.event.release.tag_name }}.jar

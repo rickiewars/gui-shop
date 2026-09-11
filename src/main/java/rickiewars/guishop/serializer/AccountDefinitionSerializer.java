@@ -1,10 +1,10 @@
 package rickiewars.guishop.serializer;
 
 import com.google.gson.*;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyAccount;
+import rickiewars.guishop.api.minecraft.ResourceId;
+import rickiewars.guishop.api.minecraft.impl.ItemRegistry;
 import rickiewars.guishop.config.GuiShopConfig.AccountDefinition;
 
 import java.lang.reflect.Type;
@@ -18,8 +18,11 @@ public class AccountDefinitionSerializer implements JsonSerializer<AccountDefini
                 ? account.get("icon").getAsString()
                 : GuiShopEconomyAccount.DEFAULT_ICON_ID.toString();
 
-        Identifier icon = Identifier.parse(iconString);
-        if (!BuiltInRegistries.ITEM.containsKey(icon)) {
+        ResourceId parsedIcon = ResourceId.tryParse(iconString);
+        ResourceId icon;
+        if (parsedIcon != null && ItemRegistry.contains(parsedIcon)) {
+            icon = parsedIcon;
+        } else {
             GUIShop.LOGGER.warn("Invalid item id for account icon: " + iconString);
             icon = GuiShopEconomyAccount.DEFAULT_ICON_ID;
         }
@@ -35,7 +38,7 @@ public class AccountDefinitionSerializer implements JsonSerializer<AccountDefini
     public JsonElement serialize(AccountDefinition account, Type type, JsonSerializationContext jsonSerializationContext) {
         JsonObject result = new JsonObject();
         result.addProperty("name", account.name);
-        result.addProperty("currency", account.currencyId.getPath());
+        result.addProperty("currency", account.currencyId.path());
         result.addProperty("icon", account.icon.toString());
 
         return result;

@@ -2,8 +2,6 @@ package rickiewars.guishop.api.minecraft.impl;
 
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import rickiewars.guishop.api.minecraft.IItemStack;
 import rickiewars.guishop.api.minecraft.ResourceId;
@@ -34,8 +32,7 @@ public class MinecraftItemStack implements IItemStack {
 
     @Override
     public ResourceId itemId() {
-        Identifier id = BuiltInRegistries.ITEM.getKey(stack.getItem());
-        return ResourceId.of(id.getNamespace(), id.getPath());
+        return ItemRegistry.idOf(stack.getItem());
     }
 
     @Override

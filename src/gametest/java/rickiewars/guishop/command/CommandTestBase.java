@@ -9,9 +9,11 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+//? if >=1.21.11 {
 import net.minecraft.server.permissions.LevelBasedPermissionSet;
 import net.minecraft.server.permissions.PermissionLevel;
 import net.minecraft.server.permissions.PermissionSet;
+//?}
 import rickiewars.guishop.GuiShopGameTestBase;
 
 import java.util.ArrayList;
@@ -45,7 +47,7 @@ public abstract class CommandTestBase extends GuiShopGameTestBase {
             expectedNodes.add(permission.node());
         }
         context.assertTrue(checkedPermissionNodes.equals(expectedNodes),
-            "expected checked permission nodes " + expectedNodes + " but got " + checkedPermissionNodes);
+            Component.literal("expected checked permission nodes " + expectedNodes + " but got " + checkedPermissionNodes));
     }
 
     /** Starting point for a mock player dispatch with permission level 4 (Operator). */
@@ -61,22 +63,39 @@ public abstract class CommandTestBase extends GuiShopGameTestBase {
             boolean expectedToSucceed = level >= requiredLevel;
             boolean actuallySucceeded = succeeded.test(result);
             context.assertTrue(actuallySucceeded == expectedToSucceed,
-                "level " + level + " (requires " + requiredLevel + "): expected "
-                    + (expectedToSucceed ? "success" : "denial") + " but got " + (actuallySucceeded ? "success" : "denial"));
+                Component.literal("level " + level + " (requires " + requiredLevel + "): expected "
+                    + (expectedToSucceed ? "success" : "denial") + " but got " + (actuallySucceeded ? "success" : "denial")));
         }
     }
 
     /** Dispatches as if run from the server console, at full operator level. */
     protected static DispatchResult dispatch(GameTestHelper context, String command) {
         MinecraftServer server = context.getLevel().getServer();
-        return dispatch(server, server.createCommandSourceStack().withPermission(PermissionSet.ALL_PERMISSIONS), command);
+        return dispatch(server, withAllPermissions(server.createCommandSourceStack()), command);
     }
 
     /** Dispatches as a mocked player. */
     protected static DispatchResult dispatch(GameTestHelper context, String command, PlayerSource source) {
         MinecraftServer server = context.getLevel().getServer();
-        PermissionSet levelPermissions = LevelBasedPermissionSet.forLevel(PermissionLevel.byId(source.level));
-        return dispatch(server, source.player.createCommandSourceStack().withPermission(levelPermissions), command);
+        return dispatch(server, withLevel(source.player.createCommandSourceStack(), source.level), command);
+    }
+
+    /// The vanilla permission model gained a richer object representation (`PermissionSet`) at 1.21.11;
+    /// before that, `CommandSourceStack.withPermission` took the plain vanilla level directly.
+    protected static CommandSourceStack withAllPermissions(CommandSourceStack source) {
+        //? if >=1.21.11 {
+        return source.withPermission(PermissionSet.ALL_PERMISSIONS);
+        //?} else {
+        /*return source.withPermission(4);
+        *///?}
+    }
+
+    private static CommandSourceStack withLevel(CommandSourceStack source, int level) {
+        //? if >=1.21.11 {
+        return source.withPermission(LevelBasedPermissionSet.forLevel(PermissionLevel.byId(level)));
+        //?} else {
+        /*return source.withPermission(level);
+        *///?}
     }
 
     private static DispatchResult dispatch(MinecraftServer server, CommandSourceStack baseSource, String command) {

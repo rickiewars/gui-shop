@@ -9,6 +9,7 @@ import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.minecraft.IItemStack;
+import rickiewars.guishop.api.minecraft.ResourceId;
 import rickiewars.guishop.economy.EconomyUtils;
 
 import java.util.*;
@@ -22,7 +23,7 @@ public record ShopItem(
         long buyPrice,
         long sellPrice,
         @Nullable
-        Identifier explicitCurrencyId,
+        ResourceId explicitCurrencyId,
         List<String> description
 ) {
     private static final Set<IItemStack.ComponentKey> GRADED_COMPONENTS = Set.of(
@@ -39,8 +40,8 @@ public record ShopItem(
         return stack.hasComponentChanges();
     }
 
-    public Identifier itemId() {
-        return Identifier.fromNamespaceAndPath(stack.itemId().namespace(), stack.itemId().path());
+    public ResourceId itemId() {
+        return stack.itemId();
     }
 
     public int getMaxStackSize() {
@@ -131,7 +132,7 @@ public record ShopItem(
         return Component.literal("Hold shift to trade up to a stack of items").withStyle(ChatFormatting.AQUA);
     }
 
-    public Identifier resolvedCurrencyId() {
+    public ResourceId resolvedCurrencyId() {
         if (explicitCurrencyId == null) {
             return EconomyUtils.getFirstCurrencyId();
         }
@@ -139,9 +140,10 @@ public record ShopItem(
     }
 
     public EconomyCurrency currency() {
-        Identifier currencyId = resolvedCurrencyId();
+        ResourceId currencyId = resolvedCurrencyId();
+        Identifier mcCurrencyId = currencyId.toIdentifier();
         for (EconomyCurrency currency : CommonEconomy.getCurrencies(GUIShop.minecraftServer.getInstance())) {
-            if (currency.id().equals(currencyId)) {
+            if (currency.id().equals(mcCurrencyId)) {
                 return currency;
             }
         }

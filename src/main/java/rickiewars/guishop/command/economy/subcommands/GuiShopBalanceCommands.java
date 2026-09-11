@@ -15,7 +15,7 @@ import java.util.Optional;
 public class GuiShopBalanceCommands {
 
     protected static EconomyCurrency getCurrency(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        Identifier currencyId = getCurrencyId(context).orElse(GuiShopEconomyCurrency.DEFAULT_ID);
+        Identifier currencyId = getCurrencyId(context).orElseGet(GuiShopEconomyCurrency.DEFAULT_ID::toIdentifier);
         var result = CommonEconomy.getCurrency(context.getSource().getServer(), currencyId);
         if (result == null) throw CommandErrors.CURRENCY_NOT_FOUND.create(currencyId);
         return result;

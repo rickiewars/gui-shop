@@ -1,11 +1,11 @@
 package rickiewars.guishop.api.economy;
 
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Items;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.MinecraftTest;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyProvider;
+import rickiewars.guishop.api.minecraft.ResourceId;
 import rickiewars.guishop.config.GuiShopConfig;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -19,22 +19,22 @@ public class GuiShopEconomyCurrencyTest extends MinecraftTest {
             prefix,
             suffix,
             decimals,
-            Identifier.withDefaultNamespace("gold_nugget")
+            ResourceId.ofVanilla("gold_nugget")
         );
     }
 
     @Test
     void idReturnsConstructorValue() {
-        Identifier id = Identifier.fromNamespaceAndPath("test", "gold");
+        ResourceId id = ResourceId.of("test", "gold");
         GuiShopEconomyCurrency currency = new GuiShopEconomyCurrency(id, def(0, "", ""));
 
-        assertEquals(id, currency.id());
+        assertEquals(id.toIdentifier(), currency.id());
     }
 
     @Test
     void nameReturnsDefinitionName() {
         GuiShopEconomyCurrency currency = new GuiShopEconomyCurrency(
-            Identifier.fromNamespaceAndPath("test", "c"),
+            ResourceId.of("test", "c"),
             def(0, "", "")
         );
 
@@ -44,10 +44,10 @@ public class GuiShopEconomyCurrencyTest extends MinecraftTest {
     @Test
     void iconReturnsDefinitionIcon() {
         GuiShopConfig.CurrencyDefinition d = def(0, "$", "");
-        d.icon = Identifier.withDefaultNamespace("gold_nugget");
+        d.icon = ResourceId.ofVanilla("gold_nugget");
 
         GuiShopEconomyCurrency currency = new GuiShopEconomyCurrency(
-            Identifier.fromNamespaceAndPath("x", "y"),
+            ResourceId.of("x", "y"),
             d
         );
 
@@ -59,7 +59,7 @@ public class GuiShopEconomyCurrencyTest extends MinecraftTest {
         GuiShopConfig.CurrencyDefinition d = def(0, "", "");
 
         GuiShopEconomyCurrency currency = new GuiShopEconomyCurrency(
-            Identifier.fromNamespaceAndPath("test", "coins"),
+            ResourceId.of("test", "coins"),
             d
         );
 
@@ -75,7 +75,7 @@ public class GuiShopEconomyCurrencyTest extends MinecraftTest {
     @Test
     void formatValueWithoutDecimals() {
         GuiShopEconomyCurrency currency = new GuiShopEconomyCurrency(
-            Identifier.fromNamespaceAndPath("test", "c"),
+            ResourceId.of("test", "c"),
             def(0, "$", "")
         );
 
@@ -85,7 +85,7 @@ public class GuiShopEconomyCurrencyTest extends MinecraftTest {
     @Test
     void formatNegativeValueReturnsZero() {
         GuiShopEconomyCurrency currency = new GuiShopEconomyCurrency(
-            Identifier.fromNamespaceAndPath("test", "c"),
+            ResourceId.of("test", "c"),
             def(0, "$", "")
         );
 
@@ -95,7 +95,7 @@ public class GuiShopEconomyCurrencyTest extends MinecraftTest {
     @Test
     void formatValueWithDecimals() {
         GuiShopEconomyCurrency currency = new GuiShopEconomyCurrency(
-            Identifier.fromNamespaceAndPath("test", "c"),
+            ResourceId.of("test", "c"),
             def(2, "$", "")
         );
 
@@ -106,7 +106,7 @@ public class GuiShopEconomyCurrencyTest extends MinecraftTest {
     @Test
     void formatNegativeValueWithDecimalsReturnsZero() {
         GuiShopEconomyCurrency currency = new GuiShopEconomyCurrency(
-            Identifier.fromNamespaceAndPath("test", "c"),
+            ResourceId.of("test", "c"),
             def(2, "$", "")
         );
 
@@ -116,7 +116,7 @@ public class GuiShopEconomyCurrencyTest extends MinecraftTest {
     @Test
     void formatValueWithPrefixAndSuffix() {
         GuiShopEconomyCurrency currency = new GuiShopEconomyCurrency(
-            Identifier.fromNamespaceAndPath("test", "c"),
+            ResourceId.of("test", "c"),
             def(2, "€", " EUR")
         );
 
@@ -128,7 +128,7 @@ public class GuiShopEconomyCurrencyTest extends MinecraftTest {
     @Test
     void parseValueWithoutDecimals() {
         GuiShopEconomyCurrency currency = new GuiShopEconomyCurrency(
-            Identifier.fromNamespaceAndPath("test", "c"),
+            ResourceId.of("test", "c"),
             def(0, "$", "")
         );
 
@@ -138,7 +138,7 @@ public class GuiShopEconomyCurrencyTest extends MinecraftTest {
     @Test
     void parseValueWithDecimals() {
         GuiShopEconomyCurrency currency = new GuiShopEconomyCurrency(
-            Identifier.fromNamespaceAndPath("test", "c"),
+            ResourceId.of("test", "c"),
             def(2, "$", "")
         );
 
@@ -149,7 +149,7 @@ public class GuiShopEconomyCurrencyTest extends MinecraftTest {
     @Test
     void parseValuePrefixAndSuffix() {
         GuiShopEconomyCurrency currency = new GuiShopEconomyCurrency(
-            Identifier.fromNamespaceAndPath("test", "c"),
+            ResourceId.of("test", "c"),
             def(2, "€", " EUR")
         );
 
@@ -159,7 +159,7 @@ public class GuiShopEconomyCurrencyTest extends MinecraftTest {
     @Test
     void parseValueEmptyReturnsZero() {
         GuiShopEconomyCurrency currency = new GuiShopEconomyCurrency(
-            Identifier.fromNamespaceAndPath("test", "c"),
+            ResourceId.of("test", "c"),
             def(2, "$", "")
         );
 

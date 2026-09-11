@@ -4,14 +4,14 @@ package rickiewars.guishop.util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.LodestoneTracker;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.minecraft.IPlayer;
+import rickiewars.guishop.api.minecraft.ResourceId;
+import rickiewars.guishop.api.minecraft.impl.ItemRegistry;
 import rickiewars.guishop.shop.Shop;
 
 import java.util.Optional;
@@ -70,16 +70,16 @@ public class CommonMethods {
     }
 
     public static Item getItem(String id) {
-        return BuiltInRegistries.ITEM.getValue(Identifier.parse(id));
+        return ItemRegistry.get(ResourceId.parse(id));
     }
     public static Optional<Item> getOptionalItem(String id) {
-        return BuiltInRegistries.ITEM.getOptional(Identifier.parse(id));
+        return ItemRegistry.getOptional(ResourceId.parse(id));
     }
     public static Item getItem(String id, Item defaultItem) {
         return getOptionalItem(id).orElse(defaultItem);
     }
     public static String getItemId(Item item) {
-        return BuiltInRegistries.ITEM.getKey(item).toString();
+        return ItemRegistry.idOf(item).toString();
     }
 
     public static String identifyPlayer(UUID uuid) {

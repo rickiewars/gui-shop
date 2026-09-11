@@ -2,6 +2,7 @@ package rickiewars.guishop.command.player;
 
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -26,8 +27,8 @@ public class GUIShopMainCommandTest extends CommandTestBase {
 
         var result = dispatch(context, "guishop", playerSource(player));
 
-        context.assertTrue(result.success, "expected the command to report success");
-        context.assertValueEqual(result.result, 0, "command result code");
+        context.assertTrue(result.success, Component.literal("expected the command to report success"));
+        context.assertValueEqual(result.result, 0, Component.literal("command result code"));
         context.succeed();
     }
 
@@ -35,7 +36,7 @@ public class GUIShopMainCommandTest extends CommandTestBase {
     public void mainFallsBackToHelpWhenNoPlayerSource(GameTestHelper context) {
         var result = dispatch(context, "guishop");
 
-        context.assertTrue(result.anyMessageContains("GUIShop by Rickiewars is running!"), "expected the help text as a console fallback");
+        context.assertTrue(result.anyMessageContains("GUIShop by Rickiewars is running!"), Component.literal("expected the help text as a console fallback"));
         context.succeed();
     }
 
@@ -46,7 +47,7 @@ public class GUIShopMainCommandTest extends CommandTestBase {
 
         var result = dispatch(context, "guishop", playerSource(player));
 
-        context.assertTrue(result.anyMessageContains("no shops available"), "expected a no-shops-available message");
+        context.assertTrue(result.anyMessageContains("no shops available"), Component.literal("expected a no-shops-available message"));
         context.succeed();
     }
 
@@ -54,8 +55,8 @@ public class GUIShopMainCommandTest extends CommandTestBase {
     public void mainHelpSubcommandPrintsUsage(GameTestHelper context) {
         var result = dispatch(context, "guishop help");
 
-        context.assertTrue(result.anyMessageContains("GUIShop by Rickiewars is running!"), "expected the intro text");
-        context.assertTrue(result.anyMessageContains("/shop additem"), "expected the usage text");
+        context.assertTrue(result.anyMessageContains("GUIShop by Rickiewars is running!"), Component.literal("expected the intro text"));
+        context.assertTrue(result.anyMessageContains("/shop additem"), Component.literal("expected the usage text"));
         context.succeed();
     }
 
@@ -63,7 +64,7 @@ public class GUIShopMainCommandTest extends CommandTestBase {
     public void mainRegistersAliasesForShopBuyAndTrade(GameTestHelper context) {
         var result = dispatch(context, "buy help");
 
-        context.assertTrue(result.anyMessageContains("GUIShop by Rickiewars is running!"), "the 'buy' alias should route to the same command tree");
+        context.assertTrue(result.anyMessageContains("GUIShop by Rickiewars is running!"), Component.literal("the 'buy' alias should route to the same command tree"));
         context.succeed();
     }
 

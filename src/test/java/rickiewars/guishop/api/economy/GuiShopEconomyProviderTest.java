@@ -12,6 +12,7 @@ import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.MinecraftTest;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyProvider;
+import rickiewars.guishop.api.minecraft.ResourceId;
 import rickiewars.guishop.config.GuiShopConfig;
 
 import java.util.Collection;
@@ -41,11 +42,11 @@ public class GuiShopEconomyProviderTest extends MinecraftTest {
     }
 
     private GuiShopConfig.CurrencyDefinition currencyDef(String name, String prefix, String suffix, int decimals) {
-        return new GuiShopConfig.CurrencyDefinition(name, prefix, suffix, decimals, Identifier.withDefaultNamespace("gold_nugget"));
+        return new GuiShopConfig.CurrencyDefinition(name, prefix, suffix, decimals, ResourceId.ofVanilla("gold_nugget"));
     }
 
     private GuiShopConfig.AccountDefinition accountDef(String name, String currencyId) {
-        return new GuiShopConfig.AccountDefinition(currencyId, name, Identifier.withDefaultNamespace("iron_ingot"));
+        return new GuiShopConfig.AccountDefinition(currencyId, name, ResourceId.ofVanilla("iron_ingot"));
     }
 
     @Test
@@ -165,11 +166,11 @@ public class GuiShopEconomyProviderTest extends MinecraftTest {
 
     @Test
     void getAccountsReturnsAllDefinedAccounts() {
-        Identifier curId = Identifier.fromNamespaceAndPath(GuiShopEconomyProvider.ID, "coins");
+        ResourceId curId = ResourceId.of(GuiShopEconomyProvider.ID, "coins");
 
         assertNotNull(GUIShop.config.economy);
-        GUIShop.config.economy.accounts.put("wallet", accountDef("Wallet", curId.getPath()));
-        GUIShop.config.economy.accounts.put("bank", accountDef("Bank", curId.getPath()));
+        GUIShop.config.economy.accounts.put("wallet", accountDef("Wallet", curId.path()));
+        GUIShop.config.economy.accounts.put("bank", accountDef("Bank", curId.path()));
 
         Collection<EconomyAccount> accounts = provider.getAccounts(null, profile);
 
@@ -184,7 +185,7 @@ public class GuiShopEconomyProviderTest extends MinecraftTest {
     void defaultAccountReturnsNullIfDisabled() {
         GUIShop.config.economyDisabled = true;
         assertNull(provider.defaultAccount(null, profile, new GuiShopEconomyCurrency(
-            Identifier.fromNamespaceAndPath(GuiShopEconomyProvider.ID, "coins"),
+            ResourceId.of(GuiShopEconomyProvider.ID, "coins"),
             currencyDef("Coins", "$", "", 0)
         )));
     }
@@ -196,7 +197,7 @@ public class GuiShopEconomyProviderTest extends MinecraftTest {
         GUIShop.config.economy.accounts.put("bank", accountDef("Bank", "gems"));
 
         EconomyCurrency lookup = new GuiShopEconomyCurrency(
-            Identifier.fromNamespaceAndPath(GuiShopEconomyProvider.ID, "emerald"),
+            ResourceId.of(GuiShopEconomyProvider.ID, "emerald"),
             currencyDef("Emerald", "E", "", 1)
         );
 
@@ -205,11 +206,11 @@ public class GuiShopEconomyProviderTest extends MinecraftTest {
 
     @Test
     void defaultAccountReturnsFirstMatchingAccount() {
-        Identifier coins = Identifier.fromNamespaceAndPath(GuiShopEconomyProvider.ID, "coins");
+        ResourceId coins = ResourceId.of(GuiShopEconomyProvider.ID, "coins");
 
         assertNotNull(GUIShop.config.economy);
-        GUIShop.config.economy.accounts.put("wallet", accountDef("Wallet", coins.getPath()));
-        GUIShop.config.economy.accounts.put("bank", accountDef("Bank", coins.getPath()));
+        GUIShop.config.economy.accounts.put("wallet", accountDef("Wallet", coins.path()));
+        GUIShop.config.economy.accounts.put("bank", accountDef("Bank", coins.path()));
 
         EconomyCurrency lookup = new GuiShopEconomyCurrency(
             coins,

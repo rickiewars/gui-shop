@@ -10,11 +10,9 @@ import com.mojang.serialization.JsonOps;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.datafix.DataFixers;
 import net.minecraft.util.datafix.fixes.References;
@@ -22,6 +20,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import rickiewars.guishop.GUIShop;
+import rickiewars.guishop.api.minecraft.ResourceId;
+import rickiewars.guishop.api.minecraft.impl.ItemRegistry;
 import rickiewars.guishop.api.minecraft.impl.VanillaItemCodec;
 import rickiewars.guishop.config.ConfigManager;
 import rickiewars.guishop.util.CommonMethods;
@@ -106,7 +106,7 @@ public final class LegacyShopConverter {
         usedIds.add(id);
         GUIShop.LOGGER.info("Converting shop '{}' -> id '{}'", shopName, id);
 
-        Identifier icon = readIcon(shop, Identifier.withDefaultNamespace("chest"));
+        ResourceId icon = readIcon(shop, ResourceId.ofVanilla("chest"));
         String defaultCurrency = shop.has("defaultCurrency") ? shop.get("defaultCurrency").getAsString() : null;
 
         int currentDataVersion = SharedConstants.getCurrentVersion().dataVersion().version();
@@ -251,7 +251,7 @@ public final class LegacyShopConverter {
 
     private static Optional<Item> lookupItem(String itemId) {
         try {
-            return BuiltInRegistries.ITEM.getOptional(Identifier.parse(itemId));
+            return ItemRegistry.getOptional(ResourceId.parse(itemId));
         } catch (Exception e) {
             return Optional.empty();
         }
@@ -259,10 +259,10 @@ public final class LegacyShopConverter {
 
     /// A shop icon is decoration. A legacy value that is not a plain item id falls back to the
     /// default rather than failing the conversion, matching LegacyConfigMigrator#readIcon.
-    private static Identifier readIcon(JsonObject shop, Identifier fallback) {
+    private static ResourceId readIcon(JsonObject shop, ResourceId fallback) {
         if (!shop.has("icon")) return fallback;
         try {
-            return Identifier.parse(shop.get("icon").getAsString());
+            return ResourceId.parse(shop.get("icon").getAsString());
         } catch (Exception e) {
             GUIShop.LOGGER.warn("Legacy shop icon was not a plain item id, using default: {}", e.getMessage());
             return fallback;

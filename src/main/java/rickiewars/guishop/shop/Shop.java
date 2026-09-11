@@ -1,11 +1,11 @@
 package rickiewars.guishop.shop;
 
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.minecraft.IItemStack;
+import rickiewars.guishop.api.minecraft.ResourceId;
 import rickiewars.guishop.economy.EconomyUtils;
 import rickiewars.guishop.util.CommonMethods;
 
@@ -20,8 +20,8 @@ public class Shop {
     private final String displayName;
     private final List<ShopItem> items;
     @Nullable
-    private final Identifier defaultCurrencyId;
-    private final Identifier icon;
+    private final ResourceId defaultCurrencyId;
+    private final ResourceId icon;
     private final SellPricing sellPricing;
 
     public String getId() {
@@ -58,19 +58,19 @@ public class Shop {
         return best;
     }
 
-    public Identifier getCurrencyId(ShopItem item) {
+    public ResourceId getCurrencyId(ShopItem item) {
         if (item.hasCurrency()) {
             return item.resolvedCurrencyId();
         }
         return getDefaultCurrencyId();
     }
 
-    public List<Identifier> getAllCurrencyIds() {
-        var currencyIds = new LinkedList<Identifier>();
+    public List<ResourceId> getAllCurrencyIds() {
+        var currencyIds = new LinkedList<ResourceId>();
         currencyIds.add(getDefaultCurrencyId());
 
         for (ShopItem item : items) {
-            Identifier currencyId = getCurrencyId(item);
+            ResourceId currencyId = getCurrencyId(item);
             if (currencyId != defaultCurrencyId && !currencyIds.contains(currencyId)) {
                 currencyIds.add(currencyId);
             }
@@ -79,7 +79,7 @@ public class Shop {
         return currencyIds;
     }
 
-    public Identifier getDefaultCurrencyId() {
+    public ResourceId getDefaultCurrencyId() {
         if (hasDefaultCurrency()) {
             return defaultCurrencyId;
         }
@@ -94,24 +94,24 @@ public class Shop {
         this(id, displayName, new LinkedList<>(), null);
     }
 
-    public Shop(String id, String displayName, List<ShopItem> items, @Nullable Identifier defaultCurrencyId) {
+    public Shop(String id, String displayName, List<ShopItem> items, @Nullable ResourceId defaultCurrencyId) {
         this(id, displayName, items, defaultCurrencyId, null, null);
     }
 
-    public Shop(String id, String displayName, List<ShopItem> items, @Nullable Identifier defaultCurrencyId, @Nullable Identifier icon) {
+    public Shop(String id, String displayName, List<ShopItem> items, @Nullable ResourceId defaultCurrencyId, @Nullable ResourceId icon) {
         this(id, displayName, items, defaultCurrencyId, icon, null);
     }
 
-    public Shop(String id, String displayName, List<ShopItem> items, @Nullable Identifier defaultCurrencyId, @Nullable Identifier icon, @Nullable SellPricing sellPricing) {
+    public Shop(String id, String displayName, List<ShopItem> items, @Nullable ResourceId defaultCurrencyId, @Nullable ResourceId icon, @Nullable SellPricing sellPricing) {
         this.id = id;
         this.displayName = displayName;
         this.items = items;
         this.defaultCurrencyId = defaultCurrencyId;
-        this.icon = icon != null ? icon : Identifier.withDefaultNamespace("chest");
+        this.icon = icon != null ? icon : ResourceId.ofVanilla("chest");
         this.sellPricing = sellPricing != null ? sellPricing : GUIShop.config.sellPricing;
     }
 
-    public Identifier iconId() {
+    public ResourceId iconId() {
         return icon;
     }
 

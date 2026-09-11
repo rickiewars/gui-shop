@@ -3,6 +3,7 @@ package rickiewars.guishop.command.economy.subcommands;
 import eu.pb4.common.economy.api.EconomyAccount;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import rickiewars.guishop.command.GuiShopPermission;
 import rickiewars.guishop.command.economy.EconomyCommandTest;
@@ -18,8 +19,8 @@ public class GUIShopBalanceRemoveCommandTest extends EconomyCommandTest {
         var capture = dispatch(context,
             "guishop balance guishop:credit remove @s 40", playerSource(target));
 
-        context.assertTrue(capture.anyMessageContains("Successfully removed"), "expected a success message");
-        context.assertValueEqual(account.balance(), 60L, "balance after remove");
+        context.assertTrue(capture.anyMessageContains("Successfully removed"), Component.literal("expected a success message"));
+        context.assertValueEqual(account.balance(), 60L, Component.literal("balance after remove"));
         context.succeed();
     }
 
@@ -31,8 +32,8 @@ public class GUIShopBalanceRemoveCommandTest extends EconomyCommandTest {
         var capture = dispatch(context,
             "guishop balance guishop:credit remove @s 50", playerSource(target));
 
-        context.assertTrue(capture.anyMessageContains("Transaction failed"), "expected a transaction-failed message");
-        context.assertValueEqual(account.balance(), 0L, "balance after insufficient funds");
+        context.assertTrue(capture.anyMessageContains("Transaction failed"), Component.literal("expected a transaction-failed message"));
+        context.assertValueEqual(account.balance(), 0L, Component.literal("balance after insufficient funds"));
         context.succeed();
     }
 
@@ -45,8 +46,8 @@ public class GUIShopBalanceRemoveCommandTest extends EconomyCommandTest {
         var capture = dispatch(context,
             "guishop balance guishop:credit remove @s -1", playerSource(target));
 
-        context.assertTrue(capture.anyMessageContains("must be greater than 0"), "expected a validation message");
-        context.assertValueEqual(account.balance(), 100L, "balance after a rejected remove");
+        context.assertTrue(capture.anyMessageContains("must be greater than 0"), Component.literal("expected a validation message"));
+        context.assertValueEqual(account.balance(), 100L, Component.literal("balance after a rejected remove"));
         context.succeed();
     }
 

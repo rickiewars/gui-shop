@@ -1,7 +1,6 @@
 package rickiewars.guishop.shop.gui.slot;
 
 import eu.pb4.sgui.api.ClickType;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -11,6 +10,7 @@ import rickiewars.guishop.EconomyTest;
 import rickiewars.guishop.api.gui.MenuContext;
 import rickiewars.guishop.api.gui.impl.TestMenuController;
 import rickiewars.guishop.api.minecraft.ResourceId;
+import rickiewars.guishop.api.minecraft.impl.ItemRegistry;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.api.minecraft.impl.TestPlayer;
 import rickiewars.guishop.shop.Shop;
@@ -36,8 +36,8 @@ public class ItemSlotTest extends EconomyTest {
         player = new TestPlayer(UUID.randomUUID());
         matchingItem = Items.STONE;
         Shop shop = TestUtils.testShop(List.of(
-            BuiltInRegistries.ITEM.getKey(matchingItem).toString(),
-            BuiltInRegistries.ITEM.getKey(Items.COBBLESTONE).toString()
+            ItemRegistry.idOf(matchingItem).toString(),
+            ItemRegistry.idOf(Items.COBBLESTONE).toString()
         ), economy.currencyCreditsId,5);
         player.addDefaultAccount(shop.getDefaultCurrencyId());
 

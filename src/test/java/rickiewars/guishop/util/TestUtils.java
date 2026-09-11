@@ -1,6 +1,5 @@
 package rickiewars.guishop.util;
 
-import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -10,6 +9,7 @@ import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.database.DatabaseManager;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyProvider;
+import rickiewars.guishop.api.minecraft.ResourceId;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.api.minecraft.impl.TestServer;
 import rickiewars.guishop.config.GuiShopConfig;
@@ -26,12 +26,12 @@ public class TestUtils {
     static public Shop testShop(int itemCount) {
         return testShop(
             List.of("minecraft:stone"),
-            Identifier.fromNamespaceAndPath(GuiShopEconomyProvider.ID, "credits"),
+            ResourceId.of(GuiShopEconomyProvider.ID, "credits"),
             itemCount
         );
     }
 
-    static public Shop testShop(Identifier currencyId, int itemCount) {
+    static public Shop testShop(ResourceId currencyId, int itemCount) {
         return testShop(
             List.of("minecraft:stone"),
             currencyId,
@@ -39,7 +39,7 @@ public class TestUtils {
         );
     }
 
-    static public Shop testShop(String name, Identifier currencyId, int itemCount) {
+    static public Shop testShop(String name, ResourceId currencyId, int itemCount) {
         return testShop(
             name,
             List.of("minecraft:stone"),
@@ -48,11 +48,11 @@ public class TestUtils {
         );
     }
 
-    static public Shop testShop(List<String> itemIdSequence, Identifier currencyId, int itemCount) {
+    static public Shop testShop(List<String> itemIdSequence, ResourceId currencyId, int itemCount) {
         return testShop("Test Shop", itemIdSequence, currencyId, itemCount);
     }
 
-    static public Shop testShop(String name, List<String> itemIdSequence, Identifier currencyId, int itemCount) {
+    static public Shop testShop(String name, List<String> itemIdSequence, ResourceId currencyId, int itemCount) {
         List<ShopItem> shopItems = new ArrayList<>();
         int sequenceLength = itemIdSequence.size();
 
@@ -73,14 +73,14 @@ public class TestUtils {
 
     static public class EconomyDetails {
         /** Currency ID */
-        public Identifier currencyCreditsId = Identifier.fromNamespaceAndPath(GuiShopEconomyProvider.ID, "credits");
+        public ResourceId currencyCreditsId = ResourceId.of(GuiShopEconomyProvider.ID, "credits");
         /** Currency ID */
-        public Identifier currencyCoinsId = Identifier.fromNamespaceAndPath(GuiShopEconomyProvider.ID, "coins");
+        public ResourceId currencyCoinsId = ResourceId.of(GuiShopEconomyProvider.ID, "coins");
 
         /** Account ID */
-        public Identifier accountCardId = Identifier.fromNamespaceAndPath(GuiShopEconomyProvider.ID, "card");
+        public ResourceId accountCardId = ResourceId.of(GuiShopEconomyProvider.ID, "card");
         /** Account ID */
-        public Identifier accountPouchId = Identifier.fromNamespaceAndPath(GuiShopEconomyProvider.ID, "pouch");
+        public ResourceId accountPouchId = ResourceId.of(GuiShopEconomyProvider.ID, "pouch");
         public Map<String, GuiShopConfig.CurrencyDefinition> currencies = new HashMap<>();
         public Map<String, GuiShopConfig.AccountDefinition> accounts = new HashMap<>();
     }
@@ -88,22 +88,22 @@ public class TestUtils {
     static public EconomyDetails initTestEconomy(DatabaseManager dbManager) {
         EconomyDetails details = new EconomyDetails();
 
-        details.currencies.put(details.currencyCreditsId.getPath(), new GuiShopConfig.CurrencyDefinition(
+        details.currencies.put(details.currencyCreditsId.path(), new GuiShopConfig.CurrencyDefinition(
             "Credits", "$", "", 2, GuiShopEconomyCurrency.DEFAULT_ICON_ID
         ));
-        details.currencies.put(details.currencyCoinsId.getPath(), new GuiShopConfig.CurrencyDefinition(
-            "Coins", "", " Coins", 0, Identifier.parse(CommonMethods.getItemId(Items.GOLD_NUGGET))
+        details.currencies.put(details.currencyCoinsId.path(), new GuiShopConfig.CurrencyDefinition(
+            "Coins", "", " Coins", 0, ResourceId.parse(CommonMethods.getItemId(Items.GOLD_NUGGET))
         ));
 
-        details.accounts.put(details.accountCardId.getPath(), new GuiShopConfig.AccountDefinition(
-            details.currencyCreditsId.getPath(),
+        details.accounts.put(details.accountCardId.path(), new GuiShopConfig.AccountDefinition(
+            details.currencyCreditsId.path(),
             "Credit card",
-            Identifier.parse(CommonMethods.getItemId(Items.PAPER))
+            ResourceId.parse(CommonMethods.getItemId(Items.PAPER))
         ));
-        details.accounts.put(details.accountPouchId.getPath(), new GuiShopConfig.AccountDefinition(
-            details.currencyCoinsId.getPath(),
+        details.accounts.put(details.accountPouchId.path(), new GuiShopConfig.AccountDefinition(
+            details.currencyCoinsId.path(),
             "Pouch",
-            Identifier.parse(CommonMethods.getItemId(Items.BROWN_BUNDLE))
+            ResourceId.parse(CommonMethods.getItemId(Items.BROWN_BUNDLE))
         ));
 
         GUIShop.config = new GuiShopConfig();

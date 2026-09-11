@@ -1,10 +1,10 @@
 package rickiewars.guishop.config;
 
-import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyAccount;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyProvider;
+import rickiewars.guishop.api.minecraft.ResourceId;
 import rickiewars.guishop.shop.SellPricing;
 
 import java.util.HashMap;
@@ -87,7 +87,7 @@ public class GuiShopConfig {
         economyProviders.put(
             GuiShopEconomyCurrency.DEFAULT_ID,
             new java.util.LinkedList<>() {{
-                add(GuiShopEconomyAccount.DEFAULT_ID.getPath());
+                add(GuiShopEconomyAccount.DEFAULT_ID.path());
             }}
         );
     }
@@ -95,20 +95,20 @@ public class GuiShopConfig {
     public void configureDefaultEconomy() {
         if (economy == null) economy = new EconomyProviderDefinition();
 
-        if (!economy.currencies.containsKey(GuiShopEconomyCurrency.DEFAULT_ID.getPath())) {
-            economy.currencies.put(GuiShopEconomyCurrency.DEFAULT_ID.getPath(), new CurrencyDefinition(
+        if (!economy.currencies.containsKey(GuiShopEconomyCurrency.DEFAULT_ID.path())) {
+            economy.currencies.put(GuiShopEconomyCurrency.DEFAULT_ID.path(), new CurrencyDefinition(
                     "Credits", "$", "", 2, GuiShopEconomyCurrency.DEFAULT_ICON_ID
             ));
         }
-        if (!economy.accounts.containsKey(GuiShopEconomyAccount.DEFAULT_ID.getPath())) {
-            economy.accounts.put(GuiShopEconomyAccount.DEFAULT_ID.getPath(), new AccountDefinition(
-                    GuiShopEconomyCurrency.DEFAULT_ID.getPath(), "Account", GuiShopEconomyAccount.DEFAULT_ICON_ID
+        if (!economy.accounts.containsKey(GuiShopEconomyAccount.DEFAULT_ID.path())) {
+            economy.accounts.put(GuiShopEconomyAccount.DEFAULT_ID.path(), new AccountDefinition(
+                    GuiShopEconomyCurrency.DEFAULT_ID.path(), "Account", GuiShopEconomyAccount.DEFAULT_ICON_ID
             ));
         }
     }
 
-    public static class EconomyProviders extends HashMap<Identifier, List<String>> {
-        public Identifier getFirstCurrency() {
+    public static class EconomyProviders extends HashMap<ResourceId, List<String>> {
+        public ResourceId getFirstCurrency() {
             return this.entrySet().iterator().next().getKey();
         }
     }
@@ -149,9 +149,9 @@ public class GuiShopConfig {
         public String suffix;
         public int decimalPlaces;
         /** Bare item id, resolved to an ItemStack lazily at the GUI boundary. */
-        public Identifier icon;
+        public ResourceId icon;
 
-        public CurrencyDefinition(String name, String prefix, String suffix, int decimalPlaces, Identifier icon) {
+        public CurrencyDefinition(String name, String prefix, String suffix, int decimalPlaces, ResourceId icon) {
             this.name = name;
             this.prefix = prefix;
             this.suffix = suffix;
@@ -161,13 +161,13 @@ public class GuiShopConfig {
     }
 
     public static class AccountDefinition {
-        public Identifier currencyId;
+        public ResourceId currencyId;
         public String name;
         /** Bare item id, resolved to an ItemStack lazily at the GUI boundary. */
-        public Identifier icon;
+        public ResourceId icon;
 
-        public AccountDefinition(String currencyId, String name, Identifier icon) {
-            this.currencyId = Identifier.fromNamespaceAndPath(GuiShopEconomyProvider.ID, currencyId);
+        public AccountDefinition(String currencyId, String name, ResourceId icon) {
+            this.currencyId = ResourceId.of(GuiShopEconomyProvider.ID, currencyId);
             this.name = name;
             this.icon = icon;
         }

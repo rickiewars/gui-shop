@@ -5,7 +5,6 @@ import com.mojang.brigadier.suggestion.Suggestion;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.permissions.PermissionSet;
 import rickiewars.guishop.command.CommandTestBase;
 
 import java.util.List;
@@ -19,7 +18,7 @@ abstract class SuggestionsCommandTest extends CommandTestBase {
 
     static List<String> suggestionsFor(GameTestHelper context, String partialCommand) {
         MinecraftServer server = context.getLevel().getServer();
-        CommandSourceStack source = server.createCommandSourceStack().withPermission(PermissionSet.ALL_PERMISSIONS);
+        CommandSourceStack source = withAllPermissions(server.createCommandSourceStack());
 
         var dispatcher = server.getCommands().getDispatcher();
         ParseResults<CommandSourceStack> parsed = dispatcher.parse(partialCommand, source);

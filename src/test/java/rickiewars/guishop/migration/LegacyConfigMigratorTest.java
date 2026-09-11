@@ -2,10 +2,10 @@ package rickiewars.guishop.migration;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyAccount;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
+import rickiewars.guishop.api.minecraft.ResourceId;
 import rickiewars.guishop.config.ConfigManager;
 import rickiewars.guishop.config.GuiShopConfig;
 
@@ -59,7 +59,7 @@ public class LegacyConfigMigratorTest extends MigrationTestBase {
         assertEquals("", coins.prefix);
         assertEquals(" coins", coins.suffix);
         assertEquals(0, coins.decimalPlaces);
-        assertEquals(Identifier.parse("minecraft:diamond"), coins.icon);
+        assertEquals(ResourceId.ofVanilla("diamond"), coins.icon);
 
         GuiShopConfig.CurrencyDefinition credit = config.economy.currencies.get("credit");
         assertEquals("Credits", credit.name);
@@ -69,16 +69,16 @@ public class LegacyConfigMigratorTest extends MigrationTestBase {
 
         assertEquals(2, config.economy.accounts.size());
         assertEquals("Pouch", config.economy.accounts.get("pouch").name);
-        assertEquals(Identifier.parse("guishop:coins"), config.economy.accounts.get("pouch").currencyId);
+        assertEquals(ResourceId.parse("guishop:coins"), config.economy.accounts.get("pouch").currencyId);
         assertEquals("Account", config.economy.accounts.get("account").name);
-        assertEquals(Identifier.parse("guishop:credit"), config.economy.accounts.get("account").currencyId);
+        assertEquals(ResourceId.parse("guishop:credit"), config.economy.accounts.get("account").currencyId);
 
         assertEquals(
             List.of("account"),
-            config.economyProviders.get(Identifier.parse("guishop:credit")),
+            config.economyProviders.get(ResourceId.parse("guishop:credit")),
             "dropping economyProviders would wipe the account-to-currency wiring"
         );
-        assertEquals(List.of("pouch"), config.economyProviders.get(Identifier.parse("guishop:coins")));
+        assertEquals(List.of("pouch"), config.economyProviders.get(ResourceId.parse("guishop:coins")));
     }
 
     @Test
@@ -169,7 +169,7 @@ public class LegacyConfigMigratorTest extends MigrationTestBase {
 
         assertTrue(LegacyConfigMigrator.migrateIfNeeded());
 
-        assertEquals(List.of("account"), readMigratedConfig().economyProviders.get(Identifier.parse("guishop:credit")));
+        assertEquals(List.of("account"), readMigratedConfig().economyProviders.get(ResourceId.parse("guishop:credit")));
     }
 
     @Test
@@ -238,7 +238,7 @@ public class LegacyConfigMigratorTest extends MigrationTestBase {
         assertTrue(LegacyConfigMigrator.migrateIfNeeded(), "one unparseable provider key must not brick the boot");
 
         GuiShopConfig config = readMigratedConfig();
-        assertEquals(List.of("account"), config.economyProviders.get(Identifier.parse("guishop:credit")));
+        assertEquals(List.of("account"), config.economyProviders.get(ResourceId.parse("guishop:credit")));
         assertEquals(1, config.economyProviders.size(), "the invalid key is dropped, not kept");
         assertEquals(2, config.economy.currencies.size(), "the economy file is unaffected by a bad provider key");
     }
@@ -299,7 +299,7 @@ public class LegacyConfigMigratorTest extends MigrationTestBase {
 
         GuiShopConfig config = readMigratedConfig();
         assertFalse(config.economy.accounts.containsKey("broken"), "an account with no currency cannot be resolved, drop it");
-        assertEquals(Identifier.parse("guishop:credit"), config.economy.accounts.get("account").currencyId);
+        assertEquals(ResourceId.parse("guishop:credit"), config.economy.accounts.get("account").currencyId);
         assertEquals(1, config.economy.currencies.size());
     }
 
@@ -312,8 +312,8 @@ public class LegacyConfigMigratorTest extends MigrationTestBase {
         assertTrue(LegacyConfigMigrator.migrateIfNeeded());
 
         GuiShopConfig config = readMigratedConfig();
-        assertEquals(List.of("pouch"), config.economyProviders.get(Identifier.parse("guishop:coins")));
-        assertFalse(config.economyProviders.containsKey(Identifier.parse("guishop:credit")));
+        assertEquals(List.of("pouch"), config.economyProviders.get(ResourceId.parse("guishop:coins")));
+        assertFalse(config.economyProviders.containsKey(ResourceId.parse("guishop:credit")));
     }
 
     /** A truncated or corrupt legacy file must fail closed, never half-write config.json. */

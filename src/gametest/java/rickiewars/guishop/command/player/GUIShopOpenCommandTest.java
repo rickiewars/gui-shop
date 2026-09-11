@@ -2,6 +2,7 @@ package rickiewars.guishop.command.player;
 
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -26,8 +27,8 @@ public class GUIShopOpenCommandTest extends CommandTestBase {
 
         var result = dispatch(context, "guishop open \"Stocked Shop\"", playerSource(player));
 
-        context.assertTrue(result.success, "expected the command to report success");
-        context.assertValueEqual(result.result, 0, "command result code");
+        context.assertTrue(result.success, Component.literal("expected the command to report success"));
+        context.assertValueEqual(result.result, 0, Component.literal("command result code"));
         context.succeed();
     }
 
@@ -37,7 +38,7 @@ public class GUIShopOpenCommandTest extends CommandTestBase {
 
         var result = dispatch(context, "guishop open \"Ghost Shop\"", playerSource(player));
 
-        context.assertTrue(result.anyMessageContains("does not exist"), "expected a not-found message");
+        context.assertTrue(result.anyMessageContains("does not exist"), Component.literal("expected a not-found message"));
         context.succeed();
     }
 
@@ -48,7 +49,7 @@ public class GUIShopOpenCommandTest extends CommandTestBase {
 
         var result = dispatch(context, "guishop open \"Empty Shop\"", playerSource(player));
 
-        context.assertTrue(result.anyMessageContains("is not available"), "expected a shop-not-available message");
+        context.assertTrue(result.anyMessageContains("is not available"), Component.literal("expected a shop-not-available message"));
         context.succeed();
     }
 
@@ -60,7 +61,7 @@ public class GUIShopOpenCommandTest extends CommandTestBase {
 
         var result = dispatch(context, "guishop open \"Stocked Shop\"");
 
-        context.assertTrue(result.anyMessageContains("must specify a player"), "console source should be rejected");
+        context.assertTrue(result.anyMessageContains("must specify a player"), Component.literal("console source should be rejected"));
         context.succeed();
     }
 

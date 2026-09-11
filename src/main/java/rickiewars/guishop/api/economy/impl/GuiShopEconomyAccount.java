@@ -4,7 +4,6 @@ import eu.pb4.common.economy.api.EconomyAccount;
 import eu.pb4.common.economy.api.EconomyCurrency;
 import eu.pb4.common.economy.api.EconomyProvider;
 import eu.pb4.common.economy.api.EconomyTransaction;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
@@ -12,15 +11,16 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.database.DatabaseManager;
+import rickiewars.guishop.api.minecraft.ResourceId;
+import rickiewars.guishop.api.minecraft.impl.ItemRegistry;
 import rickiewars.guishop.config.GuiShopConfig;
-import rickiewars.guishop.util.CommonMethods;
 
 import java.util.UUID;
 
 public class GuiShopEconomyAccount implements EconomyAccount {
-    public static Identifier DEFAULT_ID = Identifier.fromNamespaceAndPath(GuiShopEconomyProvider.ID,"account");
+    public static ResourceId DEFAULT_ID = ResourceId.of(GuiShopEconomyProvider.ID, "account");
     public static final Item DEFAULT_ICON = Items.DIAMOND;
-    public static final Identifier DEFAULT_ICON_ID = BuiltInRegistries.ITEM.getKey(DEFAULT_ICON);
+    public static final ResourceId DEFAULT_ICON_ID = ItemRegistry.idOf(DEFAULT_ICON);
     private final Identifier id;
     private final UUID uuid;
     private final String uuidString;
@@ -30,8 +30,8 @@ public class GuiShopEconomyAccount implements EconomyAccount {
         return GUIShop.databaseManager;
     }
 
-    public GuiShopEconomyAccount(Identifier accountId, GuiShopConfig.AccountDefinition accountDefinition, UUID uuid) {
-        this.id = accountId;
+    public GuiShopEconomyAccount(ResourceId accountId, GuiShopConfig.AccountDefinition accountDefinition, UUID uuid) {
+        this.id = accountId.toIdentifier();
         this.accountDefinition = accountDefinition;
         this.uuid = uuid;
         this.uuidString = uuid.toString();
@@ -126,11 +126,11 @@ public class GuiShopEconomyAccount implements EconomyAccount {
 
     @Override
     public EconomyCurrency currency() {
-        return GuiShopEconomyProvider.INSTANCE.getCurrency(null, accountDefinition.currencyId.getPath());
+        return GuiShopEconomyProvider.INSTANCE.getCurrency(null, accountDefinition.currencyId.path());
     }
 
     @Override
     public ItemStack accountIcon() {
-        return new ItemStack(CommonMethods.getItem(accountDefinition.icon.toString(), DEFAULT_ICON));
+        return new ItemStack(ItemRegistry.getOptional(accountDefinition.icon).orElse(DEFAULT_ICON));
     }
 }
