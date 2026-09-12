@@ -13,6 +13,7 @@ import rickiewars.guishop.MinecraftTest;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyProvider;
 import rickiewars.guishop.api.minecraft.ResourceId;
+import rickiewars.guishop.api.minecraft.impl.MinecraftCompat;
 import rickiewars.guishop.config.GuiShopConfig;
 
 import java.util.Collection;
@@ -150,7 +151,7 @@ public class GuiShopEconomyProviderTest extends MinecraftTest {
 
         assertNotNull(acc);
         assertEquals(Identifier.fromNamespaceAndPath(GuiShopEconomyProvider.ID, "wallet"), acc.id());
-        assertEquals(profile.id(), acc.owner());
+        assertEquals(MinecraftCompat.id(profile), acc.owner());
 
         assertEquals(curId, acc.currency().id());
     }

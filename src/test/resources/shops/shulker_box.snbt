@@ -1,1 +1,1 @@
-{DataVersion:4554,displayName:"Fixture Shop",entries:[{buyPrice:5000L,displayName:"Loaded Shulker",sellPrice:2500L,stack:{components:{"minecraft:container":[{item:{count:5,id:"minecraft:diamond"},slot:0}]},id:"minecraft:shulker_box"}}]}
+{DataVersion:4435,displayName:"Fixture Shop",entries:[{buyPrice:5000L,displayName:"Loaded Shulker",sellPrice:2500L,stack:{components:{"minecraft:container":[{item:{count:5,id:"minecraft:diamond"},slot:0}]},id:"minecraft:shulker_box"}}]}

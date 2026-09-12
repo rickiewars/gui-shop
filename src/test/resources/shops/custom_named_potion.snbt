@@ -1,1 +1,1 @@
-{DataVersion:4554,displayName:"Fixture Shop",entries:[{buyPrice:300L,displayName:"Named Potion",sellPrice:150L,stack:{components:{"minecraft:custom_name":"Elixir of Life","minecraft:potion_contents":{potion:"minecraft:healing"}},id:"minecraft:potion"}}]}
+{DataVersion:4435,displayName:"Fixture Shop",entries:[{buyPrice:300L,displayName:"Named Potion",sellPrice:150L,stack:{components:{"minecraft:custom_name":"Elixir of Life","minecraft:potion_contents":{potion:"minecraft:healing"}},id:"minecraft:potion"}}]}

@@ -13,6 +13,7 @@ import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.minecraft.ResourceId;
+import rickiewars.guishop.api.minecraft.impl.MinecraftCompat;
 import rickiewars.guishop.config.GuiShopConfig;
 
 import java.util.ArrayList;
@@ -42,7 +43,7 @@ public class GuiShopEconomyProvider implements EconomyProvider {
         return new GuiShopEconomyAccount(
                 ResourceId.of(GuiShopEconomyProvider.ID, accountId),
                 GUIShop.config.economy.accounts.get(accountId),
-                gameProfile.id()
+                MinecraftCompat.id(gameProfile)
         );
     }
 
@@ -55,7 +56,7 @@ public class GuiShopEconomyProvider implements EconomyProvider {
         GUIShop.config.economy.accounts.forEach(
             (accountId, accountDefinition) -> accounts.add(new GuiShopEconomyAccount(
                 ResourceId.of(GuiShopEconomyProvider.ID, accountId),
-                accountDefinition, gameProfile.id()
+                accountDefinition, MinecraftCompat.id(gameProfile)
             )));
 
         return accounts;
