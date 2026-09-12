@@ -8,8 +8,8 @@ import rickiewars.guishop.api.database.DatabaseManager;
 import rickiewars.guishop.api.database.DatabaseManagerFactory;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyProvider;
 import rickiewars.guishop.api.minecraft.IServer;
+import rickiewars.guishop.api.minecraft.impl.MinecraftItemCodec;
 import rickiewars.guishop.api.minecraft.impl.MinecraftServer;
-import rickiewars.guishop.api.minecraft.impl.VanillaItemCodec;
 import rickiewars.guishop.config.ConfigManager;
 import rickiewars.guishop.config.GuiShopConfig;
 import rickiewars.guishop.migration.LegacyConfigMigrator;
@@ -64,7 +64,7 @@ public class GUIShop implements ModInitializer {
 	}
 
 	private static void onServerStarted(net.minecraft.server.MinecraftServer server) {
-		VanillaItemCodec itemCodec = new VanillaItemCodec(server);
+		MinecraftItemCodec itemCodec = new MinecraftItemCodec(server);
 
 		boolean configMigrationOk = LegacyConfigMigrator.migrateIfNeeded();
 		boolean shopConversionOk = LegacyShopConverter.convertIfNeeded(server, itemCodec);

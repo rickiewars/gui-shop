@@ -12,7 +12,7 @@ import org.apache.logging.log4j.core.filter.RegexFilter;
 //? if >=1.21.11 {
 import org.jspecify.annotations.NonNull;
 //?}
-import rickiewars.guishop.api.minecraft.impl.VanillaItemCodec;
+import rickiewars.guishop.api.minecraft.impl.MinecraftItemCodec;
 import rickiewars.guishop.serializer.SnbtShopStore;
 
 import java.io.IOException;
@@ -101,7 +101,7 @@ public abstract class GuiShopGameTestBase implements CustomTestMethodInvoker {
             throw new UncheckedIOException(e);
         }
 
-        GUIShop.shopStore = new SnbtShopStore(new VanillaItemCodec(context.getLevel().getServer()), tempDir);
+        GUIShop.shopStore = new SnbtShopStore(new MinecraftItemCodec(context.getLevel().getServer()), tempDir);
         return tempDir;
     }
 

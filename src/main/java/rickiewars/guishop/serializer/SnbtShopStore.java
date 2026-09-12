@@ -6,8 +6,8 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.TagParser;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.minecraft.ResourceId;
+import rickiewars.guishop.api.minecraft.impl.MinecraftItemCodec;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
-import rickiewars.guishop.api.minecraft.impl.VanillaItemCodec;
 import rickiewars.guishop.shop.SellPricing;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
@@ -28,11 +28,11 @@ public class SnbtShopStore {
     private static final String BACKUP_DIR_NAME = "backups";
     private static final java.time.format.DateTimeFormatter BACKUP_TIMESTAMP_FORMAT = java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
 
-    private final VanillaItemCodec itemCodec;
+    private final MinecraftItemCodec itemCodec;
     private final Path shopsDir;
     private final Path backupsDir;
 
-    public SnbtShopStore(VanillaItemCodec itemCodec, Path shopsDir) {
+    public SnbtShopStore(MinecraftItemCodec itemCodec, Path shopsDir) {
         this.itemCodec = itemCodec;
         this.shopsDir = shopsDir;
         this.backupsDir = shopsDir.resolve(BACKUP_DIR_NAME);

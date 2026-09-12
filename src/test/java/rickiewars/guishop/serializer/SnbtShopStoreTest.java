@@ -10,8 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import rickiewars.guishop.MinecraftTest;
 import rickiewars.guishop.api.minecraft.ResourceId;
+import rickiewars.guishop.api.minecraft.impl.MinecraftItemCodec;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
-import rickiewars.guishop.api.minecraft.impl.VanillaItemCodec;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
 import rickiewars.guishop.util.TestUtils;
@@ -31,7 +31,7 @@ public class SnbtShopStoreTest extends MinecraftTest {
     @TempDir
     Path tempDir;
 
-    private VanillaItemCodec itemCodec;
+    private MinecraftItemCodec itemCodec;
     private SnbtShopStore store;
 
     private net.minecraft.core.HolderLookup.Provider registryLookup;
@@ -39,7 +39,7 @@ public class SnbtShopStoreTest extends MinecraftTest {
     @BeforeEach
     void setup() {
         registryLookup = VanillaRegistries.createLookup();
-        itemCodec = new VanillaItemCodec(registryLookup);
+        itemCodec = new MinecraftItemCodec(registryLookup);
         store = new SnbtShopStore(itemCodec, tempDir);
     }
 

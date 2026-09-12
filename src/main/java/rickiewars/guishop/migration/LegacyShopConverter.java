@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.minecraft.ResourceId;
 import rickiewars.guishop.api.minecraft.impl.ItemRegistry;
-import rickiewars.guishop.api.minecraft.impl.VanillaItemCodec;
+import rickiewars.guishop.api.minecraft.impl.MinecraftItemCodec;
 import rickiewars.guishop.config.ConfigManager;
 import rickiewars.guishop.util.CommonMethods;
 
@@ -45,11 +45,11 @@ public final class LegacyShopConverter {
 
     private LegacyShopConverter() {}
 
-    public static boolean convertIfNeeded(MinecraftServer server, VanillaItemCodec itemCodec) {
+    public static boolean convertIfNeeded(MinecraftServer server, MinecraftItemCodec itemCodec) {
         return convertIfNeeded(server.registryAccess(), itemCodec);
     }
 
-    public static boolean convertIfNeeded(HolderLookup.Provider registries, VanillaItemCodec itemCodec) {
+    public static boolean convertIfNeeded(HolderLookup.Provider registries, MinecraftItemCodec itemCodec) {
         Path legacyShopFile = ConfigManager.configRoot().resolve("guishop.json");
         Path shopsDir = ConfigManager.shopsDir();
         Path doneMarker = shopsDir.resolve(CONVERSION_DONE_MARKER);
@@ -100,7 +100,7 @@ public final class LegacyShopConverter {
         }
     }
 
-    private static void convertShop(JsonObject shop, HolderLookup.Provider registries, VanillaItemCodec itemCodec, Path staging, Set<String> usedIds) throws IOException {
+    private static void convertShop(JsonObject shop, HolderLookup.Provider registries, MinecraftItemCodec itemCodec, Path staging, Set<String> usedIds) throws IOException {
         String shopName = shop.get("shopName").getAsString();
         String id = CommonMethods.slugify(shopName, usedIds);
         usedIds.add(id);
@@ -135,7 +135,7 @@ public final class LegacyShopConverter {
         Files.writeString(staging.resolve(id + ".snbt"), shopSnbt.toString(), StandardCharsets.UTF_8);
     }
 
-    private static String convertItem(JsonObject item, HolderLookup.Provider registries, VanillaItemCodec itemCodec) {
+    private static String convertItem(JsonObject item, HolderLookup.Provider registries, MinecraftItemCodec itemCodec) {
         String itemId = item.get("itemId").getAsString();
         String name = item.get("name").getAsString();
 
@@ -186,7 +186,7 @@ public final class LegacyShopConverter {
     @Nullable
     private static ItemStack decodeLegacyStack(
         String itemId, String name, @Nullable JsonElement components,
-        HolderLookup.Provider registries, VanillaItemCodec itemCodec
+        HolderLookup.Provider registries, MinecraftItemCodec itemCodec
     ) {
         Optional<ItemStack> fixed = fixLegacyStack(itemId, components, registries, itemCodec.currentDataVersion());
         if (fixed.isPresent()) return fixed.get();

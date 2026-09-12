@@ -15,21 +15,16 @@ import rickiewars.guishop.GUIShop;
 
 import java.util.Optional;
 
-/**
- * The only class in the mod that converts between ItemStack and NBT. Stores vanilla's own
- * ItemStack shape verbatim so Mojang's DataFixerUpper can migrate it forward across game updates,
- * instead of gui-shop maintaining its own hand-written item migration code.
- */
-public class VanillaItemCodec {
+public class MinecraftItemCodec {
     private final RegistryOps<net.minecraft.nbt.Tag> ops;
     private final DataFixer fixer;
     private final int currentDataVersion;
 
-    public VanillaItemCodec(MinecraftServer server) {
+    public MinecraftItemCodec(MinecraftServer server) {
         this(server.registryAccess());
     }
 
-    public VanillaItemCodec(HolderLookup.Provider registryLookup) {
+    public MinecraftItemCodec(HolderLookup.Provider registryLookup) {
         this.ops = registryLookup.createSerializationContext(NbtOps.INSTANCE);
         this.fixer = DataFixers.getDataFixer();
         this.currentDataVersion = readCurrentDataVersion();
@@ -74,8 +69,6 @@ public class VanillaItemCodec {
             .resultOrPartial(err -> GUIShop.LOGGER.warn("shop item decode failed: {}", err));
     }
 
-    /// Isolated per the migration spec: the WorldVersion/data-version accessor shape has moved
-    /// before across Minecraft updates and may move again.
     private static int readCurrentDataVersion() {
         return SharedConstants.getCurrentVersion().dataVersion().version();
     }

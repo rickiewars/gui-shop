@@ -7,7 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import rickiewars.guishop.MinecraftTest;
-import rickiewars.guishop.api.minecraft.impl.VanillaItemCodec;
+import rickiewars.guishop.api.minecraft.impl.MinecraftItemCodec;
 import rickiewars.guishop.config.ConfigManager;
 
 import java.io.IOException;
@@ -68,8 +68,8 @@ public abstract class MigrationTestBase extends MinecraftTest {
         return registries;
     }
 
-    protected static VanillaItemCodec itemCodec() {
-        return new VanillaItemCodec(registries());
+    protected static MinecraftItemCodec itemCodec() {
+        return new MinecraftItemCodec(registries());
     }
 
     /** Copies a fixture from src/test/resources/legacy into the temp config root as guishop.json. */

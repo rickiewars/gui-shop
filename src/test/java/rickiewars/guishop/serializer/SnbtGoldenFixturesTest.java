@@ -5,7 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import rickiewars.guishop.MinecraftTest;
-import rickiewars.guishop.api.minecraft.impl.VanillaItemCodec;
+import rickiewars.guishop.api.minecraft.impl.MinecraftItemCodec;
 import rickiewars.guishop.shop.Shop;
 
 import java.io.IOException;
@@ -31,7 +31,7 @@ public class SnbtGoldenFixturesTest extends MinecraftTest {
     /// upgrade path. Copied into tempDir since readShop() rewrites old files in place.
     @BeforeEach
     void setup() throws IOException {
-        VanillaItemCodec codec = new VanillaItemCodec(VanillaRegistries.createLookup());
+        MinecraftItemCodec codec = new MinecraftItemCodec(VanillaRegistries.createLookup());
         for (Path source : snbtFilesIn(FIXTURES_DIR)) {
             Files.copy(source, tempDir.resolve(source.getFileName()), StandardCopyOption.REPLACE_EXISTING);
         }
