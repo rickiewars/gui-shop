@@ -1,1 +1,1 @@
-{DataVersion:4435,displayName:"Fixture Shop",entries:[{buyPrice:10L,displayName:"Marked Item",sellPrice:5L,stack:{components:{"minecraft:custom_data":{marker:"custom"}},id:"minecraft:stick"}}]}
+{DataVersion:3953,displayName:"Fixture Shop",entries:[{buyPrice:10L,displayName:"Marked Item",sellPrice:5L,stack:{components:{"minecraft:custom_data":{marker:"custom"}},id:"minecraft:stick"}}]}

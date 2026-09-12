@@ -3,7 +3,6 @@ package rickiewars.guishop.migration;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.minecraft.SharedConstants;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
@@ -12,6 +11,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.api.minecraft.ResourceId;
+import rickiewars.guishop.api.minecraft.impl.MinecraftCompat;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.serializer.SnbtShopStore;
 import rickiewars.guishop.shop.Shop;
@@ -122,7 +122,7 @@ public class LegacyShopConverterTest extends MigrationTestBase {
 
         assertTrue(convert());
 
-        int expected = SharedConstants.getCurrentVersion().dataVersion().version();
+        int expected = MinecraftCompat.currentDataVersion();
         assertEquals(Optional.of(expected), readRaw("example_shop").getInt("DataVersion"));
     }
 

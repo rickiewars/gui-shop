@@ -1,1 +1,1 @@
-{DataVersion:4435,displayName:"Fixture Shop",entries:[{buyPrice:50000L,displayName:"Sharp Sword",sellPrice:25000L,stack:{components:{"minecraft:enchantments":{"minecraft:sharpness":5}},id:"minecraft:diamond_sword"}}]}
+{DataVersion:3953,displayName:"Fixture Shop",entries:[{buyPrice:50000L,displayName:"Sharp Sword",sellPrice:25000L,stack:{components:{"minecraft:enchantments":{"minecraft:sharpness":5}},id:"minecraft:diamond_sword"}}]}

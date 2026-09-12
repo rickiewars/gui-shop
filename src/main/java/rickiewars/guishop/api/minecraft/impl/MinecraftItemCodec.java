@@ -2,7 +2,6 @@ package rickiewars.guishop.api.minecraft.impl;
 
 import com.mojang.datafixers.DataFixer;
 import com.mojang.serialization.Dynamic;
-import net.minecraft.SharedConstants;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -27,7 +26,7 @@ public class MinecraftItemCodec {
     public MinecraftItemCodec(HolderLookup.Provider registryLookup) {
         this.ops = registryLookup.createSerializationContext(NbtOps.INSTANCE);
         this.fixer = DataFixers.getDataFixer();
-        this.currentDataVersion = readCurrentDataVersion();
+        this.currentDataVersion = MinecraftCompat.currentDataVersion();
     }
 
     public int currentDataVersion() {
@@ -69,7 +68,4 @@ public class MinecraftItemCodec {
             .resultOrPartial(err -> GUIShop.LOGGER.warn("shop item decode failed: {}", err));
     }
 
-    private static int readCurrentDataVersion() {
-        return SharedConstants.getCurrentVersion().dataVersion().version();
-    }
 }

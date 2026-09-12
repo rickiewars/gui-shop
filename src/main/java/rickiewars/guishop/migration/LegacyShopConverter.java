@@ -7,7 +7,6 @@ import com.google.gson.JsonParser;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
-import net.minecraft.SharedConstants;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.nbt.CompoundTag;
@@ -109,7 +108,7 @@ public final class LegacyShopConverter {
         ResourceId icon = readIcon(shop, ResourceId.ofVanilla("chest"));
         String defaultCurrency = shop.has("defaultCurrency") ? shop.get("defaultCurrency").getAsString() : null;
 
-        int currentDataVersion = SharedConstants.getCurrentVersion().dataVersion().version();
+        int currentDataVersion = itemCodec.currentDataVersion();
 
         StringBuilder entries = new StringBuilder("[");
         JsonArray items = shop.has("items") ? shop.getAsJsonArray("items") : new JsonArray();
