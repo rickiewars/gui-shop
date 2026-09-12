@@ -4,7 +4,6 @@ import eu.pb4.common.economy.api.EconomyAccount;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import rickiewars.guishop.command.GuiShopPermission;
 import rickiewars.guishop.command.economy.EconomyCommandTest;
@@ -32,9 +31,9 @@ public class GUIShopBalanceSendCommandTest extends EconomyCommandTest {
         var capture = dispatch(context,
             "guishop balance guishop:credit send " + OTHER_PLAYER_SELECTOR + " 30", playerSource(sender));
 
-        context.assertTrue(capture.anyMessageContains("Successfully sent"), Component.literal("expected a success message"));
-        context.assertValueEqual(senderAccount.balance(), 70L, Component.literal("sender balance after send"));
-        context.assertValueEqual(receiverAccount.balance(), 30L, Component.literal("receiver balance after send"));
+        assertTrue(context, capture.anyMessageContains("Successfully sent"), "expected a success message");
+        assertValueEqual(context, senderAccount.balance(), 70L, "sender balance after send");
+        assertValueEqual(context, receiverAccount.balance(), 30L, "receiver balance after send");
         context.succeed();
     }
 
@@ -47,8 +46,8 @@ public class GUIShopBalanceSendCommandTest extends EconomyCommandTest {
         var capture = dispatch(context,
             "guishop balance guishop:credit send @s 10", playerSource(sender));
 
-        context.assertTrue(capture.anyMessageContains("cannot target yourself"), Component.literal("expected a target-self message"));
-        context.assertValueEqual(senderAccount.balance(), 100L, Component.literal("sender balance after a self-send attempt"));
+        assertTrue(context, capture.anyMessageContains("cannot target yourself"), "expected a target-self message");
+        assertValueEqual(context, senderAccount.balance(), 100L, "sender balance after a self-send attempt");
         context.succeed();
     }
 
@@ -64,9 +63,9 @@ public class GUIShopBalanceSendCommandTest extends EconomyCommandTest {
         var capture = dispatch(context,
             "guishop balance guishop:credit send " + OTHER_PLAYER_SELECTOR + " 10", playerSource(sender));
 
-        context.assertTrue(capture.anyMessageContains("Transaction failed"), Component.literal("expected a transaction-failed message"));
-        context.assertValueEqual(senderAccount.balance(), 0L, Component.literal("sender balance after insufficient funds"));
-        context.assertValueEqual(receiverAccount.balance(), 0L, Component.literal("receiver balance after insufficient funds"));
+        assertTrue(context, capture.anyMessageContains("Transaction failed"), "expected a transaction-failed message");
+        assertValueEqual(context, senderAccount.balance(), 0L, "sender balance after insufficient funds");
+        assertValueEqual(context, receiverAccount.balance(), 0L, "receiver balance after insufficient funds");
         context.succeed();
     }
 
@@ -74,7 +73,7 @@ public class GUIShopBalanceSendCommandTest extends EconomyCommandTest {
     public void sendRequiresAPlayerSource(GameTestHelper context) {
         var capture = dispatch(context, "guishop balance guishop:credit send @s 10");
 
-        context.assertTrue(capture.anyMessageContains("must specify a player"), Component.literal("console source should be rejected"));
+        assertTrue(context, capture.anyMessageContains("must specify a player"), "console source should be rejected");
         context.succeed();
     }
 

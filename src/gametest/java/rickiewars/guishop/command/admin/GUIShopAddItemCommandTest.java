@@ -2,7 +2,6 @@ package rickiewars.guishop.command.admin;
 
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.network.chat.Component;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.minecraft.ResourceId;
 import rickiewars.guishop.command.CommandTestBase;
@@ -23,14 +22,14 @@ public class GUIShopAddItemCommandTest extends CommandTestBase {
         var capture = dispatch(context,
             "guishop additem \"Multi Shop\" \"Diamond\" minecraft:diamond 10 5 test:coins \"Line one\\\\Line two\"");
 
-        context.assertTrue(capture.anyMessageContains("successfully added"), Component.literal("expected a success message"));
-        context.assertValueEqual(shop.getItems().size(), 1, Component.literal("item count after additem"));
+        assertTrue(context, capture.anyMessageContains("successfully added"), "expected a success message");
+        assertValueEqual(context, shop.getItems().size(), 1, "item count after additem");
 
         ShopItem item = shop.getItems().get(0);
-        context.assertValueEqual(item.buyPrice(), 10L, Component.literal("buy price"));
-        context.assertValueEqual(item.sellPrice(), 5L, Component.literal("sell price"));
-        context.assertValueEqual(item.explicitCurrencyId(), ResourceId.of("test", "coins"), Component.literal("currency"));
-        context.assertValueEqual(item.description(), List.of("Line one", "Line two"), Component.literal("description split on backslash"));
+        assertValueEqual(context, item.buyPrice(), 10L, "buy price");
+        assertValueEqual(context, item.sellPrice(), 5L, "sell price");
+        assertValueEqual(context, item.explicitCurrencyId(), ResourceId.of("test", "coins"), "currency");
+        assertValueEqual(context, item.description(), List.of("Line one", "Line two"), "description split on backslash");
         context.succeed();
     }
 
@@ -42,9 +41,9 @@ public class GUIShopAddItemCommandTest extends CommandTestBase {
         dispatch(context,
             "guishop additem \"Defaults Shop\" \"Diamond\" minecraft:diamond 10 5 test:coins");
 
-        context.assertValueEqual(shop.getItems().size(), 1, Component.literal("item count after additem"));
+        assertValueEqual(context, shop.getItems().size(), 1, "item count after additem");
         ShopItem item = shop.getItems().get(0);
-        context.assertTrue(item.description().isEmpty(), Component.literal("expected an empty description but got " + item.description().size() + " line(s)"));
+        assertTrue(context, item.description().isEmpty(), "expected an empty description but got " + item.description().size() + " line(s)");
         context.succeed();
     }
 
@@ -57,12 +56,12 @@ public class GUIShopAddItemCommandTest extends CommandTestBase {
         var capture = dispatch(context,
             "guishop additem \"Currency Defaults Shop\" \"Diamond\" minecraft:diamond 10 5");
 
-        context.assertTrue(capture.anyMessageContains("successfully added"), Component.literal("expected a success message"));
-        context.assertValueEqual(shop.getItems().size(), 1, Component.literal("item count after additem"));
+        assertTrue(context, capture.anyMessageContains("successfully added"), "expected a success message");
+        assertValueEqual(context, shop.getItems().size(), 1, "item count after additem");
 
         ShopItem item = shop.getItems().get(0);
-        context.assertTrue(!item.hasCurrency(), Component.literal("no explicit currency should be recorded on the item"));
-        context.assertValueEqual(shop.getCurrencyId(item), shopDefaultCurrency, Component.literal("item's resolved currency"));
+        assertTrue(context, !item.hasCurrency(), "no explicit currency should be recorded on the item");
+        assertValueEqual(context, shop.getCurrencyId(item), shopDefaultCurrency, "item's resolved currency");
         context.succeed();
     }
 
@@ -74,12 +73,12 @@ public class GUIShopAddItemCommandTest extends CommandTestBase {
         var capture = dispatch(context,
             "guishop additem \"No Default Currency Shop\" \"Diamond\" minecraft:diamond 10 5");
 
-        context.assertTrue(capture.anyMessageContains("successfully added"), Component.literal("expected a success message"));
-        context.assertValueEqual(shop.getItems().size(), 1, Component.literal("item count after additem"));
+        assertTrue(context, capture.anyMessageContains("successfully added"), "expected a success message");
+        assertValueEqual(context, shop.getItems().size(), 1, "item count after additem");
 
         ShopItem item = shop.getItems().get(0);
-        context.assertTrue(!item.hasCurrency(), Component.literal("no explicit currency should be recorded on the item"));
-        context.assertValueEqual(shop.getCurrencyId(item), EconomyUtils.getFirstCurrencyId(), Component.literal("item's resolved currency"));
+        assertTrue(context, !item.hasCurrency(), "no explicit currency should be recorded on the item");
+        assertValueEqual(context, shop.getCurrencyId(item), EconomyUtils.getFirstCurrencyId(), "item's resolved currency");
         context.succeed();
     }
 
@@ -88,7 +87,7 @@ public class GUIShopAddItemCommandTest extends CommandTestBase {
         var capture = dispatch(context,
             "guishop additem \"Ghost Shop\" \"Diamond\" minecraft:diamond 10 5 test:coins");
 
-        context.assertTrue(capture.anyMessageContains("does not exist"), Component.literal("expected a not-found message"));
+        assertTrue(context, capture.anyMessageContains("does not exist"), "expected a not-found message");
         context.succeed();
     }
 
@@ -100,11 +99,11 @@ public class GUIShopAddItemCommandTest extends CommandTestBase {
         var capture = dispatch(context,
             "guishop additem \"Price Shop\" \"Diamond\" minecraft:diamond -1 5 test:coins");
 
-        context.assertTrue(capture.anyMessageContains("successfully added"), Component.literal("expected a success message"));
-        context.assertValueEqual(shop.getItems().size(), 1, Component.literal("item count after additem"));
+        assertTrue(context, capture.anyMessageContains("successfully added"), "expected a success message");
+        assertValueEqual(context, shop.getItems().size(), 1, "item count after additem");
         ShopItem item = shop.getItems().get(0);
-        context.assertValueEqual(item.buyPrice(), -1L, Component.literal("buy price"));
-        context.assertValueEqual(item.sellPrice(), 5L, Component.literal("sell price"));
+        assertValueEqual(context, item.buyPrice(), -1L, "buy price");
+        assertValueEqual(context, item.sellPrice(), 5L, "sell price");
         context.succeed();
     }
 
@@ -116,11 +115,11 @@ public class GUIShopAddItemCommandTest extends CommandTestBase {
         var capture = dispatch(context,
             "guishop additem \"Price Shop\" \"Diamond\" minecraft:diamond 5 -1 test:coins");
 
-        context.assertTrue(capture.anyMessageContains("successfully added"), Component.literal("expected a success message"));
-        context.assertValueEqual(shop.getItems().size(), 1, Component.literal("item count after additem"));
+        assertTrue(context, capture.anyMessageContains("successfully added"), "expected a success message");
+        assertValueEqual(context, shop.getItems().size(), 1, "item count after additem");
         ShopItem item = shop.getItems().get(0);
-        context.assertValueEqual(item.buyPrice(), 5L, Component.literal("buy price"));
-        context.assertValueEqual(item.sellPrice(), -1L, Component.literal("sell price"));
+        assertValueEqual(context, item.buyPrice(), 5L, "buy price");
+        assertValueEqual(context, item.sellPrice(), -1L, "sell price");
         context.succeed();
     }
 
@@ -132,10 +131,10 @@ public class GUIShopAddItemCommandTest extends CommandTestBase {
         var capture = dispatch(context,
             "guishop additem \"Price Shop\" \"Diamond\" minecraft:diamond 5 -5 test:coins");
 
-        context.assertTrue(capture.anyMessageContains("successfully added"), Component.literal("expected a success message"));
-        context.assertValueEqual(shop.getItems().size(), 1, Component.literal("item count after additem"));
+        assertTrue(context, capture.anyMessageContains("successfully added"), "expected a success message");
+        assertValueEqual(context, shop.getItems().size(), 1, "item count after additem");
         ShopItem item = shop.getItems().get(0);
-        context.assertValueEqual(item.sellPrice(), -1L, Component.literal("sell price"));
+        assertValueEqual(context, item.sellPrice(), -1L, "sell price");
         context.succeed();
     }
 
@@ -147,8 +146,8 @@ public class GUIShopAddItemCommandTest extends CommandTestBase {
         var capture = dispatch(context,
             "guishop additem \"Price Shop\" \"Diamond\" minecraft:diamond -1 -1 test:coins");
 
-        context.assertTrue(capture.anyMessageContains("cannot have both"), Component.literal("expected a both-disabled message"));
-        context.assertValueEqual(shop.getItems().size(), 0, Component.literal("item count after additem with both prices disabled"));
+        assertTrue(context, capture.anyMessageContains("cannot have both"), "expected a both-disabled message");
+        assertValueEqual(context, shop.getItems().size(), 0, "item count after additem with both prices disabled");
         context.succeed();
     }
 

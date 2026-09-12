@@ -64,6 +64,30 @@ public abstract class GuiShopGameTestBase implements CustomTestMethodInvoker {
         return context.makeMockServerPlayerInLevel();
     }
 
+    protected static void assertTrue(GameTestHelper context, boolean condition, String message) {
+        //? if >=1.21.5 {
+        context.assertTrue(condition, Component.literal(message));
+        //?} else {
+        /*context.assertTrue(condition, message);
+        *///?}
+    }
+
+    protected static void assertFalse(GameTestHelper context, boolean condition, String message) {
+        //? if >=1.21.5 {
+        context.assertFalse(condition, Component.literal(message));
+        //?} else {
+        /*context.assertFalse(condition, message);
+        *///?}
+    }
+
+    protected static void assertValueEqual(GameTestHelper context, Object actual, Object expected, String message) {
+        //? if >=1.21.5 {
+        context.assertValueEqual(actual, expected, Component.literal(message));
+        //?} else {
+        /*context.assertValueEqual(actual, expected, message);
+        *///?}
+    }
+
     @Override
     public final void invokeTestMethod(
         //? if >=1.21.11 {
@@ -72,16 +96,20 @@ public abstract class GuiShopGameTestBase implements CustomTestMethodInvoker {
         /*GameTestHelper context,
         *///?}
         Method method
-    ) throws ReflectiveOperationException {
+    ) {
         resetShops();
         Path shopStoreTempDir = installTempShopStore(context);
         setUp(context);
-        context.assertTrue(setUpCalled, Component.literal(getClass().getSimpleName() + ".setUp() must call super.setUp()"));
+        assertTrue(context, setUpCalled, getClass().getSimpleName() + ".setUp() must call super.setUp()");
         try {
-            method.invoke(this, context);
+            try {
+                method.invoke(this, context);
+            } catch (ReflectiveOperationException e) {
+                throw new RuntimeException(e);
+            }
         } finally {
             tearDown(context);
-            context.assertTrue(teardownCalled, Component.literal(getClass().getSimpleName() + ".tearDown() must call super.tearDown()"));
+            assertTrue(context, teardownCalled, getClass().getSimpleName() + ".tearDown() must call super.tearDown()");
             cleanupShopStore(shopStoreTempDir);
         }
     }

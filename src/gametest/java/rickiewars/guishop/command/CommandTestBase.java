@@ -46,8 +46,7 @@ public abstract class CommandTestBase extends GuiShopGameTestBase {
         for (GuiShopPermission permission : expected) {
             expectedNodes.add(permission.node());
         }
-        context.assertTrue(checkedPermissionNodes.equals(expectedNodes),
-            Component.literal("expected checked permission nodes " + expectedNodes + " but got " + checkedPermissionNodes));
+        assertTrue(context, checkedPermissionNodes.equals(expectedNodes), "expected checked permission nodes " + expectedNodes + " but got " + checkedPermissionNodes);
     }
 
     /** Starting point for a mock player dispatch with permission level 4 (Operator). */
@@ -62,9 +61,8 @@ public abstract class CommandTestBase extends GuiShopGameTestBase {
             DispatchResult result = action.apply(source);
             boolean expectedToSucceed = level >= requiredLevel;
             boolean actuallySucceeded = succeeded.test(result);
-            context.assertTrue(actuallySucceeded == expectedToSucceed,
-                Component.literal("level " + level + " (requires " + requiredLevel + "): expected "
-                    + (expectedToSucceed ? "success" : "denial") + " but got " + (actuallySucceeded ? "success" : "denial")));
+            assertTrue(context, actuallySucceeded == expectedToSucceed, "level " + level + " (requires " + requiredLevel + "): expected "
+                    + (expectedToSucceed ? "success" : "denial") + " but got " + (actuallySucceeded ? "success" : "denial"));
         }
     }
 

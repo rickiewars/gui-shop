@@ -2,7 +2,6 @@ package rickiewars.guishop.command.admin;
 
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
@@ -30,10 +29,10 @@ public class GUIShopAddHeldItemCommandTest extends CommandTestBase {
         var capture = dispatch(context,
             "guishop addhelditem \"Held Shop\" \"Sword\" 20 10 test:coins \"Line one\\\\Line two\"", playerSource(player));
 
-        context.assertTrue(capture.anyMessageContains("successfully added"), Component.literal("expected a success message"));
-        context.assertValueEqual(shop.getItems().size(), 1, Component.literal("item count after addhelditem"));
-        context.assertValueEqual(shop.getItems().getFirst().itemId(), ResourceId.ofVanilla("diamond_sword"), Component.literal("held item id"));
-        context.assertValueEqual(shop.getItems().getFirst().description(), List.of("Line one", "Line two"), Component.literal("description split on backslash"));
+        assertTrue(context, capture.anyMessageContains("successfully added"), "expected a success message");
+        assertValueEqual(context, shop.getItems().size(), 1, "item count after addhelditem");
+        assertValueEqual(context, shop.getItems().getFirst().itemId(), ResourceId.ofVanilla("diamond_sword"), "held item id");
+        assertValueEqual(context, shop.getItems().getFirst().description(), List.of("Line one", "Line two"), "description split on backslash");
         context.succeed();
     }
 
@@ -48,10 +47,10 @@ public class GUIShopAddHeldItemCommandTest extends CommandTestBase {
         var capture = dispatch(context,
             "guishop addhelditem \"Held Defaults Shop\" \"Sword\" 20 10", playerSource(player));
 
-        context.assertTrue(capture.anyMessageContains("successfully added"), Component.literal("expected a success message"));
-        context.assertValueEqual(shop.getItems().size(), 1, Component.literal("item count after addhelditem"));
+        assertTrue(context, capture.anyMessageContains("successfully added"), "expected a success message");
+        assertValueEqual(context, shop.getItems().size(), 1, "item count after addhelditem");
         List<String> description = shop.getItems().getFirst().description();
-        context.assertTrue(description.isEmpty(), Component.literal("expected an empty description but got " + description.size() + " line(s)"));
+        assertTrue(context, description.isEmpty(), "expected an empty description but got " + description.size() + " line(s)");
         context.succeed();
     }
 
@@ -67,10 +66,10 @@ public class GUIShopAddHeldItemCommandTest extends CommandTestBase {
         dispatch(context,
             "guishop addhelditem \"Held Currency Defaults Shop\" \"Sword\" 20 10", playerSource(player));
 
-        context.assertValueEqual(shop.getItems().size(), 1, Component.literal("item count after addhelditem"));
+        assertValueEqual(context, shop.getItems().size(), 1, "item count after addhelditem");
         ShopItem item = shop.getItems().get(0);
-        context.assertTrue(!item.hasCurrency(), Component.literal("no explicit currency should be recorded on the item"));
-        context.assertValueEqual(shop.getCurrencyId(item), shopDefaultCurrency, Component.literal("item's resolved currency"));
+        assertTrue(context, !item.hasCurrency(), "no explicit currency should be recorded on the item");
+        assertValueEqual(context, shop.getCurrencyId(item), shopDefaultCurrency, "item's resolved currency");
         context.succeed();
     }
 
@@ -85,13 +84,9 @@ public class GUIShopAddHeldItemCommandTest extends CommandTestBase {
         var capture = dispatch(context,
             "guishop addhelditem \"Held Explicit Currency Shop\" \"Sword\" 20 10 test:coins", playerSource(player));
 
-        context.assertTrue(capture.anyMessageContains("successfully added"), Component.literal("expected a success message"));
-        context.assertValueEqual(shop.getItems().size(), 1, Component.literal("item count after addhelditem"));
-        context.assertValueEqual(
-            shop.getItems().get(0).explicitCurrencyId(),
-            ResourceId.of("test", "coins"),
-            Component.literal("explicit currency should be recorded on the item")
-        );
+        assertTrue(context, capture.anyMessageContains("successfully added"), "expected a success message");
+        assertValueEqual(context, shop.getItems().size(), 1, "item count after addhelditem");
+        assertValueEqual(context, shop.getItems().get(0).explicitCurrencyId(), ResourceId.of("test", "coins"), "explicit currency should be recorded on the item");
         context.succeed();
     }
 
@@ -106,10 +101,10 @@ public class GUIShopAddHeldItemCommandTest extends CommandTestBase {
         dispatch(context,
             "guishop addhelditem \"Held No Default Currency Shop\" \"Sword\" 20 10", playerSource(player));
 
-        context.assertValueEqual(shop.getItems().size(), 1, Component.literal("item count after addhelditem"));
+        assertValueEqual(context, shop.getItems().size(), 1, "item count after addhelditem");
         ShopItem item = shop.getItems().get(0);
-        context.assertTrue(!item.hasCurrency(), Component.literal("no explicit currency should be recorded on the item"));
-        context.assertValueEqual(shop.getCurrencyId(item), EconomyUtils.getFirstCurrencyId(), Component.literal("item's resolved currency"));
+        assertTrue(context, !item.hasCurrency(), "no explicit currency should be recorded on the item");
+        assertValueEqual(context, shop.getCurrencyId(item), EconomyUtils.getFirstCurrencyId(), "item's resolved currency");
         context.succeed();
     }
 
@@ -124,11 +119,11 @@ public class GUIShopAddHeldItemCommandTest extends CommandTestBase {
         var capture = dispatch(context,
             "guishop addhelditem \"Held Price Shop\" \"Sword\" -1 5 test:coins", playerSource(player));
 
-        context.assertTrue(capture.anyMessageContains("successfully added"), Component.literal("expected a success message"));
-        context.assertValueEqual(shop.getItems().size(), 1, Component.literal("item count after addhelditem"));
+        assertTrue(context, capture.anyMessageContains("successfully added"), "expected a success message");
+        assertValueEqual(context, shop.getItems().size(), 1, "item count after addhelditem");
         ShopItem item = shop.getItems().get(0);
-        context.assertValueEqual(item.buyPrice(), -1L, Component.literal("buy price"));
-        context.assertValueEqual(item.sellPrice(), 5L, Component.literal("sell price"));
+        assertValueEqual(context, item.buyPrice(), -1L, "buy price");
+        assertValueEqual(context, item.sellPrice(), 5L, "sell price");
         context.succeed();
     }
 
@@ -143,11 +138,11 @@ public class GUIShopAddHeldItemCommandTest extends CommandTestBase {
         var capture = dispatch(context,
             "guishop addhelditem \"Held Price Shop\" \"Sword\" 5 -1 test:coins", playerSource(player));
 
-        context.assertTrue(capture.anyMessageContains("successfully added"), Component.literal("expected a success message"));
-        context.assertValueEqual(shop.getItems().size(), 1, Component.literal("item count after addhelditem"));
+        assertTrue(context, capture.anyMessageContains("successfully added"), "expected a success message");
+        assertValueEqual(context, shop.getItems().size(), 1, "item count after addhelditem");
         ShopItem item = shop.getItems().get(0);
-        context.assertValueEqual(item.buyPrice(), 5L, Component.literal("buy price"));
-        context.assertValueEqual(item.sellPrice(), -1L, Component.literal("sell price"));
+        assertValueEqual(context, item.buyPrice(), 5L, "buy price");
+        assertValueEqual(context, item.sellPrice(), -1L, "sell price");
         context.succeed();
     }
 
@@ -162,10 +157,10 @@ public class GUIShopAddHeldItemCommandTest extends CommandTestBase {
         var capture = dispatch(context,
             "guishop addhelditem \"Held Price Shop\" \"Sword\" 5 -5 test:coins", playerSource(player));
 
-        context.assertTrue(capture.anyMessageContains("successfully added"), Component.literal("expected a success message"));
-        context.assertValueEqual(shop.getItems().size(), 1, Component.literal("item count after addhelditem"));
+        assertTrue(context, capture.anyMessageContains("successfully added"), "expected a success message");
+        assertValueEqual(context, shop.getItems().size(), 1, "item count after addhelditem");
         ShopItem item = shop.getItems().get(0);
-        context.assertValueEqual(item.sellPrice(), -1L, Component.literal("sell price"));
+        assertValueEqual(context, item.sellPrice(), -1L, "sell price");
         context.succeed();
     }
 
@@ -180,8 +175,8 @@ public class GUIShopAddHeldItemCommandTest extends CommandTestBase {
         var capture = dispatch(context,
             "guishop addhelditem \"Held Price Shop\" \"Sword\" -1 -1 test:coins", playerSource(player));
 
-        context.assertTrue(capture.anyMessageContains("cannot have both"), Component.literal("expected a both-disabled message"));
-        context.assertValueEqual(shop.getItems().size(), 0, Component.literal("item count after addhelditem with both prices disabled"));
+        assertTrue(context, capture.anyMessageContains("cannot have both"), "expected a both-disabled message");
+        assertValueEqual(context, shop.getItems().size(), 0, "item count after addhelditem with both prices disabled");
         context.succeed();
     }
 
@@ -193,8 +188,8 @@ public class GUIShopAddHeldItemCommandTest extends CommandTestBase {
         var capture = dispatch(context,
             "guishop addhelditem \"Held Shop\" \"Sword\" 20 10");
 
-        context.assertTrue(capture.anyMessageContains("must specify a player"), Component.literal("console source should be rejected"));
-        context.assertValueEqual(shop.getItems().size(), 0, Component.literal("item count after a console dispatch"));
+        assertTrue(context, capture.anyMessageContains("must specify a player"), "console source should be rejected");
+        assertValueEqual(context, shop.getItems().size(), 0, "item count after a console dispatch");
         context.succeed();
     }
 
@@ -208,8 +203,8 @@ public class GUIShopAddHeldItemCommandTest extends CommandTestBase {
         var capture = dispatch(context,
             "guishop addhelditem \"Held Shop\" \"Sword\" 20 10", playerSource(player));
 
-        context.assertTrue(capture.anyMessageContains("must be holding an item"), Component.literal("expected an empty-hand message"));
-        context.assertValueEqual(shop.getItems().size(), 0, Component.literal("item count after an empty-hand dispatch"));
+        assertTrue(context, capture.anyMessageContains("must be holding an item"), "expected an empty-hand message");
+        assertValueEqual(context, shop.getItems().size(), 0, "item count after an empty-hand dispatch");
         context.succeed();
     }
 
@@ -220,8 +215,7 @@ public class GUIShopAddHeldItemCommandTest extends CommandTestBase {
         var capture = dispatch(context,
             "guishop addhelditem \"Ghost Shop\" \"Sword\" 20 10", playerSource(player));
 
-        context.assertTrue(capture.anyMessageContains("does not exist"),
-            Component.literal("the shop lookup runs before the hand-empty check, so a missing shop should win"));
+        assertTrue(context, capture.anyMessageContains("does not exist"), "the shop lookup runs before the hand-empty check, so a missing shop should win");
         context.succeed();
     }
 

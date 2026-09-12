@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.TagParser;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -13,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import rickiewars.guishop.api.minecraft.ResourceId;
 import rickiewars.guishop.api.minecraft.impl.MinecraftCompat;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
+import rickiewars.guishop.api.minecraft.impl.NbtCompat;
 import rickiewars.guishop.serializer.SnbtShopStore;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
@@ -50,7 +50,7 @@ public class LegacyShopConverterTest extends MigrationTestBase {
     }
 
     private CompoundTag readRaw(String id) throws Exception {
-        return TagParser.parseCompoundFully(Files.readString(shopsDir.resolve(id + ".snbt"), StandardCharsets.UTF_8));
+        return NbtCompat.parseCompoundFully(Files.readString(shopsDir.resolve(id + ".snbt"), StandardCharsets.UTF_8));
     }
 
     private static ItemStack stackOf(ShopItem item) {
@@ -123,7 +123,7 @@ public class LegacyShopConverterTest extends MigrationTestBase {
         assertTrue(convert());
 
         int expected = MinecraftCompat.currentDataVersion();
-        assertEquals(Optional.of(expected), readRaw("example_shop").getInt("DataVersion"));
+        assertEquals(Optional.of(expected), NbtCompat.getInt(readRaw("example_shop"), "DataVersion"));
     }
 
     @Test
@@ -222,7 +222,7 @@ public class LegacyShopConverterTest extends MigrationTestBase {
 
     @Test
     void preservesEnchantmentsCustomNameLoreAndDamage() throws Exception {
-        installLegacyShops("guishop-enchanted-current.json");
+        installLegacyShops("guishop-custom-name-lore-damage.json");
 
         assertTrue(convert());
 
@@ -231,8 +231,8 @@ public class LegacyShopConverterTest extends MigrationTestBase {
 
         ItemStack sword = stackOf(shop.getItems().getFirst());
         assertEquals(Items.NETHERITE_SWORD, sword.getItem());
-        assertEquals(5, sword.getEnchantments().getLevel(registries().getOrThrow(Enchantments.SHARPNESS)));
-        assertEquals(3, sword.getEnchantments().getLevel(registries().getOrThrow(Enchantments.UNBREAKING)));
+        assertEquals(5, sword.getEnchantments().getLevel(MinecraftCompat.getOrThrow(registries(), Enchantments.SHARPNESS)));
+        assertEquals(3, sword.getEnchantments().getLevel(MinecraftCompat.getOrThrow(registries(), Enchantments.UNBREAKING)));
         assertEquals("Excalibur", sword.get(DataComponents.CUSTOM_NAME).getString());
         assertEquals(1, sword.get(DataComponents.LORE).lines().size());
         assertEquals("Forged in fire", sword.get(DataComponents.LORE).lines().getFirst().getString());
@@ -246,96 +246,66 @@ public class LegacyShopConverterTest extends MigrationTestBase {
     }
 
     /**
-     * The data-loss case this suite exists for.
-     *
-     * A config last written by the mod on 1.21.4 stores enchantments as
-     * {"levels":{...},"show_in_tooltip":true}; 1.21.5 flattened that shape. Carrying it forward is
-     * the DataFixer's job -- see LegacyShopConverter#decodeLegacyStack.
+     * Pre-1.21.5, enchantments/stored_enchantments/dyed_color wrapped their payload in a container
+     * that 1.21.5 later unwrapped, e.g. enchantments went from
+     * {"levels":{"minecraft:sharpness":5},"show_in_tooltip":true} to flat {"minecraft:sharpness":5}.
+     * All three must still migrate correctly on every currently supported version.
      */
     @Test
-    void preservesEnchantmentsStoredInThePre1215Format() throws Exception {
-        installLegacyShops("guishop-enchanted-1214.json");
-
-        assertTrue(convert());
-
-        Shop shop = readShop("old_enchanted_shop");
-        ItemStack sword = stackOf(shop.getItems().getFirst());
-
-        assertEquals(
-            5,
-            sword.getEnchantments().getLevel(registries().getOrThrow(Enchantments.SHARPNESS)),
-            "pre-1.21.5 enchantment JSON must survive the migration"
-        );
-        assertNotNull(
-            sword.get(DataComponents.CUSTOM_NAME),
-            "one unparseable component must not take the item's other components with it"
-        );
-    }
-
-    /**
-     * 1.21.5 unwrapped four components whose container shape changed: enchantments,
-     * stored_enchantments, dyed_color and attribute_modifiers. All four must survive, and a
-     * stale show_in_tooltip flag must not be fatal on its own either.
-     */
-    @Test
-    void preservesEveryComponentShapeThat1215Unwrapped() throws Exception {
-        installLegacyShops("guishop-legacy-shapes-1214.json");
+    void preservesLegacyWrappedComponentShapes() throws Exception {
+        installLegacyShops("guishop-legacy-shapes.json");
 
         assertTrue(convert());
 
         Shop shop = readShop("legacy_shapes");
-        assertEquals(5, shop.getItems().size());
+        assertEquals(4, shop.getItems().size());
 
         ItemStack sword = stackOf(shop.getItems().get(0));
-        assertEquals(5, sword.getEnchantments().getLevel(registries().getOrThrow(Enchantments.SHARPNESS)));
-        assertEquals(1, sword.getEnchantments().getLevel(registries().getOrThrow(Enchantments.MENDING)));
+        assertEquals(
+            5,
+            sword.getEnchantments().getLevel(MinecraftCompat.getOrThrow(registries(), Enchantments.SHARPNESS)),
+            "wrapped enchantments must unwrap to the same levels"
+        );
+        assertEquals(1, sword.getEnchantments().getLevel(MinecraftCompat.getOrThrow(registries(), Enchantments.MENDING)));
+        assertEquals("Excalibur", sword.get(DataComponents.CUSTOM_NAME).getString(), "custom_name must survive alongside it");
 
         ItemStack book = stackOf(shop.getItems().get(1));
         assertEquals(
             3,
-            book.get(DataComponents.STORED_ENCHANTMENTS).getLevel(registries().getOrThrow(Enchantments.LURE)),
-            "stored_enchantments was unwrapped by the same 1.21.5 change"
+            book.get(DataComponents.STORED_ENCHANTMENTS).getLevel(MinecraftCompat.getOrThrow(registries(), Enchantments.LURE)),
+            "stored_enchantments wraps the same way as enchantments and must unwrap the same way"
         );
 
         ItemStack chestplate = stackOf(shop.getItems().get(2));
-        assertNotNull(chestplate.get(DataComponents.DYED_COLOR), "dyed_color lost its rgb wrapper in 1.21.5");
+        assertNotNull(chestplate.get(DataComponents.DYED_COLOR), "dyed_color must survive its own container unwrap");
         assertEquals(16711680, chestplate.get(DataComponents.DYED_COLOR).rgb());
-
-        ItemStack pickaxe = stackOf(shop.getItems().get(3));
-        assertEquals(
-            4,
-            pickaxe.getEnchantments().getLevel(registries().getOrThrow(Enchantments.EFFICIENCY)),
-            "a flat enchantment map still carrying show_in_tooltip must not be discarded"
-        );
     }
 
     /**
-     * A component that no DataFixer can rescue -- here one from a mod that has since been removed --
-     * must cost the item that component only, not its name as well.
+     * One item, two components: a legacy-wrapped enchantment (needs the DataFixer) next to
+     * someremovedmod:mystery_component, which no DataFixer can rescue. The bad component must cost
+     * only itself, and the fallback recovery path it forces (see
+     * LegacyShopConverter#applySalvageableComponents) must still run the survivors through the
+     * DataFixer rather than copy them through untouched.
      */
     @Test
-    void anUnsalvageableComponentDoesNotTakeTheOthersWithIt() throws Exception {
-        installLegacyShops("guishop-legacy-shapes-1214.json");
+    void anUnparseableComponentDoesNotBreakTheRestOfTheItem() throws Exception {
+        installLegacyShops("guishop-legacy-shapes.json");
 
         assertTrue(convert());
 
-        ItemStack stone = stackOf(readShop("legacy_shapes").getItems().get(4));
-        assertEquals(Items.STONE, stone.getItem());
-        assertNotNull(stone.get(DataComponents.CUSTOM_NAME), "the readable component must be kept");
-        assertEquals("Still Named", stone.get(DataComponents.CUSTOM_NAME).getString());
-    }
-
-    /** The neighbouring items in a shop must not be affected by one item's component failure. */
-    @Test
-    void anUnparseableComponentDoesNotBreakTheRestOfTheShop() throws Exception {
-        installLegacyShops("guishop-enchanted-1214.json");
-
-        assertTrue(convert());
-
-        Shop shop = readShop("old_enchanted_shop");
-        assertEquals(2, shop.getItems().size());
-        assertEquals("Plain Stone", shop.getItems().get(1).displayName());
-        assertEquals(Items.STONE, stackOf(shop.getItems().get(1)).getItem());
+        ItemStack pickaxe = stackOf(readShop("legacy_shapes").getItems().get(3));
+        assertEquals(Items.DIAMOND_PICKAXE, pickaxe.getItem());
+        assertEquals(
+            4,
+            pickaxe.getEnchantments().getLevel(MinecraftCompat.getOrThrow(registries(), Enchantments.EFFICIENCY)),
+            "wrapped enchantments must still be data-fixed via the fallback path, not left as raw levels"
+        );
+        assertEquals(
+            "Still Named",
+            pickaxe.get(DataComponents.CUSTOM_NAME).getString(),
+            "the readable custom_name must be kept despite the unparseable sibling"
+        );
     }
 
     @Test

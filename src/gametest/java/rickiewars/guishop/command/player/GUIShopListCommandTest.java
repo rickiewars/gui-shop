@@ -2,7 +2,6 @@ package rickiewars.guishop.command.player;
 
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import rickiewars.guishop.GUIShop;
@@ -26,9 +25,9 @@ public class GUIShopListCommandTest extends CommandTestBase {
 
         var result = dispatch(context, "guishop list");
 
-        context.assertTrue(result.anyMessageContains("Stocked Shop"), Component.literal("expected the stocked shop to be listed"));
-        context.assertTrue(result.anyMessageContains("Empty Shop (Out of stock)"), Component.literal("expected the empty shop to be marked out of stock"));
-        context.assertTrue(!result.anyMessageContains("Stocked Shop (Out of stock)"), Component.literal("the stocked shop must not be marked out of stock"));
+        assertTrue(context, result.anyMessageContains("Stocked Shop"), "expected the stocked shop to be listed");
+        assertTrue(context, result.anyMessageContains("Empty Shop (Out of stock)"), "expected the empty shop to be marked out of stock");
+        assertTrue(context, !result.anyMessageContains("Stocked Shop (Out of stock)"), "the stocked shop must not be marked out of stock");
         context.succeed();
     }
 
@@ -36,7 +35,7 @@ public class GUIShopListCommandTest extends CommandTestBase {
     public void listAllShopsReportsErrorWhenNoneAvailable(GameTestHelper context) {
         var result = dispatch(context, "guishop list");
 
-        context.assertTrue(result.anyMessageContains("no shops available"), Component.literal("expected a no-shops-available message"));
+        assertTrue(context, result.anyMessageContains("no shops available"), "expected a no-shops-available message");
         context.succeed();
     }
 
@@ -48,7 +47,7 @@ public class GUIShopListCommandTest extends CommandTestBase {
 
         var result = dispatch(context, "guishop list \"Stocked Shop\"");
 
-        context.assertTrue(result.anyMessageContains("Item name: Sword"), Component.literal("expected the item name to be listed"));
+        assertTrue(context, result.anyMessageContains("Item name: Sword"), "expected the item name to be listed");
         context.succeed();
     }
 
@@ -56,7 +55,7 @@ public class GUIShopListCommandTest extends CommandTestBase {
     public void listSpecificShopReportsErrorWhenNotFound(GameTestHelper context) {
         var result = dispatch(context, "guishop list \"Ghost Shop\"");
 
-        context.assertTrue(result.anyMessageContains("does not exist"), Component.literal("expected a not-found message"));
+        assertTrue(context, result.anyMessageContains("does not exist"), "expected a not-found message");
         context.succeed();
     }
 

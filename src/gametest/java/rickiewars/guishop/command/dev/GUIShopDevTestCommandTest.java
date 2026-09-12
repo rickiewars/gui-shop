@@ -2,7 +2,6 @@ package rickiewars.guishop.command.dev;
 
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import rickiewars.guishop.command.CommandTestBase;
 import rickiewars.guishop.command.GuiShopPermission;
@@ -15,8 +14,8 @@ public class GUIShopDevTestCommandTest extends CommandTestBase {
 
         var result = dispatch(context, "guishop devtest", playerSource(player));
 
-        context.assertTrue(result.success, Component.literal("expected the command to report success"));
-        context.assertValueEqual(result.result, 0, Component.literal("command result code"));
+        assertTrue(context, result.success, "expected the command to report success");
+        assertValueEqual(context, result.result, 0, "command result code");
         context.succeed();
     }
 

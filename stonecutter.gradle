@@ -10,5 +10,10 @@ stonecutter.parameters {
 			replace 'ResourceLocation', 'Identifier'
 			replace 'ResourceLocationArgument', 'IdentifierArgument'
 		}
+		string(current.parsed.matches('>=1.21.5')) {
+			replace 'net.minecraft.gametest.framework.GameTest;', 'net.fabricmc.fabric.api.gametest.v1.GameTest;'
+			replace 'FabricGameTest', 'CustomTestMethodInvoker'
+			replace '@GameTest(template = "fabric-gametest-api-v1:empty")', '@GameTest'
+		}
 	}
 }

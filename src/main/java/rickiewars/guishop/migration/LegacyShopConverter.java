@@ -5,10 +5,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Dynamic;
-import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
@@ -197,31 +195,18 @@ public final class LegacyShopConverter {
         }
 
         ItemStack stack = new ItemStack(registryItem.get(), 1);
-        applySalvageableComponents(stack, components, registries.createSerializationContext(JsonOps.INSTANCE), itemId, name);
+        applySalvageableComponents(stack, components, registries, itemCodec.currentDataVersion(), itemId, name);
         return stack;
     }
 
+    /// Whole-stack DataFixer pass; empty if any component in the set fails to parse afterward.
     private static Optional<ItemStack> fixLegacyStack(
         String itemId, @Nullable JsonElement components, HolderLookup.Provider registries, int currentDataVersion
     ) {
         try {
-            CompoundTag stackNbt = new CompoundTag();
-            stackNbt.putString("id", itemId);
-            stackNbt.putInt("count", 1);
-            if (components != null && components.isJsonObject() && !components.getAsJsonObject().isEmpty()) {
-                stackNbt.put("components", JsonOps.INSTANCE.convertTo(NbtOps.INSTANCE, components));
-            }
-
-            Dynamic<Tag> fixed = DataFixers.getDataFixer().update(
-                References.ITEM_STACK,
-                new Dynamic<>(NbtOps.INSTANCE, stackNbt),
-                LEGACY_FLOOR_DATA_VERSION,
-                currentDataVersion
-            );
-
-            return ItemStack.STRICT_SINGLE_ITEM_CODEC
-                .parse(registries.createSerializationContext(NbtOps.INSTANCE), fixed.getValue())
-                .result();
+            JsonObject componentsObject = components != null && components.isJsonObject()
+                ? components.getAsJsonObject() : new JsonObject();
+            return dataFixItemStack(itemId, componentsObject, registries, currentDataVersion);
         } catch (Exception e) {
             GUIShop.LOGGER.warn(
                 "Could not data-fix legacy item '{}', falling back to per-component recovery: {}", itemId, e.getMessage()
@@ -230,8 +215,32 @@ public final class LegacyShopConverter {
         }
     }
 
+    private static Optional<ItemStack> dataFixItemStack(
+        String itemId, JsonObject components, HolderLookup.Provider registries, int currentDataVersion
+    ) {
+        CompoundTag stackNbt = new CompoundTag();
+        stackNbt.putString("id", itemId);
+        stackNbt.putInt("count", 1);
+        if (!components.isEmpty()) {
+            stackNbt.put("components", JsonOps.INSTANCE.convertTo(NbtOps.INSTANCE, components));
+        }
+
+        Dynamic<Tag> fixed = DataFixers.getDataFixer().update(
+            References.ITEM_STACK,
+            new Dynamic<>(NbtOps.INSTANCE, stackNbt),
+            LEGACY_FLOOR_DATA_VERSION,
+            currentDataVersion
+        );
+
+        return ItemStack.STRICT_SINGLE_ITEM_CODEC
+            .parse(registries.createSerializationContext(NbtOps.INSTANCE), fixed.getValue())
+            .result();
+    }
+
+    /// Runs each component through the DataFixer on its own, dropping only the ones that fail.
     private static void applySalvageableComponents(
-        ItemStack stack, @Nullable JsonElement components, DynamicOps<JsonElement> ops, String itemId, String name
+        ItemStack stack, @Nullable JsonElement components, HolderLookup.Provider registries,
+        int currentDataVersion, String itemId, String name
     ) {
         if (components == null || !components.isJsonObject()) return;
 
@@ -239,15 +248,25 @@ public final class LegacyShopConverter {
             JsonObject single = new JsonObject();
             single.add(entry.getKey(), entry.getValue());
 
-            DataComponentPatch.CODEC.parse(ops, single).resultOrPartial(err ->
+            try {
+                dataFixItemStack(itemId, single, registries, currentDataVersion)
+                    .ifPresentOrElse(
+                        fixedStack -> stack.applyComponentsAndValidate(fixedStack.getComponentsPatch()),
+                        () -> GUIShop.LOGGER.warn(
+                            "Legacy item '{}' ({}): dropping component '{}' that could not be read",
+                            name, itemId, entry.getKey()
+                        )
+                    );
+            } catch (Exception e) {
                 GUIShop.LOGGER.warn(
                     "Legacy item '{}' ({}): dropping component '{}' that could not be read: {}",
-                    name, itemId, entry.getKey(), err
-                )
-            ).ifPresent(stack::applyComponentsAndValidate);
+                    name, itemId, entry.getKey(), e.getMessage()
+                );
+            }
         });
     }
 
+    /// Resolves a legacy item id string to a registered Item, empty if unknown or malformed.
     private static Optional<Item> lookupItem(String itemId) {
         try {
             return ItemRegistry.getOptional(ResourceId.parse(itemId));

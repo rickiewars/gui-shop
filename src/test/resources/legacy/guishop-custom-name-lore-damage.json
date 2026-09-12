@@ -19,14 +19,9 @@
               "minecraft:sharpness": 5,
               "minecraft:unbreaking": 3
             },
-            "minecraft:custom_name": {
-              "text": "Excalibur",
-              "bold": true
-            },
+            "minecraft:custom_name": "{\"text\":\"Excalibur\",\"bold\":true}",
             "minecraft:lore": [
-              {
-                "text": "Forged in fire"
-              }
+              "{\"text\":\"Forged in fire\"}"
             ],
             "minecraft:damage": 42
           }

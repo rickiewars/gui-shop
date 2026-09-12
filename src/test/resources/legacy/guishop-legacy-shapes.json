@@ -20,7 +20,8 @@
                 "minecraft:mending": 1
               },
               "show_in_tooltip": true
-            }
+            },
+            "minecraft:custom_name": "{\"text\":\"Excalibur\",\"bold\":true}"
           }
         },
         {
@@ -51,26 +52,19 @@
           }
         },
         {
-          "name": "Flat Enchantments With Tooltip Flag",
+          "name": "Wrapped Enchantments With Unparseable Sibling",
           "itemId": "minecraft:diamond_pickaxe",
           "description": [],
           "buyPrice": 75,
           "sellPrice": 7,
           "components": {
             "minecraft:enchantments": {
-              "minecraft:efficiency": 4,
-              "show_in_tooltip": false
-            }
-          }
-        },
-        {
-          "name": "Unsalvageable Component",
-          "itemId": "minecraft:stone",
-          "description": [],
-          "buyPrice": 1,
-          "sellPrice": 1,
-          "components": {
-            "minecraft:custom_name": { "text": "Still Named" },
+              "levels": {
+                "minecraft:efficiency": 4
+              },
+              "show_in_tooltip": true
+            },
+            "minecraft:custom_name": "{\"text\":\"Still Named\"}",
             "someremovedmod:mystery_component": { "value": 1 }
           }
         }

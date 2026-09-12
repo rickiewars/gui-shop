@@ -8,19 +8,18 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.gui.Menu;
 import rickiewars.guishop.api.gui.MenuController;
 import rickiewars.guishop.api.gui.impl.MinecraftMenuController;
+import rickiewars.guishop.api.minecraft.impl.MinecraftCompat;
 import rickiewars.guishop.api.minecraft.impl.MinecraftPlayer;
 import rickiewars.guishop.command.GuiShopPermission;
 import rickiewars.guishop.errors.CommandErrors;
 import rickiewars.guishop.shop.gui.SelectShopMenu;
 
-import java.net.URI;
 import java.util.function.UnaryOperator;
 
 public class GUIShopMainCommand {
@@ -70,13 +69,7 @@ public class GUIShopMainCommand {
             /shop forcesave
             /shop reload""";
 
-        UnaryOperator<Style> uriStyle = (style) -> {
-            try {
-                return style.withClickEvent(new ClickEvent.OpenUrl(new URI(git)));
-            } catch (Exception e) {
-                return style.withClickEvent(new ClickEvent.CopyToClipboard(git));
-            }
-        };
+        UnaryOperator<Style> uriStyle = (style) -> style.withClickEvent(MinecraftCompat.clickEventOpenUrl(git));
 
         context.getSource().sendSuccess(
             () -> Component.literal(aboutMsg).withStyle(ChatFormatting.GREEN).append("\n").append(

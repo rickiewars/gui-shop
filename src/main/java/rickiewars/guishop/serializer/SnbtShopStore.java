@@ -3,11 +3,11 @@ package rickiewars.guishop.serializer;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.TagParser;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.minecraft.ResourceId;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemCodec;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
+import rickiewars.guishop.api.minecraft.impl.NbtCompat;
 import rickiewars.guishop.shop.SellPricing;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
@@ -57,13 +57,13 @@ public class SnbtShopStore {
         String id = fileNameWithoutExtension(file);
         CompoundTag envelope;
         try {
-            envelope = TagParser.parseCompoundFully(Files.readString(file, StandardCharsets.UTF_8));
+            envelope = NbtCompat.parseCompoundFully(Files.readString(file, StandardCharsets.UTF_8));
         } catch (IOException | CommandSyntaxException e) {
             GUIShop.LOGGER.error("Shop file {} failed to load: {}", file, e.getMessage());
             return Optional.empty();
         }
 
-        Optional<Integer> storedVersion = envelope.getInt("DataVersion");
+        Optional<Integer> storedVersion = NbtCompat.getInt(envelope, "DataVersion");
         if (storedVersion.isEmpty()) {
             GUIShop.LOGGER.error("Shop file {} failed to load: unknown or missing DataVersion", file);
             return Optional.empty();
@@ -77,16 +77,16 @@ public class SnbtShopStore {
             return Optional.empty();
         }
 
-        String displayName = envelope.getString("displayName").orElse(id);
-        ResourceId icon = envelope.getString("icon").map(raw -> parseIdentifier(raw, "icon", "Shop file " + file)).orElse(null);
-        ResourceId defaultCurrency = envelope.getString("defaultCurrency").map(raw -> parseIdentifier(raw, "defaultCurrency", "Shop file " + file)).orElse(null);
+        String displayName = NbtCompat.getString(envelope, "displayName").orElse(id);
+        ResourceId icon = NbtCompat.getString(envelope, "icon").map(raw -> parseIdentifier(raw, "icon", "Shop file " + file)).orElse(null);
+        ResourceId defaultCurrency = NbtCompat.getString(envelope, "defaultCurrency").map(raw -> parseIdentifier(raw, "defaultCurrency", "Shop file " + file)).orElse(null);
         SellPricing sellPricing = readSellPricing(envelope).orElse(null);
 
         List<ShopItem> items = new LinkedList<>();
         boolean[] needsRewrite = {false};
-        ListTag entries = envelope.getListOrEmpty("entries");
+        ListTag entries = NbtCompat.getCompoundListOrEmpty(envelope, "entries");
         for (int i = 0; i < entries.size(); i++) {
-            Optional<CompoundTag> entryCompound = entries.getCompound(i);
+            Optional<CompoundTag> entryCompound = NbtCompat.getCompound(entries, i);
             if (entryCompound.isEmpty()) continue;
             readEntry(entryCompound.get(), id, file, storedVersion.get(), needsRewrite).ifPresent(items::add);
         }
@@ -106,10 +106,10 @@ public class SnbtShopStore {
     }
 
     private Optional<ShopItem> readEntry(CompoundTag entry, String shopId, Path file, int storedVersion, boolean[] needsRewrite) {
-        Optional<String> displayName = entry.getString("displayName");
-        Optional<Long> buyPrice = entry.getLong("buyPrice");
-        Optional<Long> sellPrice = entry.getLong("sellPrice");
-        Optional<CompoundTag> stackNbt = entry.getCompound("stack");
+        Optional<String> displayName = NbtCompat.getString(entry, "displayName");
+        Optional<Long> buyPrice = NbtCompat.getLong(entry, "buyPrice");
+        Optional<Long> sellPrice = NbtCompat.getLong(entry, "sellPrice");
+        Optional<CompoundTag> stackNbt = NbtCompat.getCompound(entry, "stack");
 
         if (displayName.isEmpty() || buyPrice.isEmpty() || sellPrice.isEmpty() || stackNbt.isEmpty()) {
             GUIShop.LOGGER.warn("Shop '{}' in {}: entry missing a required field, skipping", shopId, file);
@@ -126,13 +126,13 @@ public class SnbtShopStore {
         }
 
         List<String> description = new LinkedList<>();
-        entry.getList("description").ifPresent(list -> {
+        NbtCompat.getStringList(entry, "description").ifPresent(list -> {
             for (int i = 0; i < list.size(); i++) {
-                list.getString(i).ifPresent(description::add);
+                NbtCompat.getString(list, i).ifPresent(description::add);
             }
         });
 
-        ResourceId explicitCurrency = entry.getString("currency")
+        ResourceId explicitCurrency = NbtCompat.getString(entry, "currency")
             .map(raw -> parseIdentifier(raw, "currency", "Shop '" + shopId + "' in " + file + ", entry '" + displayName.get() + "'"))
             .orElse(null);
 
@@ -205,18 +205,18 @@ public class SnbtShopStore {
     }
 
     private Optional<SellPricing> readSellPricing(CompoundTag envelope) {
-        Optional<CompoundTag> compound = envelope.getCompound("sellPricing");
+        Optional<CompoundTag> compound = NbtCompat.getCompound(envelope, "sellPricing");
         if (compound.isEmpty()) return Optional.empty();
         CompoundTag sp = compound.get();
 
         SellPricing defaults = SellPricing.DEFAULT;
         return Optional.of(new SellPricing(
-            sp.getDouble("firstUsePenalty").orElse(defaults.firstUsePenalty()),
-            sp.getDouble("minValueFraction").orElse(defaults.minValueFraction()),
-            sp.getDouble("damageCurveExponent").orElse(defaults.damageCurveExponent()),
-            sp.getDouble("repairCostPenaltyPerPoint").orElse(defaults.repairCostPenaltyPerPoint()),
-            sp.getDouble("customNamePenalty").orElse(defaults.customNamePenalty()),
-            sp.getDouble("lorePenalty").orElse(defaults.lorePenalty())
+            NbtCompat.getDouble(sp, "firstUsePenalty").orElse(defaults.firstUsePenalty()),
+            NbtCompat.getDouble(sp, "minValueFraction").orElse(defaults.minValueFraction()),
+            NbtCompat.getDouble(sp, "damageCurveExponent").orElse(defaults.damageCurveExponent()),
+            NbtCompat.getDouble(sp, "repairCostPenaltyPerPoint").orElse(defaults.repairCostPenaltyPerPoint()),
+            NbtCompat.getDouble(sp, "customNamePenalty").orElse(defaults.customNamePenalty()),
+            NbtCompat.getDouble(sp, "lorePenalty").orElse(defaults.lorePenalty())
         ));
     }
 

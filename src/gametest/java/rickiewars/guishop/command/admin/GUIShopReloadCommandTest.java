@@ -2,7 +2,6 @@ package rickiewars.guishop.command.admin;
 
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.network.chat.Component;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.command.CommandTestBase;
 import rickiewars.guishop.command.GuiShopPermission;
@@ -23,7 +22,7 @@ public class GUIShopReloadCommandTest extends CommandTestBase {
         dispatch(context, "guishop reload");
 
         boolean found = GUIShop.shops.stream().anyMatch(s -> s.getId().equals("reload_sentinel"));
-        context.assertTrue(found, Component.literal("reload should re-read shops from disk"));
+        assertTrue(context, found, "reload should re-read shops from disk");
         context.succeed();
     }
 

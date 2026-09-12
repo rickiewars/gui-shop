@@ -10,6 +10,7 @@ import rickiewars.guishop.api.database.DatabaseManager;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyProvider;
 import rickiewars.guishop.api.minecraft.ResourceId;
+import rickiewars.guishop.api.minecraft.impl.MinecraftCompat;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.api.minecraft.impl.TestServer;
 import rickiewars.guishop.config.GuiShopConfig;
@@ -118,7 +119,7 @@ public class TestUtils {
         var builder = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
 
         enchantments.forEach((enchantment, level) -> {
-            builder.upgrade(lookup.getOrThrow(enchantment), level);
+            builder.upgrade(MinecraftCompat.getOrThrow(lookup, enchantment), level);
         });
 
         return builder.toImmutable();
