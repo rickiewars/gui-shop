@@ -104,7 +104,7 @@ public class TestUtils {
         details.accounts.put(details.accountPouchId.path(), new GuiShopConfig.AccountDefinition(
             details.currencyCoinsId.path(),
             "Pouch",
-            ResourceId.parse(CommonMethods.getItemId(Items.BROWN_BUNDLE))
+            ResourceId.parse(CommonMethods.getItemId(Items.BUNDLE))
         ));
 
         GUIShop.config = new GuiShopConfig();

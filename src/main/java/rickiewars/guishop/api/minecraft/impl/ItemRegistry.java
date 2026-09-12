@@ -16,7 +16,11 @@ public final class ItemRegistry {
     }
 
     public static Item get(ResourceId id) {
+        //? if >=1.21.2 {
         return BuiltInRegistries.ITEM.getValue(id.toIdentifier());
+        //?} else {
+        /*return BuiltInRegistries.ITEM.get(id.toResourceLocation());
+        *///?}
     }
 
     public static Optional<Item> getOptional(ResourceId id) {
