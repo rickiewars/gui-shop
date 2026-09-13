@@ -1,7 +1,6 @@
 package rickiewars.guishop.serializer;
 
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -10,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import rickiewars.guishop.MinecraftTest;
 import rickiewars.guishop.api.minecraft.ResourceId;
+import rickiewars.guishop.api.minecraft.impl.MinecraftCompat;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemCodec;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.shop.Shop;
@@ -38,7 +38,7 @@ public class SnbtShopStoreTest extends MinecraftTest {
 
     @BeforeEach
     void setup() {
-        registryLookup = VanillaRegistries.createLookup();
+        registryLookup = MinecraftCompat.vanillaRegistries();
         itemCodec = new MinecraftItemCodec(registryLookup);
         store = new SnbtShopStore(itemCodec, tempDir);
     }

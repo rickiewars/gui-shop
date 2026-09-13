@@ -122,9 +122,11 @@ tasks.register("verifyFabricLoaderBackwardCompatibility", JavaCompile) {
 }
 
 def resourceVersion = project.version.toString()
+// TODO: Revert to minecraft_version once 26.3 releases.
+def minecraftVersionDependency = project.findProperty('minecraft_version_dependency') ?: minecraft_version
 processResources {
 	inputs.property "version", resourceVersion
-    inputs.property "minecraft_version", minecraft_version
+    inputs.property "minecraft_version", minecraftVersionDependency
     inputs.property "loader_version_floor", project.loader_version_floor
 
 	filesMatching("fabric.mod.json") {

@@ -1,10 +1,10 @@
 package rickiewars.guishop.serializer;
 
-import net.minecraft.data.registries.VanillaRegistries;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import rickiewars.guishop.MinecraftTest;
+import rickiewars.guishop.api.minecraft.impl.MinecraftCompat;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemCodec;
 import rickiewars.guishop.shop.Shop;
 
@@ -31,7 +31,7 @@ public class SnbtGoldenFixturesTest extends MinecraftTest {
     /// upgrade path. Copied into tempDir since readShop() rewrites old files in place.
     @BeforeEach
     void setup() throws IOException {
-        MinecraftItemCodec codec = new MinecraftItemCodec(VanillaRegistries.createLookup());
+        MinecraftItemCodec codec = new MinecraftItemCodec(MinecraftCompat.vanillaRegistries());
         for (Path source : snbtFilesIn(FIXTURES_DIR)) {
             Files.copy(source, tempDir.resolve(source.getFileName()), StandardCopyOption.REPLACE_EXISTING);
         }

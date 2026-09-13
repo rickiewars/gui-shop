@@ -1,12 +1,12 @@
 package rickiewars.guishop.migration;
 
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.registries.VanillaRegistries;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import rickiewars.guishop.MinecraftTest;
+import rickiewars.guishop.api.minecraft.impl.MinecraftCompat;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemCodec;
 import rickiewars.guishop.config.ConfigManager;
 
@@ -64,7 +64,7 @@ public abstract class MigrationTestBase extends MinecraftTest {
     }
 
     protected static HolderLookup.Provider registries() {
-        if (registries == null) registries = VanillaRegistries.createLookup();
+        if (registries == null) registries = MinecraftCompat.vanillaRegistries();
         return registries;
     }
 

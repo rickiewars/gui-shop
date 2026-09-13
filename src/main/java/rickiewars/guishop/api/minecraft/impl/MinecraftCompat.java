@@ -67,4 +67,14 @@ public final class MinecraftCompat {
         /*return registries.lookupOrThrow(key.registryKey()).getOrThrow(key);
         *///?}
     }
+
+    public static HolderLookup.Provider vanillaRegistries() {
+        //? if >=26.3 {
+        return net.minecraft.data.registries.VanillaRegistries.createReloadableLookup(
+            net.minecraft.data.registries.VanillaRegistries.createWorldLookup()
+        );
+        //?} else {
+        /*return net.minecraft.data.registries.VanillaRegistries.createLookup();
+        *///?}
+    }
 }

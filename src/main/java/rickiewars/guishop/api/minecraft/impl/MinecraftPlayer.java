@@ -73,7 +73,11 @@ public class MinecraftPlayer implements IPlayer {
 
     @Override
     public void giveItem(IItemStack itemStack) {
-        player.getInventory().placeItemBackInInventory(unwrap(itemStack));
+        //? if >=26.3 {
+        player.getInventory().placeItemBackInInventory(unwrap(itemStack), net.minecraft.util.Prediction.SERVER_ONLY);
+        //?} else {
+        /*player.getInventory().placeItemBackInInventory(unwrap(itemStack));
+        *///?}
     }
 
     @Override

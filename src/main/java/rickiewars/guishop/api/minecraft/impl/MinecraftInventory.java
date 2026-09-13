@@ -28,7 +28,11 @@ public class MinecraftInventory implements IInventory {
 
     @Override
     public void offerOrDrop(IItemStack stack) {
-        inv.placeItemBackInInventory(unwrap(stack));
+        //? if >=26.3 {
+        inv.placeItemBackInInventory(unwrap(stack), net.minecraft.util.Prediction.SERVER_ONLY);
+        //?} else {
+        /*inv.placeItemBackInInventory(unwrap(stack));
+        *///?}
     }
 
     @Override
