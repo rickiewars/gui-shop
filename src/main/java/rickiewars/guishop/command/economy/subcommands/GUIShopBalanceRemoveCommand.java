@@ -13,8 +13,11 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import rickiewars.guishop.api.economy.impl.EconomyCompat;
 import rickiewars.guishop.command.GuiShopPermission;
 import rickiewars.guishop.errors.CommandErrors;
+
+import java.math.BigInteger;
 
 public class GUIShopBalanceRemoveCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> register() {
@@ -30,17 +33,17 @@ public class GUIShopBalanceRemoveCommand {
         ServerPlayer player = EntityArgument.getPlayer(context, "player");
         EconomyCurrency currency = GuiShopBalanceCommands.getCurrency(context);
 
-        long amount = LongArgumentType.getLong(context, "amount");
-        if (amount <= 0) throw CommandErrors.AMOUNT_MUST_BE_POSITIVE.create();
+        BigInteger amount = BigInteger.valueOf(LongArgumentType.getLong(context, "amount"));
+        if (amount.compareTo(BigInteger.ZERO) <= 0) throw CommandErrors.AMOUNT_MUST_BE_POSITIVE.create();
 
         EconomyAccount account = currency.provider().getDefaultAccount(player, currency);
         if (account == null) throw CommandErrors.ACCOUNT_NOT_FOUND.create(player.getName());
 
-        EconomyTransaction transaction = account.decreaseBalance(amount);
+        EconomyTransaction transaction = EconomyCompat.decreaseBalance(account, amount);
         if (transaction.isFailure()) throw CommandErrors.TRANSACTION_FAILED.create(transaction.message());
 
         context.getSource().sendSuccess(() -> Component.literal(
-            "Successfully removed " + currency.formatValue(amount, true) + " from " + player.getName().getString() + "'s account"
+            "Successfully removed " + EconomyCompat.formatValue(currency, amount, true) + " from " + player.getName().getString() + "'s account"
         ).withStyle(ChatFormatting.GREEN), false);
         return 0;
     }

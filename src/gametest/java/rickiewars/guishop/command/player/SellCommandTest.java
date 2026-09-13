@@ -8,6 +8,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import rickiewars.guishop.GUIShop;
+import rickiewars.guishop.api.economy.impl.EconomyCompat;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.command.CommandTestBase;
 import rickiewars.guishop.command.GuiShopPermission;
@@ -31,7 +32,7 @@ public class SellCommandTest extends CommandTestBase {
 
         dispatch(context, "sell hand", playerSource(player));
 
-        assertTrue(context, account.balance() > 0, "expected the account to be credited");
+        assertTrue(context, EconomyCompat.balance(account).longValueExact() > 0, "expected the account to be credited");
         assertTrue(context, player.getMainHandItem().isEmpty(), "expected the held item to be sold in full");
         context.succeed();
     }
@@ -44,7 +45,7 @@ public class SellCommandTest extends CommandTestBase {
         var capture = dispatch(context, "sell hand", playerSource(player));
 
         assertTrue(context, capture.anyMessageContains("must be holding an item"), "expected an empty-hand message");
-        assertValueEqual(context, account.balance(), 0L, "balance after an empty-hand attempt");
+        assertValueEqual(context, EconomyCompat.balance(account).longValueExact(), 0L, "balance after an empty-hand attempt");
         context.succeed();
     }
 
@@ -61,7 +62,7 @@ public class SellCommandTest extends CommandTestBase {
         var capture = dispatch(context, "sell hand", playerSource(player));
 
         assertTrue(context, capture.anyMessageContains("is not sellable in this shop"), "expected a not-sellable message");
-        assertValueEqual(context, account.balance(), 0L, "balance after a non-sellable item");
+        assertValueEqual(context, EconomyCompat.balance(account).longValueExact(), 0L, "balance after a non-sellable item");
         assertTrue(context, !player.getMainHandItem().isEmpty(), "the held item should be untouched");
         context.succeed();
     }

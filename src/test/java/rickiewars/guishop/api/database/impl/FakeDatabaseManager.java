@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 public class FakeDatabaseManager implements DatabaseManager {
-    private final Map<String, Integer> balances = new HashMap<>();
+    private final Map<String, Long> balances = new HashMap<>();
     public final Map<String, String> updatedAccounts = new HashMap<>();
 
     private String key(String currency, String uuid) {
@@ -15,29 +15,29 @@ public class FakeDatabaseManager implements DatabaseManager {
     }
 
     @Override
-    public int getBalance(String currency, String uuid) {
-        return balances.getOrDefault(key(currency, uuid), 0);
+    public long getBalance(String currency, String uuid) {
+        return balances.getOrDefault(key(currency, uuid), 0L);
     }
 
     @Override
-    public boolean setBalance(String currency, String uuid, int amount) {
+    public boolean setBalance(String currency, String uuid, long amount) {
         balances.put(key(currency, uuid), amount);
         return true;
     }
 
     // Not used in tests
     @Override
-    public void setAllBalance(String currency, int amount) {}
+    public void setAllBalance(String currency, long amount) {}
 
     @Override
-    public boolean changeBalance(String currency, String uuid, int amount) {
-        int oldVal = getBalance(currency, uuid);
+    public boolean changeBalance(String currency, String uuid, long amount) {
+        long oldVal = getBalance(currency, uuid);
         balances.put(key(currency, uuid), oldVal + amount);
         return true;
     }
 
     @Override
-    public void changeAllBalance(String currency, int amount) {}
+    public void changeAllBalance(String currency, long amount) {}
 
     @Override
     public List<Map<String, Object>> top(String currency, int topAmount) {

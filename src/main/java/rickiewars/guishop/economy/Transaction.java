@@ -4,10 +4,13 @@ import eu.pb4.common.economy.api.EconomyAccount;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import rickiewars.guishop.api.economy.impl.EconomyCompat;
 import rickiewars.guishop.api.minecraft.IPlayer;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
+
+import java.math.BigInteger;
 
 public class Transaction {
 
@@ -85,7 +88,7 @@ public class Transaction {
     private int pay(ShopItem item, int amount) {
         EconomyAccount acc = player.getAccount(shop.getCurrencyId(item));
         int canAfford = Math.min(
-            (int) (acc.balance() / item.buyPrice()),
+            EconomyCompat.balance(acc).divide(BigInteger.valueOf(item.buyPrice())).intValueExact(),
             amount
         );
         long cost = item.buyPrice() * canAfford;

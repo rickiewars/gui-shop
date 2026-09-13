@@ -5,8 +5,11 @@ import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerPlayer;
+import rickiewars.guishop.api.economy.impl.EconomyCompat;
 import rickiewars.guishop.command.GuiShopPermission;
 import rickiewars.guishop.command.economy.EconomyCommandTest;
+
+import java.math.BigInteger;
 
 public class GUIShopBalanceSendCommandTest extends EconomyCommandTest {
 
@@ -26,14 +29,14 @@ public class GUIShopBalanceSendCommandTest extends EconomyCommandTest {
         placeAt(context, receiver, new BlockPos(3, 0, 0));
         EconomyAccount senderAccount = creditAccount(context, sender);
         EconomyAccount receiverAccount = creditAccount(context, receiver);
-        senderAccount.increaseBalance(100);
+        EconomyCompat.increaseBalance(senderAccount, BigInteger.valueOf(100));
 
         var capture = dispatch(context,
             "guishop balance guishop:credit send " + OTHER_PLAYER_SELECTOR + " 30", playerSource(sender));
 
         assertTrue(context, capture.anyMessageContains("Successfully sent"), "expected a success message");
-        assertValueEqual(context, senderAccount.balance(), 70L, "sender balance after send");
-        assertValueEqual(context, receiverAccount.balance(), 30L, "receiver balance after send");
+        assertValueEqual(context, EconomyCompat.balance(senderAccount).longValueExact(), 70L, "sender balance after send");
+        assertValueEqual(context, EconomyCompat.balance(receiverAccount).longValueExact(), 30L, "receiver balance after send");
         context.succeed();
     }
 
@@ -41,13 +44,13 @@ public class GUIShopBalanceSendCommandTest extends EconomyCommandTest {
     public void sendRejectsTargetingSelf(GameTestHelper context) {
         ServerPlayer sender = mockPlayer(context);
         EconomyAccount senderAccount = creditAccount(context, sender);
-        senderAccount.increaseBalance(100);
+        EconomyCompat.increaseBalance(senderAccount, BigInteger.valueOf(100));
 
         var capture = dispatch(context,
             "guishop balance guishop:credit send @s 10", playerSource(sender));
 
         assertTrue(context, capture.anyMessageContains("cannot target yourself"), "expected a target-self message");
-        assertValueEqual(context, senderAccount.balance(), 100L, "sender balance after a self-send attempt");
+        assertValueEqual(context, EconomyCompat.balance(senderAccount).longValueExact(), 100L, "sender balance after a self-send attempt");
         context.succeed();
     }
 
@@ -64,8 +67,8 @@ public class GUIShopBalanceSendCommandTest extends EconomyCommandTest {
             "guishop balance guishop:credit send " + OTHER_PLAYER_SELECTOR + " 10", playerSource(sender));
 
         assertTrue(context, capture.anyMessageContains("Transaction failed"), "expected a transaction-failed message");
-        assertValueEqual(context, senderAccount.balance(), 0L, "sender balance after insufficient funds");
-        assertValueEqual(context, receiverAccount.balance(), 0L, "receiver balance after insufficient funds");
+        assertValueEqual(context, EconomyCompat.balance(senderAccount).longValueExact(), 0L, "sender balance after insufficient funds");
+        assertValueEqual(context, EconomyCompat.balance(receiverAccount).longValueExact(), 0L, "receiver balance after insufficient funds");
         context.succeed();
     }
 
@@ -81,7 +84,7 @@ public class GUIShopBalanceSendCommandTest extends EconomyCommandTest {
     public void sendRequiresVanillaPermission(GameTestHelper context) {
         assertVanillaLevel(context, GuiShopPermission.BALANCE_SEND.defaultLevel(),
             source -> {
-                creditAccount(context, source.player()).increaseBalance(100);
+                EconomyCompat.increaseBalance(creditAccount(context, source.player()), BigInteger.valueOf(100));
                 return dispatch(context, "guishop balance guishop:credit send @s 10", source);
             },
             result -> result.anyMessageContains("cannot target yourself"));

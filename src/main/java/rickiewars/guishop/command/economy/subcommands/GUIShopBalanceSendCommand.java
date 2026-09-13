@@ -13,8 +13,11 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import rickiewars.guishop.api.economy.impl.EconomyCompat;
 import rickiewars.guishop.command.GuiShopPermission;
 import rickiewars.guishop.errors.CommandErrors;
+
+import java.math.BigInteger;
 
 public class GUIShopBalanceSendCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> register() {
@@ -35,8 +38,8 @@ public class GUIShopBalanceSendCommand {
 
         EconomyCurrency currency = GuiShopBalanceCommands.getCurrency(context);
 
-        long amount = LongArgumentType.getLong(context, "amount");
-        if (amount <= 0) throw CommandErrors.AMOUNT_MUST_BE_POSITIVE.create();
+        BigInteger amount = BigInteger.valueOf(LongArgumentType.getLong(context, "amount"));
+        if (amount.compareTo(BigInteger.ZERO) <= 0) throw CommandErrors.AMOUNT_MUST_BE_POSITIVE.create();
 
         EconomyAccount senderAccount = currency.provider().getDefaultAccount(player, currency);
         if (senderAccount == null) throw CommandErrors.ACCOUNT_NOT_FOUND.create(player.getName());
@@ -44,17 +47,17 @@ public class GUIShopBalanceSendCommand {
         EconomyAccount receiverAccount = currency.provider().getDefaultAccount(targetPlayer, currency);
         if (receiverAccount == null) throw CommandErrors.ACCOUNT_NOT_FOUND.create(targetPlayer.getName());
 
-        EconomyTransaction decreaseTransaction = senderAccount.canDecreaseBalance(amount);
+        EconomyTransaction decreaseTransaction = EconomyCompat.canDecreaseBalance(senderAccount, amount);
         if (decreaseTransaction.isFailure()) throw CommandErrors.TRANSACTION_FAILED.create(decreaseTransaction.message());
 
-        EconomyTransaction increaseTransaction = receiverAccount.canIncreaseBalance(amount);
+        EconomyTransaction increaseTransaction = EconomyCompat.canIncreaseBalance(receiverAccount, amount);
         if (increaseTransaction.isFailure()) throw CommandErrors.TRANSACTION_FAILED.create(increaseTransaction.message());
 
-        senderAccount.decreaseBalance(amount);
-        receiverAccount.increaseBalance(amount);
+        EconomyCompat.decreaseBalance(senderAccount, amount);
+        EconomyCompat.increaseBalance(receiverAccount, amount);
 
         context.getSource().sendSuccess(() -> Component.literal(
-            "Successfully sent " + currency.formatValue(amount, false) + " to " + targetPlayer.getName().getString() + "'s account"
+            "Successfully sent " + EconomyCompat.formatValue(currency, amount, false) + " to " + targetPlayer.getName().getString() + "'s account"
         ).withStyle(ChatFormatting.GREEN), false);
         return 0;
     }

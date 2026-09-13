@@ -8,10 +8,12 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 import rickiewars.guishop.GUIShop;
+import rickiewars.guishop.api.economy.impl.EconomyCompat;
 import rickiewars.guishop.api.minecraft.IItemStack;
 import rickiewars.guishop.api.minecraft.ResourceId;
 import rickiewars.guishop.economy.EconomyUtils;
 
+import java.math.BigInteger;
 import java.util.*;
 
 /**
@@ -152,7 +154,7 @@ public record ShopItem(
     }
 
     public String formatCurrency(long value) {
-        return currency().formatValue(value, false);
+        return EconomyCompat.formatValue(currency(), BigInteger.valueOf(value), false);
     }
 
     public boolean hasCurrency() {

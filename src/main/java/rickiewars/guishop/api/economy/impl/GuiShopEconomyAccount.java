@@ -1,6 +1,5 @@
 package rickiewars.guishop.api.economy.impl;
 
-import eu.pb4.common.economy.api.EconomyAccount;
 import eu.pb4.common.economy.api.EconomyCurrency;
 import eu.pb4.common.economy.api.EconomyProvider;
 import eu.pb4.common.economy.api.EconomyTransaction;
@@ -15,9 +14,10 @@ import rickiewars.guishop.api.minecraft.ResourceId;
 import rickiewars.guishop.api.minecraft.impl.ItemRegistry;
 import rickiewars.guishop.config.GuiShopConfig;
 
+import java.math.BigInteger;
 import java.util.UUID;
 
-public class GuiShopEconomyAccount implements EconomyAccount {
+public class GuiShopEconomyAccount extends EconomyAccountCompat {
     public static ResourceId DEFAULT_ID = ResourceId.of(GuiShopEconomyProvider.ID, "account");
     public static final Item DEFAULT_ICON = Items.DIAMOND;
     public static final ResourceId DEFAULT_ICON_ID = ItemRegistry.idOf(DEFAULT_ICON);
@@ -36,6 +36,7 @@ public class GuiShopEconomyAccount implements EconomyAccount {
         this.uuid = uuid;
         this.uuidString = uuid.toString();
     }
+
     @Override
     public Component name() {
         return Component.literal(accountDefinition.name);
@@ -52,70 +53,74 @@ public class GuiShopEconomyAccount implements EconomyAccount {
     }
 
     @Override
-    public long balance() {
-        return this.db().getBalance(
+    protected BigInteger guiShopBalance() {
+        return BigInteger.valueOf(this.db().getBalance(
             this.currency().id().toString(),
             uuid.toString()
-        );
+        ));
     }
 
     @Override
-    public EconomyTransaction canIncreaseBalance(long value) {
-        long currentBal = this.balance();
-        long newBal = currentBal+value;
-        // 2 billion should be plenty for a player's balance
-        if (newBal >= Integer.MAX_VALUE) {
-            return new EconomyTransaction.Simple(
+    protected EconomyTransaction guiShopCanIncreaseBalance(BigInteger value) {
+        BigInteger currentBal = this.guiShopBalance();
+        BigInteger newBal = currentBal.add(value);
+        // Capped at Long.MAX_VALUE - 1, since the DB column is a long and rejects the sentinel Long.MAX_VALUE.
+        if (newBal.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) >= 0) {
+            return newTransaction(
                 false,
-                Component.literal("Congratulations! You have hit the limit of " + currency().formatValue(Integer.MAX_VALUE, false) + ". Go spend some money so we can give you money again!"),
+                Component.literal(
+                    "Congratulations! You have hit the limit of " +
+                        EconomyCompat.formatValue(currency(), BigInteger.valueOf(Long.MAX_VALUE), false) +
+                        ". Go spend some money so we can give you money again!"
+                ),
                 currentBal,
                 currentBal,
-                0,
-                this
+                BigInteger.ZERO
             );
         }
 
-        return new EconomyTransaction.Simple(
+        return newTransaction(
             true,
-            Component.literal("Added " + currency().formatValue(value, false) + " to your account"),
+            Component.literal(
+                "Added " +
+                    EconomyCompat.formatValue(currency(), value, false) +
+                    " to your account"
+            ),
             newBal,
             currentBal,
-            value,
-            this
+            value
         );
     }
 
     @Override
-    public EconomyTransaction canDecreaseBalance(long value) {
-        long currentBal = this.balance();
-        long newBal = currentBal - value;
-        if (newBal < 0) {
-            return new EconomyTransaction.Simple(
+    protected EconomyTransaction guiShopCanDecreaseBalance(BigInteger value) {
+        BigInteger currentBal = this.guiShopBalance();
+        BigInteger newBal = currentBal.subtract(value);
+        if (newBal.signum() < 0) {
+            return newTransaction(
                 false,
-                Component.literal("You don't have enough money to take " + currency().formatValue(value, false) + " from your account of " + currency().formatValue(currentBal, false)),
+                Component.literal("You don't have enough money to take " + EconomyCompat.formatValue(currency(), value, false) + " from your account of " + EconomyCompat.formatValue(currency(), currentBal, false)),
                 currentBal,
                 currentBal,
-                0,
-                this
+                BigInteger.ZERO
             );
         }
 
-        return new EconomyTransaction.Simple(
-                true,
-                Component.literal("Removed " + currency().formatValue(value, false) + " from your account"),
-                newBal,
-                currentBal,
-                value,
-                this
+        return newTransaction(
+            true,
+            Component.literal("Removed " + EconomyCompat.formatValue(currency(), value, false) + " from your account"),
+            newBal,
+            currentBal,
+            value
         );
     }
 
     @Override
-    public void setBalance(long value) {
+    protected void guiShopSetBalance(BigInteger value) {
         this.db().setBalance(
             this.currency().id().toString(),
             uuidString,
-            (int)value
+            value.longValueExact()
         );
     }
 

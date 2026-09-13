@@ -6,13 +6,14 @@ plugins {
 	id 'jacoco'
 }
 jacoco {
-	toolVersion = "0.8.11"
+	toolVersion = "0.8.13"
 }
 
 version = "${property('mod_version')}+${sc.current.version}"
 group = project.maven_group
 minecraft_version = project.minecraft_version
 loader_version = project.loader_version
+def javaVersion = project.java_version as int
 
 base {
 	archivesName = project.archives_base_name
@@ -60,25 +61,32 @@ loom {
 
 }
 
+def isNonObfuscated = sc.current.parsed.matches('>=26.1')
+def modConfiguration = isNonObfuscated ? 'implementation' : 'modImplementation'
+def modDep = { String notation -> dependencies.add(modConfiguration, notation) }
+
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings loom.officialMojangMappings()
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	if (!isNonObfuscated) {
+		mappings loom.officialMojangMappings()
+	}
+
+	modDep("net.fabricmc:fabric-loader:${project.loader_version}")
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-	include(modImplementation("me.lucko:fabric-permissions-api:${project.fabric_permissions_api_version}"))
+	modDep("net.fabricmc.fabric-api:fabric-api:${project.fabric_version}")
+	include(modDep("me.lucko:fabric-permissions-api:${project.fabric_permissions_api_version}"))
 
-	modImplementation include("eu.pb4:common-economy-api:${project.common_economy_api_version}")
+	include(modDep("eu.pb4:common-economy-api:${project.common_economy_api_version}"))
 
 	implementation(include("org.xerial:sqlite-jdbc:${project.sqlite_version}"))
 
-	modImplementation include("eu.pb4:sgui:${project.sgui_version}")
+	include(modDep("eu.pb4:sgui:${project.sgui_version}"))
 
-	modImplementation include("eu.pb4:polymer-core:${project.polymer_version}")
+	include(modDep("eu.pb4:polymer-core:${project.polymer_version}"))
 
-	modImplementation(include("eu.pb4:placeholder-api:${project.placeholder_api_version}"))
+	include(modDep("eu.pb4:placeholder-api:${project.placeholder_api_version}"))
 
     // Used for unit tests
     testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
@@ -96,11 +104,11 @@ def resourceVersion = project.version.toString()
 processResources {
 	inputs.property "version", resourceVersion
     inputs.property "minecraft_version", minecraft_version
-    inputs.property "loader_version", loader_version
+    inputs.property "loader_version_floor", project.loader_version_floor
 
 	filesMatching("fabric.mod.json") {
 		expand "version": resourceVersion,
-        "loader_version": inputs.properties["loader_version"],
+        "loader_version_floor": inputs.properties["loader_version_floor"],
         "minecraft_version": inputs.properties["minecraft_version"]
 	}
 }
@@ -190,7 +198,7 @@ tasks.named("processGametestResources") {
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 21
+	it.options.release = javaVersion
 }
 
 tasks.register("verifyTagMatchesVersion") {
@@ -217,7 +225,7 @@ java {
 	withSourcesJar()
 
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
+		languageVersion = JavaLanguageVersion.of(javaVersion)
 	}
 }
 

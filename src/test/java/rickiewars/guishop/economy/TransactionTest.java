@@ -5,6 +5,7 @@ import net.minecraft.world.item.ItemStack;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.EconomyTest;
+import rickiewars.guishop.api.economy.impl.EconomyCompat;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyProvider;
 import rickiewars.guishop.api.minecraft.ResourceId;
 import rickiewars.guishop.api.minecraft.impl.ItemRegistry;
@@ -14,6 +15,7 @@ import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
 import rickiewars.guishop.util.TestUtils;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,7 +41,7 @@ public class TransactionTest extends EconomyTest {
         );
 
         player.addDefaultAccount(shop.getDefaultCurrencyId());
-        player.getAccount(economy.currencyCreditsId).setBalance(1_000);
+        EconomyCompat.setBalance(player.getAccount(economy.currencyCreditsId), BigInteger.valueOf(1_000));
 
         shopItem = shop.getItems().getFirst();
         item = ItemRegistry.get(shopItem.itemId());
@@ -60,17 +62,17 @@ public class TransactionTest extends EconomyTest {
         transaction.buyToInventory(shopItem, 10);
 
         assertEquals(10, player.getInventory().count(idOf(item)));
-        assertEquals(900, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(900, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
     }
 
     @Test
     void buyToInventoryDoesNotBuyMoreThanCanAfford() {
-        player.getAccount(economy.currencyCreditsId).setBalance(505);
+        EconomyCompat.setBalance(player.getAccount(economy.currencyCreditsId), BigInteger.valueOf(505));
 
         transaction.buyToInventory(shopItem, 64);
 
         assertEquals(50, player.getInventory().count(idOf(item)));
-        assertEquals(5, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(5, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
     }
 
     @Test
@@ -80,7 +82,7 @@ public class TransactionTest extends EconomyTest {
         transaction.buyToInventory(shopItem, -5);
 
         assertEquals(5, player.getInventory().count(idOf(item)));
-        assertEquals(1_000, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(1_000, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
     }
 
     // -------------------------------------------------------------------------
@@ -97,7 +99,7 @@ public class TransactionTest extends EconomyTest {
 
         assertEquals(5, result.getCount());
         assertEquals(item, result.getItem());
-        assertEquals(950, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(950, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
     }
 
     @Test
@@ -112,7 +114,7 @@ public class TransactionTest extends EconomyTest {
 
         assertEquals(8, result.getCount());
         assertEquals(item, result.getItem());
-        assertEquals(950, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(950, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
     }
 
     @Test
@@ -137,13 +139,13 @@ public class TransactionTest extends EconomyTest {
 
         assertEquals(64, result.getCount());
         assertEquals(item, result.getItem());
-        assertEquals(960, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(960, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
     }
 
     @Test
     void buyToItemStackDoesNotBuyMoreThanCanAfford() {
         ItemStack cursor = new ItemStack(item, 5);
-        player.getAccount(economy.currencyCreditsId).setBalance(505);
+        EconomyCompat.setBalance(player.getAccount(economy.currencyCreditsId), BigInteger.valueOf(505));
 
         ItemStack result = transaction.buyToItemStack(
             shopItem,
@@ -153,7 +155,7 @@ public class TransactionTest extends EconomyTest {
 
         assertEquals(55, result.getCount());
         assertEquals(item, result.getItem());
-        assertEquals(5, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(5, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
     }
 
     @Test
@@ -167,7 +169,7 @@ public class TransactionTest extends EconomyTest {
         );
 
         assertEquals(5, result.getCount());
-        assertEquals(1_000, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(1_000, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
     }
 
     // -------------------------------------------------------------------------
@@ -181,7 +183,7 @@ public class TransactionTest extends EconomyTest {
         transaction.sellFromInventory(shopItem, 3);
 
         assertEquals(2, player.getInventory().count(idOf(item)));
-        assertEquals(1_030, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(1_030, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
     }
 
     @Test
@@ -189,7 +191,7 @@ public class TransactionTest extends EconomyTest {
         transaction.sellFromInventory(shopItem, 5);
 
         assertEquals(0, player.getInventory().count(idOf(item)));
-        assertEquals(1_000, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(1_000, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
     }
 
     @Test
@@ -199,7 +201,7 @@ public class TransactionTest extends EconomyTest {
         transaction.sellFromInventory(shopItem, 10);
 
         assertEquals(0, player.getInventory().count(idOf(item)));
-        assertEquals(1_050, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(1_050, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
     }
 
     @Test
@@ -209,7 +211,7 @@ public class TransactionTest extends EconomyTest {
         transaction.sellFromInventory(shopItem, -5);
 
         assertEquals(5, player.getInventory().count(idOf(item)));
-        assertEquals(1_000, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(1_000, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
     }
 
     @Test
@@ -235,7 +237,7 @@ public class TransactionTest extends EconomyTest {
             player.getInventory().count(idOf(pickaxe)),
             "I don't want to accedently sell my favorite pickaxe!"
         );
-        assertEquals(1_000, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(1_000, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
     }
 
     // -------------------------------------------------------------------------
@@ -249,7 +251,7 @@ public class TransactionTest extends EconomyTest {
         ItemStack result = transaction.sellFromItemStack(cursor, 2);
 
         assertEquals(2, result.getCount());
-        assertEquals(1_020, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(1_020, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
     }
 
     @Test
@@ -259,7 +261,7 @@ public class TransactionTest extends EconomyTest {
         ItemStack result = transaction.sellFromItemStack(cursor, 64);
 
         assertEquals(0, result.getCount());
-        assertEquals(1_050, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(1_050, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
     }
 
     @Test
@@ -272,7 +274,7 @@ public class TransactionTest extends EconomyTest {
         ItemStack result = transaction.sellFromItemStack(cursor, 5);
 
         assertSame(cursor, result);
-        assertEquals(1_000, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(1_000, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
     }
 
     @Test
@@ -298,7 +300,7 @@ public class TransactionTest extends EconomyTest {
 
         tx.sellFromItemStack(damaged, 1);
 
-        assertTrue(player.getAccount(economy.currencyCreditsId).balance() < 1_000 + pickaxeShopItem.sellPrice());
+        assertTrue(EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact() < 1_000 + pickaxeShopItem.sellPrice());
         assertTrue(player.getReceivedMessages().stream()
             .anyMatch(text -> text.getString().contains("adjusted for condition")));
     }
@@ -310,7 +312,7 @@ public class TransactionTest extends EconomyTest {
         ItemStack result = transaction.sellFromItemStack(cursor, -5);
 
         assertSame(cursor, result);
-        assertEquals(1_000, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(1_000, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
     }
 
     // -------------------------------------------------------------------------
@@ -322,7 +324,7 @@ public class TransactionTest extends EconomyTest {
         player.getInventory().offerOrDrop(
             new MinecraftItemStack(new ItemStack(item, 5))
         );
-        player.getAccount(economy.currencyCreditsId).setBalance(1);
+        EconomyCompat.setBalance(player.getAccount(economy.currencyCreditsId), BigInteger.valueOf(1));
 
         var ex = assertThrows(
             IllegalStateException.class, () -> transaction.buyToInventory(
@@ -330,7 +332,7 @@ public class TransactionTest extends EconomyTest {
                 1
             ));
         assertEquals("Not enough money", ex.getMessage());
-        assertEquals(1, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(1, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
         assertEquals(5, player.getInventory().count(idOf(item)));
     }
 
@@ -441,7 +443,7 @@ public class TransactionTest extends EconomyTest {
 
         assertSame(cursor, result);
         assertEquals(5, cursor.getCount());
-        assertEquals(1_000, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(1_000, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
     }
 }
 

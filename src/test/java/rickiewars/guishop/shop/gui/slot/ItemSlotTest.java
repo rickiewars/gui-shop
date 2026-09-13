@@ -7,6 +7,7 @@ import net.minecraft.world.item.Items;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.EconomyTest;
+import rickiewars.guishop.api.economy.impl.EconomyCompat;
 import rickiewars.guishop.api.gui.MenuContext;
 import rickiewars.guishop.api.gui.impl.TestMenuController;
 import rickiewars.guishop.api.minecraft.ResourceId;
@@ -17,6 +18,7 @@ import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.gui.ShopMenu;
 import rickiewars.guishop.util.TestUtils;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.UUID;
 
@@ -58,108 +60,108 @@ public class ItemSlotTest extends EconomyTest {
     @Test
     void LeftClickShopItemSlotBuysOneAndPlacesOnCursorStack() {
 
-        player.getAccount(economy.currencyCreditsId).setBalance(100);
-        assertEquals(100, player.getAccount(economy.currencyCreditsId).balance());
+        EconomyCompat.setBalance(player.getAccount(economy.currencyCreditsId), BigInteger.valueOf(100));
+        assertEquals(100, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
         assertTrue(player.getCursorStack().isEmpty());
 
         controller.slots.get(matchingItemIndex).onClick(ctx, ClickType.MOUSE_LEFT);
         assertEquals(1, player.getCursorStack().count());
         assertEquals(matchingItem, ((MinecraftItemStack) player.getCursorStack()).stack().getItem());
-        assertEquals(90, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(90, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
     }
 
     @Test
     void LeftClickShopItemWithMatchingCursorStackBuysOneAndAddsToStack() {
         player.setCursorStack(new MinecraftItemStack(new ItemStack(matchingItem, 10)));
 
-        player.getAccount(economy.currencyCreditsId).setBalance(100);
-        assertEquals(100, player.getAccount(economy.currencyCreditsId).balance());
+        EconomyCompat.setBalance(player.getAccount(economy.currencyCreditsId), BigInteger.valueOf(100));
+        assertEquals(100, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
         assertEquals(10, player.getCursorStack().count());
 
         controller.slots.get(matchingItemIndex).onClick(ctx, ClickType.MOUSE_LEFT);
         assertEquals(11, player.getCursorStack().count());
         assertEquals(matchingItem, ((MinecraftItemStack) player.getCursorStack()).stack().getItem());
-        assertEquals(90, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(90, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
     }
 
     @Test
     void ShiftLeftClickShopItemSlotBuysStackAndPlacesOnCursorStack() {
 
-        player.getAccount(economy.currencyCreditsId).setBalance(700);
-        assertEquals(700, player.getAccount(economy.currencyCreditsId).balance());
+        EconomyCompat.setBalance(player.getAccount(economy.currencyCreditsId), BigInteger.valueOf(700));
+        assertEquals(700, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
         assertTrue(player.getCursorStack().isEmpty());
 
         controller.slots.get(matchingItemIndex).onClick(ctx, ClickType.MOUSE_LEFT_SHIFT);
         assertEquals(64, player.getCursorStack().count());
         assertEquals(matchingItem, ((MinecraftItemStack) player.getCursorStack()).stack().getItem());
-        assertEquals(60, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(60, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
     }
 
     @Test
     void ShiftLeftClickShopItemWithMatchingCursorStackBuysUntillCursorStackIsFull() {
         player.setCursorStack(new MinecraftItemStack(new ItemStack(matchingItem, 60)));
 
-        player.getAccount(economy.currencyCreditsId).setBalance(100);
-        assertEquals(100, player.getAccount(economy.currencyCreditsId).balance());
+        EconomyCompat.setBalance(player.getAccount(economy.currencyCreditsId), BigInteger.valueOf(100));
+        assertEquals(100, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
         assertEquals(60, player.getCursorStack().count());
 
         controller.slots.get(matchingItemIndex).onClick(ctx, ClickType.MOUSE_LEFT_SHIFT);
         assertEquals(64, player.getCursorStack().count());
         assertEquals(matchingItem, ((MinecraftItemStack) player.getCursorStack()).stack().getItem());
-        assertEquals(60, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(60, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
     }
 
     @Test
     void shiftLeftClickShopItemBuysMaxAffordableAndPlacesOnCursor() {
 
-        player.getAccount(economy.currencyCreditsId).setBalance(105);
-        assertEquals(105, player.getAccount(economy.currencyCreditsId).balance());
+        EconomyCompat.setBalance(player.getAccount(economy.currencyCreditsId), BigInteger.valueOf(105));
+        assertEquals(105, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
         assertTrue(player.getCursorStack().isEmpty());
 
         controller.slots.get(matchingItemIndex).onClick(ctx, ClickType.MOUSE_LEFT_SHIFT);
         assertEquals(10, player.getCursorStack().count());
         assertEquals(matchingItem, ((MinecraftItemStack) player.getCursorStack()).stack().getItem());
-        assertEquals(5, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(5, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
     }
 
     @Test
     void shiftLeftClickShopItemBuysMaxAffordableAndIncrementsCursorStack() {
         player.setCursorStack(new MinecraftItemStack(new ItemStack(matchingItem, 10)));
 
-        player.getAccount(economy.currencyCreditsId).setBalance(105);
-        assertEquals(105, player.getAccount(economy.currencyCreditsId).balance());
+        EconomyCompat.setBalance(player.getAccount(economy.currencyCreditsId), BigInteger.valueOf(105));
+        assertEquals(105, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
         assertEquals(10, player.getCursorStack().count());
 
         controller.slots.get(matchingItemIndex).onClick(ctx, ClickType.MOUSE_LEFT_SHIFT);
         assertEquals(20, player.getCursorStack().count());
         assertEquals(matchingItem, ((MinecraftItemStack) player.getCursorStack()).stack().getItem());
-        assertEquals(5, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(5, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
     }
 
     @Test
     void LeftClickShopItemWithNonMatchingCursorStackSellsStack() {
         player.setCursorStack(new MinecraftItemStack(new ItemStack(matchingItem, 10)));
 
-        player.getAccount(economy.currencyCreditsId).setBalance(0);
-        assertEquals(0, player.getAccount(economy.currencyCreditsId).balance());
+        EconomyCompat.setBalance(player.getAccount(economy.currencyCreditsId), BigInteger.valueOf(0));
+        assertEquals(0, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
         assertEquals(10, player.getCursorStack().count());
 
         controller.slots.get(nonMatchingItemIndex).onClick(ctx, ClickType.MOUSE_LEFT);
         assertTrue(player.getCursorStack().isEmpty());
-        assertEquals(100, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(100, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
     }
 
     @Test
     void ShiftLeftClickShopItemWithNonMatchingCursorStackSellsStack() {
         player.setCursorStack(new MinecraftItemStack(new ItemStack(matchingItem, 10)));
 
-        player.getAccount(economy.currencyCreditsId).setBalance(0);
-        assertEquals(0, player.getAccount(economy.currencyCreditsId).balance());
+        EconomyCompat.setBalance(player.getAccount(economy.currencyCreditsId), BigInteger.valueOf(0));
+        assertEquals(0, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
         assertEquals(10, player.getCursorStack().count());
 
         controller.slots.get(nonMatchingItemIndex).onClick(ctx, ClickType.MOUSE_LEFT_SHIFT);
         assertTrue(player.getCursorStack().isEmpty());
-        assertEquals(100, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(100, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
     }
 
     // -------------------------------------------------------------------------
@@ -169,68 +171,68 @@ public class ItemSlotTest extends EconomyTest {
     @Test
     void middleClickShopItemSlotBuysStackAndPlacesOnCursorStack() {
 
-        player.getAccount(economy.currencyCreditsId).setBalance(700);
-        assertEquals(700, player.getAccount(economy.currencyCreditsId).balance());
+        EconomyCompat.setBalance(player.getAccount(economy.currencyCreditsId), BigInteger.valueOf(700));
+        assertEquals(700, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
         assertTrue(player.getCursorStack().isEmpty());
 
         controller.slots.get(matchingItemIndex).onClick(ctx, ClickType.MOUSE_MIDDLE);
         assertEquals(64, player.getCursorStack().count());
         assertEquals(matchingItem, ((MinecraftItemStack) player.getCursorStack()).stack().getItem());
-        assertEquals(60, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(60, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
     }
 
     @Test
     void middleClickShopItemWithMatchingCursorStackBuysUntillCursorStackIsFull() {
         player.setCursorStack(new MinecraftItemStack(new ItemStack(matchingItem, 60)));
 
-        player.getAccount(economy.currencyCreditsId).setBalance(100);
-        assertEquals(100, player.getAccount(economy.currencyCreditsId).balance());
+        EconomyCompat.setBalance(player.getAccount(economy.currencyCreditsId), BigInteger.valueOf(100));
+        assertEquals(100, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
         assertEquals(60, player.getCursorStack().count());
 
         controller.slots.get(matchingItemIndex).onClick(ctx, ClickType.MOUSE_MIDDLE);
         assertEquals(64, player.getCursorStack().count());
         assertEquals(matchingItem, ((MinecraftItemStack) player.getCursorStack()).stack().getItem());
-        assertEquals(60, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(60, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
     }
 
     @Test
     void middleClickShopItemBuysMaxAffordableAndPlacesOnCursor() {
 
-        player.getAccount(economy.currencyCreditsId).setBalance(105);
-        assertEquals(105, player.getAccount(economy.currencyCreditsId).balance());
+        EconomyCompat.setBalance(player.getAccount(economy.currencyCreditsId), BigInteger.valueOf(105));
+        assertEquals(105, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
         assertTrue(player.getCursorStack().isEmpty());
 
         controller.slots.get(matchingItemIndex).onClick(ctx, ClickType.MOUSE_MIDDLE);
         assertEquals(10, player.getCursorStack().count());
         assertEquals(matchingItem, ((MinecraftItemStack) player.getCursorStack()).stack().getItem());
-        assertEquals(5, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(5, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
     }
 
     @Test
     void middleLeftClickShopItemBuysMaxAffordableAndIncrementsCursorStack() {
         player.setCursorStack(new MinecraftItemStack(new ItemStack(matchingItem, 10)));
 
-        player.getAccount(economy.currencyCreditsId).setBalance(105);
-        assertEquals(105, player.getAccount(economy.currencyCreditsId).balance());
+        EconomyCompat.setBalance(player.getAccount(economy.currencyCreditsId), BigInteger.valueOf(105));
+        assertEquals(105, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
         assertEquals(10, player.getCursorStack().count());
 
         controller.slots.get(matchingItemIndex).onClick(ctx, ClickType.MOUSE_MIDDLE);
         assertEquals(20, player.getCursorStack().count());
         assertEquals(matchingItem, ((MinecraftItemStack) player.getCursorStack()).stack().getItem());
-        assertEquals(5, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(5, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
     }
 
     @Test
     void middleClickShopItemWithNonMatchingCursorStackShowsError() {
         player.setCursorStack(new MinecraftItemStack(new ItemStack(matchingItem, 10)));
 
-        player.getAccount(economy.currencyCreditsId).setBalance(640);
-        assertEquals(640, player.getAccount(economy.currencyCreditsId).balance());
+        EconomyCompat.setBalance(player.getAccount(economy.currencyCreditsId), BigInteger.valueOf(640));
+        assertEquals(640, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
         assertEquals(10, player.getCursorStack().count());
         assertEquals(matchingItem, ((MinecraftItemStack) player.getCursorStack()).stack().getItem());
 
         controller.slots.get(nonMatchingItemIndex).onClick(ctx, ClickType.MOUSE_MIDDLE);
-        assertEquals(640, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(640, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
         assertEquals(10, player.getCursorStack().count());
         assertEquals(matchingItem, ((MinecraftItemStack) player.getCursorStack()).stack().getItem());
 
@@ -248,11 +250,11 @@ public class ItemSlotTest extends EconomyTest {
     void rightClickWithoutCursorStackSellsOneFromInventory() {
 
         player.getInventory().offerOrDrop(new MinecraftItemStack(new ItemStack(matchingItem, 64)));
-        player.getAccount(economy.currencyCreditsId).setBalance(0);
+        EconomyCompat.setBalance(player.getAccount(economy.currencyCreditsId), BigInteger.valueOf(0));
 
         controller.slots.get(matchingItemIndex).onClick(ctx, ClickType.MOUSE_RIGHT);
 
-        assertEquals(10, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(10, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
         assertEquals(63, player.getInventory().count(idOf(matchingItem)));
     }
 
@@ -261,11 +263,11 @@ public class ItemSlotTest extends EconomyTest {
 
         player.getInventory().offerOrDrop(new MinecraftItemStack(new ItemStack(matchingItem, 64)));
         player.setCursorStack(new MinecraftItemStack(new ItemStack(matchingItem, 64)));
-        player.getAccount(economy.currencyCreditsId).setBalance(0);
+        EconomyCompat.setBalance(player.getAccount(economy.currencyCreditsId), BigInteger.valueOf(0));
 
         controller.slots.get(nonMatchingItemIndex).onClick(ctx, ClickType.MOUSE_RIGHT);
 
-        assertEquals(10, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(10, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
         assertEquals(63, player.getCursorStack().count());
         assertEquals(64, player.getInventory().count(idOf(matchingItem)));
     }
@@ -275,11 +277,11 @@ public class ItemSlotTest extends EconomyTest {
 
         player.getInventory().offerOrDrop(new MinecraftItemStack(new ItemStack(matchingItem, 64)));
         player.setCursorStack(new MinecraftItemStack(new ItemStack(matchingItem, 64)));
-        player.getAccount(economy.currencyCreditsId).setBalance(0);
+        EconomyCompat.setBalance(player.getAccount(economy.currencyCreditsId), BigInteger.valueOf(0));
 
         controller.slots.get(matchingItemIndex).onClick(ctx, ClickType.MOUSE_RIGHT);
 
-        assertEquals(10, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(10, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
         assertEquals(63, player.getCursorStack().count());
         assertEquals(64, player.getInventory().count(idOf(matchingItem)));
     }
@@ -288,11 +290,11 @@ public class ItemSlotTest extends EconomyTest {
     void shiftRightClickWithoutCursorStackSellsStackFromInventory() {
 
         player.getInventory().offerOrDrop(new MinecraftItemStack(new ItemStack(matchingItem, 64)));
-        player.getAccount(economy.currencyCreditsId).setBalance(0);
+        EconomyCompat.setBalance(player.getAccount(economy.currencyCreditsId), BigInteger.valueOf(0));
 
         controller.slots.get(matchingItemIndex).onClick(ctx, ClickType.MOUSE_RIGHT_SHIFT);
 
-        assertEquals(640, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(640, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
         assertEquals(0, player.getInventory().count(idOf(matchingItem)));
     }
 
@@ -301,11 +303,11 @@ public class ItemSlotTest extends EconomyTest {
 
         player.getInventory().offerOrDrop(new MinecraftItemStack(new ItemStack(matchingItem, 64)));
         player.setCursorStack(new MinecraftItemStack(new ItemStack(matchingItem, 64)));
-        player.getAccount(economy.currencyCreditsId).setBalance(0);
+        EconomyCompat.setBalance(player.getAccount(economy.currencyCreditsId), BigInteger.valueOf(0));
 
         controller.slots.get(nonMatchingItemIndex).onClick(ctx, ClickType.MOUSE_RIGHT_SHIFT);
 
-        assertEquals(640, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(640, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
         assertEquals(0, player.getCursorStack().count());
         assertEquals(64, player.getInventory().count(idOf(matchingItem)));
     }
@@ -315,11 +317,11 @@ public class ItemSlotTest extends EconomyTest {
 
         player.getInventory().offerOrDrop(new MinecraftItemStack(new ItemStack(matchingItem, 64)));
         player.setCursorStack(new MinecraftItemStack(new ItemStack(matchingItem, 64)));
-        player.getAccount(economy.currencyCreditsId).setBalance(0);
+        EconomyCompat.setBalance(player.getAccount(economy.currencyCreditsId), BigInteger.valueOf(0));
 
         controller.slots.get(matchingItemIndex).onClick(ctx, ClickType.MOUSE_RIGHT_SHIFT);
 
-        assertEquals(640, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(640, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
         assertEquals(0, player.getCursorStack().count());
         assertEquals(64, player.getInventory().count(idOf(matchingItem)));
     }
@@ -328,11 +330,11 @@ public class ItemSlotTest extends EconomyTest {
     void shiftRightClickWithoutCursorStackSellsRemainingItemsFromInventory() {
 
         player.getInventory().offerOrDrop(new MinecraftItemStack(new ItemStack(matchingItem, 10)));
-        player.getAccount(economy.currencyCreditsId).setBalance(0);
+        EconomyCompat.setBalance(player.getAccount(economy.currencyCreditsId), BigInteger.valueOf(0));
 
         controller.slots.get(matchingItemIndex).onClick(ctx, ClickType.MOUSE_RIGHT_SHIFT);
 
-        assertEquals(100, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(100, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
         assertEquals(0, player.getInventory().count(idOf(matchingItem)));
     }
 
@@ -341,11 +343,11 @@ public class ItemSlotTest extends EconomyTest {
 
         player.getInventory().offerOrDrop(new MinecraftItemStack(new ItemStack(matchingItem, 10)));
         player.setCursorStack(new MinecraftItemStack(new ItemStack(matchingItem, 10)));
-        player.getAccount(economy.currencyCreditsId).setBalance(0);
+        EconomyCompat.setBalance(player.getAccount(economy.currencyCreditsId), BigInteger.valueOf(0));
 
         controller.slots.get(nonMatchingItemIndex).onClick(ctx, ClickType.MOUSE_RIGHT_SHIFT);
 
-        assertEquals(100, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(100, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
         assertEquals(0, player.getCursorStack().count());
         assertEquals(10, player.getInventory().count(idOf(matchingItem)));
     }
@@ -355,11 +357,11 @@ public class ItemSlotTest extends EconomyTest {
 
         player.getInventory().offerOrDrop(new MinecraftItemStack(new ItemStack(matchingItem, 10)));
         player.setCursorStack(new MinecraftItemStack(new ItemStack(matchingItem, 10)));
-        player.getAccount(economy.currencyCreditsId).setBalance(0);
+        EconomyCompat.setBalance(player.getAccount(economy.currencyCreditsId), BigInteger.valueOf(0));
 
         controller.slots.get(matchingItemIndex).onClick(ctx, ClickType.MOUSE_RIGHT_SHIFT);
 
-        assertEquals(100, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(100, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
         assertEquals(0, player.getCursorStack().count());
         assertEquals(10, player.getInventory().count(idOf(matchingItem)));
     }
@@ -372,7 +374,7 @@ public class ItemSlotTest extends EconomyTest {
     void anyClickShopItemRefreshesBalance() {
         player.setCursorStack(new MinecraftItemStack(new ItemStack(matchingItem, 10)));
 
-        player.getAccount(economy.currencyCreditsId).setBalance(10000);
+        EconomyCompat.setBalance(player.getAccount(economy.currencyCreditsId), BigInteger.valueOf(10000));
 
         var slotIndex = menu.config().indexOf(ShopMenu.SlotType.BALANCE).orElseThrow();
 

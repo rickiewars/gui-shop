@@ -1,0 +1,6 @@
+# Copy this file to local.properties and configure to your requirements
+
+# Cap Gradle's parallel worker threads, so a full build/test run doesn't hog every core on your machine.
+# Suggested: your CPU thread count minus 2 (e.g. 6 on a 8-thread machine).
+# If unset, it uses all available threads.
+org.gradle.workers.max=2

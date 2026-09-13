@@ -4,11 +4,13 @@ import eu.pb4.common.economy.api.EconomyTransaction;
 import net.minecraft.network.chat.Component;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.EconomyTest;
+import rickiewars.guishop.api.economy.impl.EconomyCompat;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyAccount;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyProvider;
 import rickiewars.guishop.api.minecraft.impl.ItemRegistry;
 import rickiewars.guishop.config.GuiShopConfig;
 
+import java.math.BigInteger;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -99,12 +101,12 @@ public class GuiShopEconomyAccountTest extends EconomyTest {
         GuiShopEconomyAccount account1 = new GuiShopEconomyAccount(
             economy.accountCardId, economy.accounts.get(economy.accountCardId.path()), playerUuid
         );
-        assertEquals(123, account1.balance());
+        assertEquals(123, EconomyCompat.balance(account1).longValueExact());
 
         GuiShopEconomyAccount account2 = new GuiShopEconomyAccount(
             economy.accountPouchId, economy.accounts.get(economy.accountPouchId.path()), playerUuid
         );
-        assertEquals(456, account2.balance());
+        assertEquals(456, EconomyCompat.balance(account2).longValueExact());
     }
 
     @Test
@@ -117,8 +119,8 @@ public class GuiShopEconomyAccountTest extends EconomyTest {
             economy.accountPouchId, economy.accounts.get(economy.accountPouchId.path()), playerUuid
         );
 
-        account.setBalance(500);
-        account2.setBalance(30);
+        EconomyCompat.setBalance(account, BigInteger.valueOf(500));
+        EconomyCompat.setBalance(account2, BigInteger.valueOf(30));
 
         assertEquals(500, fakeDb.getBalance(economy.currencyCreditsId.toString(), playerUuid.toString()));
         assertEquals(30, fakeDb.getBalance(economy.currencyCoinsId.toString(), playerUuid.toString()));
@@ -132,30 +134,30 @@ public class GuiShopEconomyAccountTest extends EconomyTest {
             economy.accountCardId, economy.accounts.get(economy.accountCardId.path()), playerUuid
         );
 
-        EconomyTransaction tx = account.canIncreaseBalance(500);
+        EconomyTransaction tx = EconomyCompat.canIncreaseBalance(account, BigInteger.valueOf(500));
 
         assertTrue(tx.isSuccessful());
         assertFalse(tx.isFailure());
-        assertEquals(200, tx.previousBalance());
-        assertEquals(700, tx.finalBalance());
-        assertEquals(500, tx.transactionAmount());
+        assertEquals(200, EconomyCompat.previousBalance(tx).longValueExact());
+        assertEquals(700, EconomyCompat.finalBalance(tx).longValueExact());
+        assertEquals(500, EconomyCompat.transactionAmount(tx).longValueExact());
     }
 
     @Test
-    void canIncreaseBalanceFailsWhenExceedingMaxInt() {
+    void canIncreaseBalanceFailsWhenExceedingMaxLong() {
         UUID playerUuid = UUID.randomUUID();
-        fakeDb.setBalance(economy.currencyCreditsId.toString(), playerUuid.toString(), Integer.MAX_VALUE - 1);
+        fakeDb.setBalance(economy.currencyCreditsId.toString(), playerUuid.toString(), Long.MAX_VALUE - 1);
         GuiShopEconomyAccount account = new GuiShopEconomyAccount(
             economy.accountCardId, economy.accounts.get(economy.accountCardId.path()), playerUuid
         );
 
-        EconomyTransaction tx = account.canIncreaseBalance(2);
+        EconomyTransaction tx = EconomyCompat.canIncreaseBalance(account, BigInteger.valueOf(2));
 
         assertFalse(tx.isSuccessful());
         assertTrue(tx.isFailure());
-        assertEquals(Integer.MAX_VALUE - 1, tx.previousBalance());
-        assertEquals(Integer.MAX_VALUE - 1, tx.finalBalance());
-        assertEquals(0, tx.transactionAmount());
+        assertEquals(Long.MAX_VALUE - 1, EconomyCompat.previousBalance(tx).longValueExact());
+        assertEquals(Long.MAX_VALUE - 1, EconomyCompat.finalBalance(tx).longValueExact());
+        assertEquals(0, EconomyCompat.transactionAmount(tx).longValueExact());
     }
 
     @Test
@@ -166,13 +168,13 @@ public class GuiShopEconomyAccountTest extends EconomyTest {
             economy.accountCardId, economy.accounts.get(economy.accountCardId.path()), playerUuid
         );
 
-        EconomyTransaction tx = account.canDecreaseBalance(21);
+        EconomyTransaction tx = EconomyCompat.canDecreaseBalance(account, BigInteger.valueOf(21));
 
         assertFalse(tx.isSuccessful());
         assertTrue(tx.isFailure());
-        assertEquals(20, tx.previousBalance());
-        assertEquals(20, tx.finalBalance());
-        assertEquals(0, tx.transactionAmount());
+        assertEquals(20, EconomyCompat.previousBalance(tx).longValueExact());
+        assertEquals(20, EconomyCompat.finalBalance(tx).longValueExact());
+        assertEquals(0, EconomyCompat.transactionAmount(tx).longValueExact());
     }
 
     @Test
@@ -183,12 +185,12 @@ public class GuiShopEconomyAccountTest extends EconomyTest {
             economy.accountCardId, economy.accounts.get(economy.accountCardId.path()), playerUuid
         );
 
-        EconomyTransaction tx = account.canDecreaseBalance(40);
+        EconomyTransaction tx = EconomyCompat.canDecreaseBalance(account, BigInteger.valueOf(40));
 
         assertTrue(tx.isSuccessful());
         assertFalse(tx.isFailure());
-        assertEquals(100, tx.previousBalance());
-        assertEquals(60, tx.finalBalance());
-        assertEquals(40, tx.transactionAmount());
+        assertEquals(100, EconomyCompat.previousBalance(tx).longValueExact());
+        assertEquals(60, EconomyCompat.finalBalance(tx).longValueExact());
+        assertEquals(40, EconomyCompat.transactionAmount(tx).longValueExact());
     }
 }

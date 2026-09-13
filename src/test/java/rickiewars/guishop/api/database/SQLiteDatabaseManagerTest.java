@@ -110,7 +110,7 @@ public class SQLiteDatabaseManagerTest {
         assertTrue(db.changeBalance(currency, uuid, 50));
         assertEquals(150, db.getBalance(currency, uuid));
 
-        assertFalse(db.changeBalance(currency, uuid, Integer.MAX_VALUE));
+        assertFalse(db.changeBalance(currency, uuid, Long.MAX_VALUE));
         assertEquals(150, db.getBalance(currency, uuid));
     }
 
@@ -262,7 +262,7 @@ public class SQLiteDatabaseManagerTest {
         assertEquals(1, entry.get("rank"));
         assertEquals(u1, entry.get("uuid"));
         assertEquals("Alice", entry.get("name"));
-        assertEquals(1234, entry.get("balance"));
+        assertEquals(1234L, entry.get("balance"));
     }
 
     @Test
@@ -289,17 +289,17 @@ public class SQLiteDatabaseManagerTest {
         assertEquals(1, r1.get("rank"));
         assertEquals(u1, r1.get("uuid"));
         assertEquals("Alice", r1.get("name"));
-        assertEquals(500, r1.get("balance"));
+        assertEquals(500L, r1.get("balance"));
 
         assertEquals(2, r2.get("rank"));
         assertEquals(u3, r2.get("uuid"));
         assertEquals("Dave", r2.get("name"));
-        assertEquals(300, r2.get("balance"));
+        assertEquals(300L, r2.get("balance"));
 
         assertEquals(3, r3.get("rank"));
         assertEquals(u2, r3.get("uuid"));
         assertEquals("Bob", r3.get("name"));
-        assertEquals(100, r3.get("balance"));
+        assertEquals(100L, r3.get("balance"));
     }
 
     @Test

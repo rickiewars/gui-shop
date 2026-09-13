@@ -232,7 +232,7 @@ public final class LegacyShopConverter {
             currentDataVersion
         );
 
-        return ItemStack.STRICT_SINGLE_ITEM_CODEC
+        return ItemStack.CODEC
             .parse(registries.createSerializationContext(NbtOps.INSTANCE), fixed.getValue())
             .result();
     }

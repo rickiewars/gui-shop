@@ -1,6 +1,5 @@
 package rickiewars.guishop.api.economy.impl;
 
-import eu.pb4.common.economy.api.EconomyCurrency;
 import eu.pb4.common.economy.api.EconomyProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -12,7 +11,9 @@ import rickiewars.guishop.api.minecraft.impl.ItemRegistry;
 import rickiewars.guishop.config.GuiShopConfig;
 import rickiewars.guishop.util.CommonMethods;
 
-public class GuiShopEconomyCurrency implements EconomyCurrency {
+import java.math.BigInteger;
+
+public class GuiShopEconomyCurrency extends EconomyCurrencyCompat {
     public static ResourceId DEFAULT_ID = ResourceId.of(GuiShopEconomyProvider.ID, "credit");
     public static final Item DEFAULT_ICON = Items.DIAMOND;
     public static final ResourceId DEFAULT_ICON_ID = ItemRegistry.idOf(DEFAULT_ICON);
@@ -35,7 +36,7 @@ public class GuiShopEconomyCurrency implements EconomyCurrency {
         return this.id;
     }
 
-    private String valueString(long value) {
+    private String valueString(BigInteger value) {
         String prefix = this.currencyDefinition.prefix;
         String suffix = this.currencyDefinition.suffix;
         int decimalPlaces = this.currencyDefinition.decimalPlaces;
@@ -43,7 +44,7 @@ public class GuiShopEconomyCurrency implements EconomyCurrency {
             return prefix + value + suffix;
         }
 
-        String valueString = String.valueOf(value);
+        String valueString = value.toString();
         if (valueString.length() <= decimalPlaces + 1) {
             valueString = CommonMethods.padLeft(valueString, decimalPlaces + 1, '0');
         }
@@ -53,16 +54,16 @@ public class GuiShopEconomyCurrency implements EconomyCurrency {
     }
 
     @Override
-    public String formatValue(long value, boolean precise) {
+    protected String guiShopFormatValue(BigInteger value, boolean precise) {
         if (precise) return valueString(value);
-        if (value < 0) return valueString(0);
+        if (value.signum() < 0) return valueString(BigInteger.ZERO);
 
         return valueString(value);
     }
 
     @Override
-    public long parseValue(String value) throws NumberFormatException {
-        if (value.isEmpty()) return 0;
+    protected BigInteger guiShopParseValue(String value) throws NumberFormatException {
+        if (value.isEmpty()) return BigInteger.ZERO;
 
         String prefix = this.currencyDefinition.prefix;
         String suffix = this.currencyDefinition.suffix;
@@ -75,11 +76,11 @@ public class GuiShopEconomyCurrency implements EconomyCurrency {
             }
         }
 
-        if (value.isEmpty()) return 0;
-        if (decimalPlaces == 0) return Long.parseLong(value);
+        if (value.isEmpty()) return BigInteger.ZERO;
+        if (decimalPlaces == 0) return new BigInteger(value);
 
         value = value.replace(".", "");
-        return Long.parseLong(value);
+        return new BigInteger(value);
     }
 
     @Override

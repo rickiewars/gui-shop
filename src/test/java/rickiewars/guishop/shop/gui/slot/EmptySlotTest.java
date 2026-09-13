@@ -5,6 +5,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.EconomyTest;
+import rickiewars.guishop.api.economy.impl.EconomyCompat;
 import rickiewars.guishop.api.gui.impl.TestMenuController;
 import rickiewars.guishop.api.minecraft.impl.ItemRegistry;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
@@ -35,12 +36,12 @@ public class EmptySlotTest extends EconomyTest {
         Item item = ItemRegistry.get(shopItem.itemId());
         player.setCursorStack(new MinecraftItemStack(new ItemStack(item, 10)));
 
-        assertEquals(0, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(0, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
         assertEquals(10, player.getCursorStack().count());
 
         controller.slots.get(1).onClick(ctx, ClickType.MOUSE_LEFT);
 
-        assertEquals(100, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(100, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
         assertTrue(player.getCursorStack().isEmpty());
     }
 
@@ -59,12 +60,12 @@ public class EmptySlotTest extends EconomyTest {
         Item item = ItemRegistry.get(shopItem.itemId());
         player.setCursorStack(new MinecraftItemStack(new ItemStack(item, 10)));
 
-        assertEquals(0, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(0, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
         assertEquals(10, player.getCursorStack().count());
 
         controller.slots.get(1).onClick(ctx, ClickType.MOUSE_RIGHT);
 
-        assertEquals(10, player.getAccount(economy.currencyCreditsId).balance());
+        assertEquals(10, EconomyCompat.balance(player.getAccount(economy.currencyCreditsId)).longValueExact());
         assertEquals(9, player.getCursorStack().count());
     }
 

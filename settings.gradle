@@ -13,11 +13,23 @@ plugins {
 	id 'dev.kikugie.stonecutter' version '0.9.8'
 }
 
+// Machine-local worker-thread cap (see local.properties.example).
+// By default Gradle uses all available threads or the value passed by --max-workers if any.
+def localPropertiesFile = new File(rootDir, 'local.properties')
+if (localPropertiesFile.exists() && gradle.startParameter.maxWorkerCount == Runtime.getRuntime().availableProcessors()) {
+	def localProperties = new Properties()
+	localPropertiesFile.withInputStream { localProperties.load(it) }
+	def maxWorkers = localProperties.getProperty('org.gradle.workers.max')
+	if (maxWorkers != null) {
+		gradle.startParameter.maxWorkerCount = maxWorkers as int
+	}
+}
+
 stonecutter {
 	kotlinController = false
 	centralScript = 'build.gradle'
 
 	create(getRootProject()) {
-		versions '1.21', '1.21.2', '1.21.4', '1.21.5', '1.21.6', '1.21.9', '1.21.11'
+		versions '1.21', '1.21.2', '1.21.4', '1.21.5', '1.21.6', '1.21.9', '1.21.11', '26.1'
 	}
 }

@@ -34,7 +34,7 @@ public class MinecraftItemCodec {
     }
 
     public CompoundTag encode(ItemStack stack) {
-        return (CompoundTag) ItemStack.STRICT_SINGLE_ITEM_CODEC
+        return (CompoundTag) ItemStack.CODEC
             .encodeStart(ops, stack)
             .getOrThrow(msg -> new IllegalStateException("shop item encode failed: " + msg));
     }
@@ -63,7 +63,7 @@ public class MinecraftItemCodec {
             working = (CompoundTag) fixed.getValue();
         }
 
-        return ItemStack.STRICT_SINGLE_ITEM_CODEC
+        return ItemStack.CODEC
             .parse(ops, working)
             .resultOrPartial(err -> GUIShop.LOGGER.warn("shop item decode failed: {}", err));
     }

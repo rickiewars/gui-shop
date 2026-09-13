@@ -3,10 +3,13 @@ package rickiewars.guishop.api.economy;
 import net.minecraft.world.item.Items;
 import org.junit.jupiter.api.Test;
 import rickiewars.guishop.MinecraftTest;
+import rickiewars.guishop.api.economy.impl.EconomyCompat;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyProvider;
 import rickiewars.guishop.api.minecraft.ResourceId;
 import rickiewars.guishop.config.GuiShopConfig;
+
+import java.math.BigInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -79,7 +82,7 @@ public class GuiShopEconomyCurrencyTest extends MinecraftTest {
             def(0, "$", "")
         );
 
-        assertEquals("$123", currency.formatValue(123, false));
+        assertEquals("$123", EconomyCompat.formatValue(currency, BigInteger.valueOf(123), false));
     }
 
     @Test
@@ -89,7 +92,7 @@ public class GuiShopEconomyCurrencyTest extends MinecraftTest {
             def(0, "$", "")
         );
 
-        assertEquals("$0", currency.formatValue(-10, false));
+        assertEquals("$0", EconomyCompat.formatValue(currency, BigInteger.valueOf(-10), false));
     }
 
     @Test
@@ -99,8 +102,8 @@ public class GuiShopEconomyCurrencyTest extends MinecraftTest {
             def(2, "$", "")
         );
 
-        assertEquals("$123.45", currency.formatValue(12345, false));
-        assertEquals("$0.05", currency.formatValue(5, false));
+        assertEquals("$123.45", EconomyCompat.formatValue(currency, BigInteger.valueOf(12345), false));
+        assertEquals("$0.05", EconomyCompat.formatValue(currency, BigInteger.valueOf(5), false));
     }
 
     @Test
@@ -110,7 +113,7 @@ public class GuiShopEconomyCurrencyTest extends MinecraftTest {
             def(2, "$", "")
         );
 
-        assertEquals("$0.00", currency.formatValue(-12345, false));
+        assertEquals("$0.00", EconomyCompat.formatValue(currency, BigInteger.valueOf(-12345), false));
     }
 
     @Test
@@ -120,7 +123,7 @@ public class GuiShopEconomyCurrencyTest extends MinecraftTest {
             def(2, "€", " EUR")
         );
 
-        assertEquals("€12.34 EUR", currency.formatValue(1234, false));
+        assertEquals("€12.34 EUR", EconomyCompat.formatValue(currency, BigInteger.valueOf(1234), false));
     }
 
     // parseValue()
@@ -132,7 +135,7 @@ public class GuiShopEconomyCurrencyTest extends MinecraftTest {
             def(0, "$", "")
         );
 
-        assertEquals(123, currency.parseValue("$123"));
+        assertEquals(123, EconomyCompat.parseValue(currency, "$123").longValueExact());
     }
 
     @Test
@@ -142,8 +145,8 @@ public class GuiShopEconomyCurrencyTest extends MinecraftTest {
             def(2, "$", "")
         );
 
-        assertEquals(1234, currency.parseValue("$12.34"));
-        assertEquals(5, currency.parseValue("$0.05"));
+        assertEquals(1234, EconomyCompat.parseValue(currency, "$12.34").longValueExact());
+        assertEquals(5, EconomyCompat.parseValue(currency, "$0.05").longValueExact());
     }
 
     @Test
@@ -153,7 +156,7 @@ public class GuiShopEconomyCurrencyTest extends MinecraftTest {
             def(2, "€", " EUR")
         );
 
-        assertEquals(1234, currency.parseValue("€12.34 EUR"));
+        assertEquals(1234, EconomyCompat.parseValue(currency, "€12.34 EUR").longValueExact());
     }
 
     @Test
@@ -163,6 +166,6 @@ public class GuiShopEconomyCurrencyTest extends MinecraftTest {
             def(2, "$", "")
         );
 
-        assertEquals(0, currency.parseValue(""));
+        assertEquals(0, EconomyCompat.parseValue(currency, "").longValueExact());
     }
 }

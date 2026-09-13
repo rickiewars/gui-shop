@@ -96,7 +96,7 @@ public class SQLiteDatabaseManager implements DatabaseManager {
         }
     }
 
-    public int getBalance(String currency, String uuid){
+    public long getBalance(String currency, String uuid){
         String sql = "SELECT uuid, balance FROM accounts WHERE uuid = ? AND currency = ?";
 
         try (Connection conn = this.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)){
@@ -105,7 +105,7 @@ public class SQLiteDatabaseManager implements DatabaseManager {
             ResultSet rs = pstmt.executeQuery();
             rs.next();
             assertFound(rs, currency, uuid);
-            return rs.getInt("balance");
+            return rs.getLong("balance");
         } catch (SQLException e) {
             throw new RuntimeException(
                     "Error getting balance from UUID: " + uuid + " and Currency: " + currency, e
@@ -113,15 +113,15 @@ public class SQLiteDatabaseManager implements DatabaseManager {
         }
     }
 
-    public boolean setBalance(String currency, String uuid, int amount) {
-        if (amount < 0 || amount == Integer.MAX_VALUE) return false;
+    public boolean setBalance(String currency, String uuid, long amount) {
+        if (amount < 0 || amount == Long.MAX_VALUE) return false;
 
         try (Connection conn = this.connect()) {
             try (PreparedStatement ps = conn.prepareStatement("""
                 UPDATE accounts SET balance = ?
                 WHERE uuid = ? AND currency = ?
                 """)) {
-                ps.setInt(1, amount);
+                ps.setLong(1, amount);
                 ps.setString(2, uuid);
                 ps.setString(3, currency);
 
@@ -136,8 +136,8 @@ public class SQLiteDatabaseManager implements DatabaseManager {
         return false;
     }
 
-    public void setAllBalance(String currency, int amount) {
-        if (amount < 0 || amount == Integer.MAX_VALUE) return;
+    public void setAllBalance(String currency, long amount) {
+        if (amount < 0 || amount == Long.MAX_VALUE) return;
 
         try (Connection conn = this.connect();
             PreparedStatement ps = conn.prepareStatement("""
@@ -145,7 +145,7 @@ public class SQLiteDatabaseManager implements DatabaseManager {
                 WHERE currency = ?
                 """)
         ) {
-            ps.setInt(1, amount);
+            ps.setLong(1, amount);
             ps.setString(2, currency);
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -153,16 +153,16 @@ public class SQLiteDatabaseManager implements DatabaseManager {
         }
     }
 
-    public boolean changeBalance(String currency, String uuid, int amount) {
-        int oldBal = getBalance(currency, uuid);
-        int newBal = oldBal + amount;
+    public boolean changeBalance(String currency, String uuid, long amount) {
+        long oldBal = getBalance(currency, uuid);
+        long newBal = oldBal + amount;
 
-        if (newBal < 0 || newBal == Integer.MAX_VALUE) return false;
+        if (newBal < 0 || newBal == Long.MAX_VALUE) return false;
 
         return setBalance(currency, uuid, newBal);
     }
 
-    public void changeAllBalance(String currency, int amount) {
+    public void changeAllBalance(String currency, long amount) {
         try (Connection conn = this.connect();
             PreparedStatement ps = conn.prepareStatement("""
                 UPDATE accounts
@@ -172,10 +172,10 @@ public class SQLiteDatabaseManager implements DatabaseManager {
                    AND currency = ?
                 """)
         ) {
-            ps.setInt(1, amount);
-            ps.setInt(2, amount);
-            ps.setInt(3, amount);
-            ps.setInt(4, Integer.MAX_VALUE);
+            ps.setLong(1, amount);
+            ps.setLong(2, amount);
+            ps.setLong(3, amount);
+            ps.setLong(4, Long.MAX_VALUE);
             ps.setString(5, currency);
 
             ps.executeUpdate();
@@ -213,7 +213,7 @@ public class SQLiteDatabaseManager implements DatabaseManager {
                 entry.put("rank", index++);
                 entry.put("uuid", rs.getString("uuid"));
                 entry.put("name", rs.getString("name"));
-                entry.put("balance", rs.getInt("balance"));
+                entry.put("balance", rs.getLong("balance"));
                 results.add(entry);
             }
 

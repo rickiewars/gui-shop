@@ -15,6 +15,7 @@ import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import rickiewars.guishop.GUIShop;
+import rickiewars.guishop.api.economy.impl.EconomyCompat;
 import rickiewars.guishop.command.GuiShopPermission;
 import rickiewars.guishop.command.economy.subcommands.GUIShopBalanceAddCommand;
 import rickiewars.guishop.command.economy.subcommands.GUIShopBalanceRemoveCommand;
@@ -70,7 +71,7 @@ public class GUIShopBalanceCommand extends GuiShopBalanceCommands {
             context.getSource().sendSuccess(() -> Component.literal(String.format(
                 "Balance for %s: %s",
                 currency.name().getString(),
-                currency.formatValue(account.balance(), false)
+                EconomyCompat.formatValue(currency, EconomyCompat.balance(account), false)
             )).withStyle(ChatFormatting.GREEN), false);
         });
 
@@ -89,7 +90,7 @@ public class GUIShopBalanceCommand extends GuiShopBalanceCommands {
         context.getSource().sendSuccess(() -> Component.literal(String.format(
             "Balance for %s: %s",
             currency.name().getString(),
-            currency.formatValue(account.balance(), false))
+            EconomyCompat.formatValue(currency, EconomyCompat.balance(account), false))
         ).withStyle(ChatFormatting.GREEN), false);
         return 0;
     }

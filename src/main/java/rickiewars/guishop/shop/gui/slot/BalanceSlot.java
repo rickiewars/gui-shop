@@ -8,6 +8,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.ItemStack;
+import rickiewars.guishop.api.economy.impl.EconomyCompat;
 import rickiewars.guishop.api.gui.MenuContext;
 import rickiewars.guishop.api.gui.MenuSlot;
 import rickiewars.guishop.api.minecraft.IPlayer;
@@ -44,7 +45,7 @@ public class BalanceSlot implements MenuSlot {
             EconomyAccount account = player.getAccount(currencyId);
             MutableComponent currencyName = account.currency().name().copy();
             Component balance = Component.literal(
-                account.currency().formatValue(account.balance(), true)
+                EconomyCompat.formatValue(account.currency(), EconomyCompat.balance(account), true)
             ).setStyle(Style.EMPTY.withItalic(true)).withStyle(ChatFormatting.YELLOW);
 
             lines.add(

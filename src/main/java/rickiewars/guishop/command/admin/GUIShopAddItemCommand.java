@@ -15,6 +15,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.minecraft.ResourceId;
+import rickiewars.guishop.api.minecraft.impl.MinecraftCompat;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.command.GuiShopPermission;
 import rickiewars.guishop.command.suggestions.CurrencySuggestionProvider;
@@ -48,7 +49,7 @@ public class GUIShopAddItemCommand {
 
     public static int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         var itemStackArgument = ItemArgument.getItem(context, "item");
-        var itemStack = itemStackArgument.createItemStack(1, false);
+        var itemStack = MinecraftCompat.createItemStack(itemStackArgument, 1);
 
         String shopName = StringArgumentType.getString(context, "shopName");
         String itemName = StringArgumentType.getString(context, "itemName");
