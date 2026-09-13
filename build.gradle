@@ -100,6 +100,27 @@ dependencies {
 
 }
 
+configurations {
+	loaderFloor
+}
+
+dependencies {
+	loaderFloor "net.fabricmc:fabric-loader:${project.loader_version_floor}"
+}
+
+tasks.register("verifyFabricLoaderBackwardCompatibility", JavaCompile) {
+	group = "verification"
+	description = "Compiles against loader_version_floor to catch API usage too new for the minimum supported loader"
+
+	source = sourceSets.main.java
+	destinationDirectory = layout.buildDirectory.dir("classes/java/loaderFloorCheck")
+	classpath = files(
+		sourceSets.main.compileClasspath.filter { !it.name.startsWith("fabric-loader-") },
+		configurations.loaderFloor
+	)
+	options.release = javaVersion
+}
+
 def resourceVersion = project.version.toString()
 processResources {
 	inputs.property "version", resourceVersion
