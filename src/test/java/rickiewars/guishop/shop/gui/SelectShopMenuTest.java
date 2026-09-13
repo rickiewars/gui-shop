@@ -9,10 +9,7 @@ import rickiewars.guishop.EconomyTest;
 import rickiewars.guishop.api.gui.impl.TestMenuController;
 import rickiewars.guishop.api.minecraft.impl.TestPlayer;
 import rickiewars.guishop.shop.Shop;
-import rickiewars.guishop.shop.gui.slot.ExitSlot;
-import rickiewars.guishop.shop.gui.slot.NavigationSlot;
-import rickiewars.guishop.shop.gui.slot.PageIndicatorSlot;
-import rickiewars.guishop.shop.gui.slot.ShopEntrySlot;
+import rickiewars.guishop.shop.gui.slot.*;
 import rickiewars.guishop.util.TestUtils;
 
 import java.util.List;
@@ -67,27 +64,7 @@ public class SelectShopMenuTest extends EconomyTest {
     }
 
     @Test
-    void LessThanNineShopsRendersSingleLineMenuLayout() {
-        TestPlayer player = new TestPlayer(UUID.randomUUID());
-        List<Shop> shops = new java.util.ArrayList<>();
-        for (int i = 0; i < 8; i++) {
-            shops.add(TestUtils.testShop("shop " + i, economy.currencyCreditsId, 10));
-        }
-
-        player.addDefaultAccount(economy.currencyCreditsId);
-
-        TestMenuController controller = new TestMenuController(player);
-        var menu = new SelectShopMenu(shops, player);
-        controller.open(menu);
-
-        assertEquals(MenuType.GENERIC_9x1, menu.config().handlerType());
-        assertEquals(Component.nullToEmpty(shops.getFirst().getDisplayName()), controller.slots.get(0).name());
-        assertEquals(Component.nullToEmpty(shops.getLast().getDisplayName()), controller.slots.get(7).name());
-        assertInstanceOf(ExitSlot.class, controller.slots.get(8));
-    }
-
-    @Test
-    void NineOrMoreShopsRendersPaginationLayout() {
+    void AlwaysRendersTwoRowMenuLayoutRegardlessOfShopCount() {
         TestPlayer player = new TestPlayer(UUID.randomUUID());
         List<Shop> shops = new java.util.ArrayList<>();
         for (int i = 0; i < 9; i++) {
@@ -104,7 +81,9 @@ public class SelectShopMenuTest extends EconomyTest {
         assertEquals(Component.nullToEmpty(shops.getFirst().getDisplayName()), controller.slots.get(0).name());
         assertEquals(Component.nullToEmpty(shops.getLast().getDisplayName()), controller.slots.get(8).name());
         var exitSlotIndex = menu.config().indexOf(SelectShopMenu.SlotType.EXIT).orElseThrow();
+        var balanceListIndex = menu.config().indexOf(SelectShopMenu.SlotType.BALANCE_LIST).orElseThrow();
         assertInstanceOf(ExitSlot.class, controller.slots.get(exitSlotIndex));
+        assertInstanceOf(BalanceListSlot.class, controller.slots.get(balanceListIndex));
     }
 
     @Test
@@ -229,5 +208,48 @@ public class SelectShopMenuTest extends EconomyTest {
 
         menu.getPageCount();
         assertEquals(2, menu.getPageContent(2).size());
+    }
+
+    @Test
+    void ExitingShopMenuReturnsToSelectShopMenuAtSamePage() {
+        TestPlayer player = new TestPlayer(UUID.randomUUID());
+        List<Shop> shops = new java.util.ArrayList<>();
+        for (int i = 0; i < 11; i++) {
+            shops.add(TestUtils.testShop("shop " + i, economy.currencyCreditsId, 10));
+        }
+
+        player.addDefaultAccount(economy.currencyCreditsId);
+
+        TestMenuController controller = new TestMenuController(player);
+        var menu = new SelectShopMenu(shops, player);
+        controller.open(menu);
+        controller.context.goToPage(2);
+
+        controller.simulateClick(0, ClickType.MOUSE_LEFT);
+        assertTrue(controller.title.getString().startsWith(shops.get(9).getDisplayName()));
+
+        int shopMenuExitIndex = 5 * 9 - 1 + 9;
+        controller.simulateClick(shopMenuExitIndex, ClickType.MOUSE_LEFT);
+
+        assertEquals(Component.nullToEmpty("Select Shop"), controller.title);
+        assertEquals(2, controller.context.page());
+    }
+
+    @Test
+    void NullFixedSlotsAreNeverPassedToTheController() {
+        TestPlayer player = new TestPlayer(UUID.randomUUID());
+        List<Shop> shops = List.of(TestUtils.testShop("shop 1", economy.currencyCreditsId, 10));
+
+        player.addDefaultAccount(economy.currencyCreditsId);
+
+        TestMenuController controller = new TestMenuController(player);
+        var menu = new SelectShopMenu(shops, player);
+        controller.open(menu);
+
+        var previousPageSlotIndex = menu.config().indexOf(SelectShopMenu.SlotType.PREVIOUS_PAGE).orElseThrow();
+        var nextPageSlotIndex = menu.config().indexOf(SelectShopMenu.SlotType.NEXT_PAGE).orElseThrow();
+
+        assertFalse(controller.slots.containsKey(previousPageSlotIndex));
+        assertFalse(controller.slots.containsKey(nextPageSlotIndex));
     }
 }

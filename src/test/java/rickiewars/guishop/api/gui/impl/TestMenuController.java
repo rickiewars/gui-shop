@@ -32,6 +32,13 @@ public class TestMenuController implements MenuController {
     }
 
     @Override
+    public boolean open(Menu menu, int page) {
+        boolean success = open(menu);
+        if (success) context.goToPage(page);
+        return success;
+    }
+
+    @Override
     public void close() {
         opened = false;
     }

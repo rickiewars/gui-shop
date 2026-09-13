@@ -4,18 +4,17 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.MenuType;
 import rickiewars.guishop.api.gui.Menu;
 import rickiewars.guishop.api.gui.MenuConfig;
+import rickiewars.guishop.api.gui.MenuContext;
 import rickiewars.guishop.api.gui.MenuSlot;
 import rickiewars.guishop.api.minecraft.IPlayer;
 import rickiewars.guishop.shop.Shop;
-import rickiewars.guishop.shop.gui.slot.ExitSlot;
-import rickiewars.guishop.shop.gui.slot.NavigationSlot;
-import rickiewars.guishop.shop.gui.slot.PageIndicatorSlot;
-import rickiewars.guishop.shop.gui.slot.ShopEntrySlot;
+import rickiewars.guishop.shop.gui.slot.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class SelectShopMenu implements Menu {
     private final MenuConfig<SlotType> config;
@@ -23,6 +22,7 @@ public class SelectShopMenu implements Menu {
     private final IPlayer player;
 
     public enum SlotType {
+        BALANCE_LIST,
         PREVIOUS_PAGE,
         PAGE_INDICATOR,
         NEXT_PAGE,
@@ -33,7 +33,7 @@ public class SelectShopMenu implements Menu {
     public SelectShopMenu(List<Shop> shops, IPlayer player) {
         this.shops = shops;
         this.player = player;
-        this.config = buildConfig(shops.size());
+        this.config = buildConfig();
     }
 
     @Override
@@ -49,7 +49,7 @@ public class SelectShopMenu implements Menu {
 
         for (int i = start; i < Math.min(start + pageSize, shops.size()); i++) {
             Shop shop = shops.get(i);
-            result.add(new ShopEntrySlot(shop, player));
+            result.add(new ShopEntrySlot(shop, player, onGoBack(page)));
         }
 
         return result;
@@ -69,6 +69,7 @@ public class SelectShopMenu implements Menu {
             var slotType = config.fixedSlots().get(i);
             if (slotType == null) continue;
             result.put(i, switch (slotType) {
+                case BALANCE_LIST -> balanceListSlot();
                 case PREVIOUS_PAGE -> page <= 1
                     ? emptySlot()
                     : previousPageSlot(page);
@@ -106,26 +107,30 @@ public class SelectShopMenu implements Menu {
         return new PageIndicatorSlot(page, getPageCount());
     }
 
+    private Consumer<MenuContext> onGoBack(int page) {
+        return ctx -> ctx.open(new SelectShopMenu(shops, player), page);
+    }
+
     private MenuSlot exitSlot() {
         return new ExitSlot();
     }
 
-    private MenuConfig<SlotType> buildConfig(int entryCount) {
+    private MenuSlot balanceListSlot() {
+        return new BalanceListSlot(player, shops);
+    }
+
+    private MenuConfig<SlotType> buildConfig() {
         int lastDynamicSlot = 9 - 1;
-        return entryCount > 8
-            ? new MenuConfig<>(MenuType.GENERIC_9x2, Map.of(
-                lastDynamicSlot + 1, SlotType.EMPTY,
-                lastDynamicSlot + 2, SlotType.EMPTY,
-                lastDynamicSlot + 3, SlotType.EMPTY,
-                lastDynamicSlot + 4, SlotType.PREVIOUS_PAGE,
-                lastDynamicSlot + 5, SlotType.PAGE_INDICATOR,
-                lastDynamicSlot + 6, SlotType.NEXT_PAGE,
-                lastDynamicSlot + 7, SlotType.EMPTY,
-                lastDynamicSlot + 8, SlotType.EMPTY,
-                lastDynamicSlot + 9, SlotType.EXIT
-            ))
-            : new MenuConfig<>(MenuType.GENERIC_9x1, Map.of(
-                lastDynamicSlot, SlotType.EXIT
-            ));
+        return new MenuConfig<>(MenuType.GENERIC_9x2, Map.of(
+            lastDynamicSlot + 1, SlotType.BALANCE_LIST,
+            lastDynamicSlot + 2, SlotType.EMPTY,
+            lastDynamicSlot + 3, SlotType.EMPTY,
+            lastDynamicSlot + 4, SlotType.PREVIOUS_PAGE,
+            lastDynamicSlot + 5, SlotType.PAGE_INDICATOR,
+            lastDynamicSlot + 6, SlotType.NEXT_PAGE,
+            lastDynamicSlot + 7, SlotType.EMPTY,
+            lastDynamicSlot + 8, SlotType.EMPTY,
+            lastDynamicSlot + 9, SlotType.EXIT
+        ));
     }
 }

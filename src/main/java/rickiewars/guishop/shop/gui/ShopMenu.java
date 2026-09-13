@@ -5,6 +5,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.MenuType;
 import rickiewars.guishop.api.gui.Menu;
 import rickiewars.guishop.api.gui.MenuConfig;
+import rickiewars.guishop.api.gui.MenuContext;
 import rickiewars.guishop.api.gui.MenuSlot;
 import rickiewars.guishop.api.minecraft.IPlayer;
 import rickiewars.guishop.shop.Shop;
@@ -15,11 +16,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class ShopMenu implements Menu {
     private final Shop shop;
     private final IPlayer player;
     private final List<ShopItem> listableItems;
+    private final Consumer<MenuContext> onGoBack;
 
     private static final MenuConfig<SlotType> config = buildConfig();
 
@@ -33,9 +36,14 @@ public class ShopMenu implements Menu {
     }
 
     public ShopMenu(Shop shop, IPlayer player) {
+        this(shop, player, null);
+    }
+
+    public ShopMenu(Shop shop, IPlayer player, Consumer<MenuContext> onGoBack) {
         this.shop = shop;
         this.player = player;
         this.listableItems = shop.getItems().stream().filter(ShopItem::isListable).toList();
+        this.onGoBack = onGoBack;
     }
 
     @Override
@@ -116,7 +124,7 @@ public class ShopMenu implements Menu {
     }
 
     private MenuSlot exitSlot() {
-        return new ExitSlot();
+        return onGoBack == null ? new ExitSlot() : new BackSlot(onGoBack);
     }
 
     private MenuSlot shopItemSlot(ShopItem item) {

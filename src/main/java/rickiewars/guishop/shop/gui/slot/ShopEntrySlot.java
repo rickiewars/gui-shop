@@ -10,14 +10,17 @@ import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.gui.ShopMenu;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class ShopEntrySlot implements MenuSlot {
     private final Shop shop;
     private final IPlayer player;
+    private final Consumer<MenuContext> onGoBack;
 
-    public ShopEntrySlot(Shop shop, IPlayer player) {
+    public ShopEntrySlot(Shop shop, IPlayer player, Consumer<MenuContext> onGoBack) {
         this.shop = shop;
         this.player = player;
+        this.onGoBack = onGoBack;
     }
 
     public ItemStack icon() {
@@ -38,7 +41,7 @@ public class ShopEntrySlot implements MenuSlot {
     }
 
     public void onClick(MenuContext ctx, ClickType click) {
-        var menu = new ShopMenu(shop, player);
+        var menu = new ShopMenu(shop, player, onGoBack);
         ctx.open(menu);
     }
 }

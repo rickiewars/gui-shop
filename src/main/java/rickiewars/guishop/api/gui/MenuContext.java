@@ -25,6 +25,7 @@ public class MenuContext {
     }
 
     public boolean open(Menu menu) { return controller.open(menu); }
+    public boolean open(Menu menu, int page) { return controller.open(menu, page); }
     public void close() { controller.close(); }
 
     public void refresh() {
@@ -60,7 +61,7 @@ public class MenuContext {
         if (fixed == null) return;
 
         fixed.forEach((index, slot) -> {
-            if (index >= 0 && index < cfg.totalSlots()) {
+            if (index >= 0 && index < cfg.totalSlots() && slot != null) {
                 controller.setSlot(index, slot);
             }
         });
