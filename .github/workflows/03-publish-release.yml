@@ -38,6 +38,7 @@ jobs:
     needs: prepare
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
         include: ${{ fromJson(needs.prepare.outputs.versions) }}
     runs-on: ubuntu-26.04

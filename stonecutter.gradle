@@ -1,3 +1,5 @@
+import groovy.json.JsonOutput
+
 plugins {
 	id 'dev.kikugie.stonecutter'
 }
@@ -18,15 +20,24 @@ stonecutter.parameters {
 	}
 }
 
-// Prints each configured Minecraft version with its required Java version as JSON, single
-// source of truth for the CI matrix (also picks the right JDK per leg, no extra lookup needed)
+// Prints each configured Minecraft version with its required Java version as JSON, oldest first
 tasks.register("printVersions") {
 	group = "ci"
 	doLast {
-		def versions = rootProject.subprojects.collect {
-			[minecraft_version: it.name, java_version: it.findProperty("java_version") as int]
+		def compareVersions = { String a, String b ->
+			def partsA = a.split("\\.").collect { it as int }
+			def partsB = b.split("\\.").collect { it as int }
+			for (int i = 0; i < Math.max(partsA.size(), partsB.size()); i++) {
+				int va = i < partsA.size() ? partsA[i] : 0
+				int vb = i < partsB.size() ? partsB[i] : 0
+				if (va != vb) return va <=> vb
+			}
+			return 0
 		}
-		println groovy.json.JsonOutput.toJson(versions)
+		def versions = rootProject.subprojects
+			.collect { [minecraft_version: it.name, java_version: it.findProperty("java_version") as int] }
+			.sort(false) { a, b -> compareVersions(a.minecraft_version, b.minecraft_version) }
+		println JsonOutput.toJson(versions)
 	}
 }
 
