@@ -35,7 +35,11 @@ tasks.register("printVersions") {
 			return 0
 		}
 		def versions = rootProject.subprojects
-			.collect { [minecraft_version: it.name, java_version: it.findProperty("java_version") as int] }
+			.collect {
+				def additional = (it.findProperty("additional_game_versions") ?: "")
+					.toString().split(",").collect { v -> v.trim() }.findAll { v -> !v.isEmpty() }
+				[minecraft_version: it.name, java_version: it.findProperty("java_version") as int, advertised_versions: [it.name] + additional]
+			}
 			.sort(false) { a, b -> compareVersions(a.minecraft_version, b.minecraft_version) }
 		println JsonOutput.toJson(versions)
 	}

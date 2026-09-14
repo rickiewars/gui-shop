@@ -44,14 +44,14 @@ jobs:
           cache-read-only: true
 
       - name: compute version list
-        id: versions
-        run: echo "versions=$(./gradlew -q :printVersions)" >> "$GITHUB_OUTPUT"
+        run: |
+          mkdir -p assets
+          ./gradlew -q :printVersions > assets/manifest.json
 
       - name: download release assets
         run: gh release download "${TAG}" --dir assets
 
       - name: publish each version to Modrinth in order
         env:
-          VERSIONS_JSON: ${{ steps.versions.outputs.versions }}
           ASSETS_DIR: ${{ github.workspace }}/assets
         run: bash .github/scripts/publish-modrinth.sh
