@@ -224,23 +224,6 @@ tasks.withType(JavaCompile).configureEach {
 	it.options.release = javaVersion
 }
 
-tasks.register("verifyTagMatchesVersion") {
-	doLast {
-		def tag = project.findProperty("tag")?.toString()
-		def version = project.version.toString()
-
-		if (tag == null) {
-			throw new GradleException("Missing tag.")
-		}
-
-		if (tag != version) {
-			throw new GradleException("Tag ($tag) does not match project version ($version)")
-		}
-
-		println "Tag matches project version: $version"
-	}
-}
-
 java {
 	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
 	// if it is present.

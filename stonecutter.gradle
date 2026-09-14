@@ -17,3 +17,34 @@ stonecutter.parameters {
 		}
 	}
 }
+
+// Prints each configured Minecraft version with its required Java version as JSON, single
+// source of truth for the CI matrix (also picks the right JDK per leg, no extra lookup needed)
+tasks.register("printVersions") {
+	group = "ci"
+	doLast {
+		def versions = rootProject.subprojects.collect {
+			[minecraft_version: it.name, java_version: it.findProperty("java_version") as int]
+		}
+		println groovy.json.JsonOutput.toJson(versions)
+	}
+}
+
+// Fails if the release tag doesn't match mod_version, guards against tagging the wrong version
+tasks.register("verifyTagMatchesVersion") {
+	group = "ci"
+	doLast {
+		def tag = project.findProperty("tag")?.toString()
+		def version = project.findProperty("mod_version")?.toString()
+
+		if (tag == null) {
+			throw new GradleException("Missing tag.")
+		}
+
+		if (tag != version) {
+			throw new GradleException("Tag ($tag) does not match mod_version ($version)")
+		}
+
+		println "Tag matches mod_version: $version"
+	}
+}
