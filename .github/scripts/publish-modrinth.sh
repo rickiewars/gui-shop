@@ -2,27 +2,48 @@
 # Publishes each Minecraft version's jar to Modrinth, in the exact order given by VERSIONS_JSON.
 #
 # Required env vars:
-#   GH_TOKEN, GH_REPO       - for `gh release download`
 #   MODRINTH_TOKEN          - Modrinth API token
 #   MODRINTH_PROJECT        - Modrinth project ID/slug to publish to
 #   TAG                     - the tagged release to publish on Modrinth
 #   RELEASE_NAME            - base name for each created Modrinth version
 #   RELEASE_BODY            - changelog text
-#   VERSIONS_JSON           - JSON array of {minecraft_version, java_version}, oldest first
+#   VERSIONS_JSON           - JSON array of {minecraft_version: String, java_version?: Number}, oldest first
+#   ASSETS_DIR              - directory already containing the release's downloaded jars
 #
+# Required scope: MODRINTH_TOKEN needs "Create versions" permission on MODRINTH_PROJECT.
 set -euo pipefail
 
 work_dir="$(mktemp -d)"
 trap 'rm -rf "$work_dir"' EXIT
 
-echo "$VERSIONS_JSON" | jq -c '.[]' | while read -r entry; do
-  mc_version=$(echo "$entry" | jq -r '.minecraft_version')
+mapfile -t entries < <(echo "$VERSIONS_JSON" | jq -c '.[]')
+
+echo "== Validating expected assets =="
+missing_jars=()
+for entry in "${entries[@]}"; do
+  mc_version=$(jq -r '.minecraft_version' <<< "$entry")
   jar_name="gui-shop-${TAG}+${mc_version}.jar"
-  jar_path="$work_dir/$jar_name"
-  data_path="$work_dir/data.json"
+  if [ ! -f "$ASSETS_DIR/$jar_name" ]; then
+    missing_jars+=("$jar_name")
+  fi
+done
+
+if [ ${#missing_jars[@]} -gt 0 ]; then
+  echo "Missing expected assets in $ASSETS_DIR:" >&2
+  printf '  - %s\n' "${missing_jars[@]}" >&2
+  exit 1
+fi
+echo "All expected assets present."
+echo
+
+failed_versions=()
+for entry in "${entries[@]}"; do
+  mc_version=$(jq -r '.minecraft_version' <<< "$entry")
+  jar_name="gui-shop-${TAG}+${mc_version}.jar"
+  jar_path="$ASSETS_DIR/$jar_name"
+  data_path="$work_dir/data-${mc_version}.json"
 
   echo "== Publishing $mc_version =="
-  gh release download "$TAG" --pattern "$jar_name" --output "$jar_path"
 
   jq -n \
     --arg name "$RELEASE_NAME ($mc_version)" \
@@ -46,10 +67,21 @@ echo "$VERSIONS_JSON" | jq -c '.[]' | while read -r entry; do
       primary_file: "file"
     }' > "$data_path"
 
-  curl -sf -X POST "https://api.modrinth.com/v2/version" \
-    -H "Authorization: $MODRINTH_TOKEN" \
-    -F "data=@${data_path};type=application/json" \
-    -F "file=@${jar_path};type=application/java-archive"
-
+  # curl as an `if` condition so `set -e` doesn't abort the whole script on failure here -
+  # the point is to keep trying the remaining versions.
+  if curl -sf -X POST "https://api.modrinth.com/v2/version" \
+      -H "Authorization: $MODRINTH_TOKEN" \
+      -F "data=@${data_path};type=application/json" \
+      -F "file=@${jar_path};type=application/java-archive"; then
+    echo "OK: $mc_version"
+  else
+    echo "FAILED: $mc_version" >&2
+    failed_versions+=("$mc_version")
+  fi
   echo
 done
+
+if [ ${#failed_versions[@]} -gt 0 ]; then
+  echo "Failed to publish: ${failed_versions[*]}" >&2
+  exit 1
+fi

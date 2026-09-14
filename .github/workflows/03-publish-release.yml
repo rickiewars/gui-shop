@@ -9,8 +9,11 @@ on:
         description: 'Test flow based on tag and upload to temporary modrinth project for testing purposes'
         required: true
 
+# TODO: revert to contents: read once workflow_dispatch (the test-only trigger) is removed.
+# write is only needed for gh release download's draft-release lookup, used by workflow_dispatch
+# test runs against a still-draft release; the real release: published path only needs read.
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   publish:
@@ -44,7 +47,11 @@ jobs:
         id: versions
         run: echo "versions=$(./gradlew -q :printVersions)" >> "$GITHUB_OUTPUT"
 
+      - name: download release assets
+        run: gh release download "${TAG}" --dir assets
+
       - name: publish each version to Modrinth in order
         env:
           VERSIONS_JSON: ${{ steps.versions.outputs.versions }}
+          ASSETS_DIR: ${{ github.workspace }}/assets
         run: bash .github/scripts/publish-modrinth.sh
