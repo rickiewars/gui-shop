@@ -95,7 +95,7 @@ jobs:
           path: versions/${{ matrix.minecraft_version }}/build/libs/gui-shop-${{ needs.verify-tag.outputs.tag }}+${{ matrix.minecraft_version }}.jar
 
   create-release:
-    needs: [ verify-tag, prepare, build ]
+    needs: [ verify-tag, build ]
     if: github.event_name == 'push'
     runs-on: ubuntu-26.04
     permissions:
@@ -114,17 +114,4 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ needs.verify-tag.outputs.tag }}
-        run: gh release create "$TAG" --draft --title "$TAG" --generate-notes
-
-      # Assets are added in order of targeted Minecraft version, newest first
-      - name: attach jars in order of targeted Minecraft version, newest first
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ needs.verify-tag.outputs.tag }}
-          VERSIONS_JSON: ${{ needs.prepare.outputs.versions }}
-        run: |
-          set -euo pipefail
-          mapfile -t mc_versions < <(jq -r '[.[].minecraft_version] | reverse | .[]' <<< "$VERSIONS_JSON")
-          for mc_version in "${mc_versions[@]}"; do
-            gh release upload "$TAG" "dist/gui-shop-${TAG}+${mc_version}.jar"
-          done
+        run: gh release create "$TAG" --draft --title "$TAG" --generate-notes dist/*.jar
