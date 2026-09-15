@@ -117,6 +117,8 @@ public class ConfigManager {
                 );
                 config.database = new GuiShopConfig.DatabaseConfig();
             }
+
+            warnAboutAccountsWithMissingCurrency(config);
         }
 
         GUIShop.config = config;
@@ -128,5 +130,18 @@ public class ConfigManager {
 
     public static void saveConfig() throws IOException {
         writeConfig(guiShopConfigFile().toFile(), GUIShop.config);
+    }
+
+    static void warnAboutAccountsWithMissingCurrency(GuiShopConfig config) {
+        GuiShopConfig.EconomyProviderDefinition economy = config.economy;
+        if (economy == null) return;
+        economy.accounts.forEach((accountId, account) -> {
+            if (account.currencyId == null || !economy.currencies.containsKey(account.currencyId.path())) {
+                GUIShop.LOGGER.warn(
+                        "Economy account '{}' references currency '{}' which does not exist, ignoring the account",
+                        accountId, account.currencyId == null ? "null" : account.currencyId.path()
+                );
+            }
+        });
     }
 }

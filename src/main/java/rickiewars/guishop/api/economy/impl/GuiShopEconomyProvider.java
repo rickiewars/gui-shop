@@ -39,6 +39,7 @@ public class GuiShopEconomyProvider implements EconomyProvider {
     public @Nullable EconomyAccount getAccount(MinecraftServer minecraftServer, GameProfile gameProfile, String accountId) {
         if (GUIShop.config.economy == null || GUIShop.config.economyDisabled) return null;
         if (!GUIShop.config.economy.accounts.containsKey(accountId)) return null;
+        if (accountMissesCurrency(GUIShop.config.economy.accounts.get(accountId))) return null;
 
         return new GuiShopEconomyAccount(
                 ResourceId.of(GuiShopEconomyProvider.ID, accountId),
@@ -53,13 +54,21 @@ public class GuiShopEconomyProvider implements EconomyProvider {
         if (GUIShop.config.economy.accounts.isEmpty()) return Collections.emptySet();
 
         Collection<EconomyAccount> accounts = new ArrayList<>();
-        GUIShop.config.economy.accounts.forEach(
-            (accountId, accountDefinition) -> accounts.add(new GuiShopEconomyAccount(
+        GUIShop.config.economy.accounts.forEach((accountId, accountDefinition) -> {
+            if (accountMissesCurrency(accountDefinition)) return;
+            accounts.add(new GuiShopEconomyAccount(
                 ResourceId.of(GuiShopEconomyProvider.ID, accountId),
                 accountDefinition, MinecraftCompat.id(gameProfile)
-            )));
+            ));
+        });
 
         return accounts;
+    }
+
+    private static boolean accountMissesCurrency(GuiShopConfig.AccountDefinition accountDefinition) {
+        if (GUIShop.config.economy == null || GUIShop.config.economyDisabled) return true;
+        if (accountDefinition.currencyId == null) return true;
+        return !GUIShop.config.economy.currencies.containsKey(accountDefinition.currencyId.path());
     }
 
     @Override

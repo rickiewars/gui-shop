@@ -138,6 +138,14 @@ public class GuiShopEconomyProviderTest extends MinecraftTest {
     }
 
     @Test
+    void getAccountReturnsNullIfCurrencyIsMissing() {
+        assertNotNull(GUIShop.config.economy);
+        GUIShop.config.economy.accounts.put("wallet", accountDef("Wallet", "does-not-exist"));
+
+        assertNull(provider.getAccount(null, profile, "wallet"));
+    }
+
+    @Test
     void getAccountReturnsCorrectInstance() {
         Identifier curId = Identifier.fromNamespaceAndPath(GuiShopEconomyProvider.ID, "coins");
 
@@ -170,12 +178,28 @@ public class GuiShopEconomyProviderTest extends MinecraftTest {
         ResourceId curId = ResourceId.of(GuiShopEconomyProvider.ID, "coins");
 
         assertNotNull(GUIShop.config.economy);
+        GUIShop.config.economy.currencies.put(curId.path(), currencyDef("Coins", "$", "", 0));
         GUIShop.config.economy.accounts.put("wallet", accountDef("Wallet", curId.path()));
         GUIShop.config.economy.accounts.put("bank", accountDef("Bank", curId.path()));
 
         Collection<EconomyAccount> accounts = provider.getAccounts(null, profile);
 
         assertEquals(2, accounts.size());
+    }
+
+    @Test
+    void getAccountsSkipsAccountsReferencingMissingCurrency() {
+        ResourceId curId = ResourceId.of(GuiShopEconomyProvider.ID, "coins");
+
+        assertNotNull(GUIShop.config.economy);
+        GUIShop.config.economy.currencies.put(curId.path(), currencyDef("Coins", "$", "", 0));
+        GUIShop.config.economy.accounts.put("wallet", accountDef("Wallet", curId.path()));
+        GUIShop.config.economy.accounts.put("dangling", accountDef("Dangling", "does-not-exist"));
+
+        Collection<EconomyAccount> accounts = provider.getAccounts(null, profile);
+
+        assertEquals(1, accounts.size());
+        assertEquals("wallet", accounts.iterator().next().id().getPath());
     }
 
     // -------------------------------------------------------------------------
