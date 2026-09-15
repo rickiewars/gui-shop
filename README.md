@@ -2,7 +2,7 @@
 
 GuiShop is a Fabric server-side mod to create and manage GUI shops in Minecraft.
 It comes with its own economy but also integrates seamlessly with other economy providers.
-GuiShop is based on the works of [UnsafeDodo](https://github.com/UnsafeDodo), adapted and extended to fit my needs.
+GuiShop started as a fork of [UnsafeDodo](https://github.com/UnsafeDodo)'s work, but has since been heavily modified to fit my needs.
 
 ## Features
 
@@ -26,8 +26,8 @@ GuiShop is based on the works of [UnsafeDodo](https://github.com/UnsafeDodo), ad
 
 Other notable features:
 - Drag and drop any items from your inventory to the shop. If it can be sold, it will be sold.
+- Selling back a used item applies a configurable payout penalty, see [Sell pricing](#sell-pricing).
 - Shop items support item components (enchantments, custom names, custom model data, etc.).
-  - Note: Selling (inventory -> shop) items with enchantments is not supported yet.
 - Supports multiple currencies, each item can be configured to use a different currency.
 - Supports any economy mod that implements the [Common Economy API](https://github.com/Patbox/common-economy-api).
 - Has its own built-in economy provider that can be configured with multiple currencies and accounts.
@@ -44,26 +44,29 @@ Put the .jar file in the "mods" folder
 <br><br>
 
 ## Commands and permissions
-All commands can be used by admins (permission level 3) or by users/groups with the specific permission
+All commands can be used by admins (permission level 2 or higher, see each command below) or by
+users/groups with the specific permission
 
 
-| Description                             | Command                                                                                | Permission               | 
-|-----------------------------------------|----------------------------------------------------------------------------------------|--------------------------|
-| Main command, opens shop selection menu | `/guishop`                                                                             | `guishop.main`           |
-| Create a shop                           | `/guishop create <shopName>`                                                           | `guishop.create`         |
-| Delete a shop                           | `/guishop delete <shopName> `                                                          | `guishop.delete`         |
-| Add an item in a shop                   | `/guishop additem <shopName> <itemId> <buyPrice> <sellPrice> <currency> <description>` | `guishop.additem`        |
-| Remove an item from a shop              | `/guishop removeitem <shopName> <itemName>`                                            | `guishop.removeitem`     |
-| Open a shop for a player                | `/guishop open <shopName> <playerName>`                                                | `guishop.open`           |
-| List all shops                          | `/guishop list`                                                                        | `guishop.list`           |
-| List all items in a shop                | `/guishop list <shopName>`                                                             | `guishop.list`           |
-| Force save config                       | `/guishop forcesave`                                                                   | `guishop.forcesave`      |
-| Reload config file                      | `/guishop reload`                                                                      | `guishop.reload`         |
-| Show balance for all currencies         | `/guishop balance`                                                                     | `guishop.balance`        |
-| Show balance for a currency             | `/guishop balance <currency>`                                                          | `guishop.balance`        |
-| Send your money to another player       | `/guishop balance <currency> send <playerName> <amount>`                               | `guishop.balance.send`   |
-| Increase a player's balance             | `/guishop balance <currency> add <playerName> <amount>`                                | `guishop.balance.add`    |
-| Decrease a player's balance             | `/guishop balance <currency> remove <playerName> <amount>`                             | `guishop.balance.remove` |
+| Description                             | Command                                                                                      | Permission               | 
+|-----------------------------------------|----------------------------------------------------------------------------------------------|--------------------------|
+| Main command, opens shop selection menu | `/guishop`                                                                                   | `guishop.main`           |
+| Create a shop                           | `/guishop create <shopName>`                                                                 | `guishop.create`         |
+| Delete a shop                           | `/guishop delete <shopName> `                                                                | `guishop.delete`         |
+| Add an item in a shop                   | `/guishop additem <shopName> <itemId> <buyPrice> <sellPrice> <currency> <description>`       | `guishop.additem`        |
+| Add the item in your hand to a shop     | `/guishop addhelditem <shopName> <itemName> <buyPrice> <sellPrice> [currency] [description]` | `guishop.additem`        |
+| Remove an item from a shop              | `/guishop removeitem <shopName> <itemName>`                                                  | `guishop.removeitem`     |
+| Open a shop for a player                | `/guishop open <shopName> <playerName>`                                                      | `guishop.open`           |
+| List all shops                          | `/guishop list`                                                                              | `guishop.list`           |
+| List all items in a shop                | `/guishop list <shopName>`                                                                   | `guishop.list`           |
+| Force save config                       | `/guishop forcesave`                                                                         | `guishop.forcesave`      |
+| Reload config file                      | `/guishop reload`                                                                            | `guishop.reload`         |
+| Show balance for all currencies         | `/guishop balance`                                                                           | `guishop.balance`        |
+| Show balance for a currency             | `/guishop balance <currency>`                                                                | `guishop.balance`        |
+| Send your money to another player       | `/guishop balance <currency> send <playerName> <amount>`                                     | `guishop.balance.send`   |
+| Increase a player's balance             | `/guishop balance <currency> add <playerName> <amount>`                                      | `guishop.balance.add`    |
+| Decrease a player's balance             | `/guishop balance <currency> remove <playerName> <amount>`                                   | `guishop.balance.remove` |
+| Sell the item in your hand              | `/sell hand`                                                                                 | `guishop.sell.hand`      |
 
 ### Commands examples
 Create a shop: `/guishop create "Test shop"`"
