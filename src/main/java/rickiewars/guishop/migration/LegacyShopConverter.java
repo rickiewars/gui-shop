@@ -21,7 +21,7 @@ import rickiewars.guishop.api.minecraft.ResourceId;
 import rickiewars.guishop.api.minecraft.impl.ItemRegistry;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemCodec;
 import rickiewars.guishop.config.ConfigManager;
-import rickiewars.guishop.util.CommonMethods;
+import rickiewars.guishop.util.StringUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -31,6 +31,8 @@ import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 public final class LegacyShopConverter {
+    private LegacyShopConverter() {}
+
     private static final String CONVERSION_DONE_MARKER = ".conversion-complete";
     private static final String STAGING_DIR_NAME = ".converting";
 
@@ -40,7 +42,6 @@ public final class LegacyShopConverter {
     /// between simply do not match -- while assuming too HIGH silently skips the fixes that matter.
     private static final int LEGACY_FLOOR_DATA_VERSION = 3837;
 
-    private LegacyShopConverter() {}
 
     public static boolean convertIfNeeded(MinecraftServer server, MinecraftItemCodec itemCodec) {
         return convertIfNeeded(server.registryAccess(), itemCodec);
@@ -99,7 +100,7 @@ public final class LegacyShopConverter {
 
     private static void convertShop(JsonObject shop, HolderLookup.Provider registries, MinecraftItemCodec itemCodec, Path staging, Set<String> usedIds) throws IOException {
         String shopName = shop.get("shopName").getAsString();
-        String id = CommonMethods.slugify(shopName, usedIds);
+        String id = StringUtils.slugify(shopName, usedIds);
         usedIds.add(id);
         GUIShop.LOGGER.info("Converting shop '{}' -> id '{}'", shopName, id);
 

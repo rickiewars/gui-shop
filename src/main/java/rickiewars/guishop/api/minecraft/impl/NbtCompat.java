@@ -10,10 +10,9 @@ import java.util.Optional;
 /// Shims {@link CompoundTag}/{@link ListTag} reads to the Optional-returning shape they gained in
 /// 1.21.5. Below that version the same-named methods return raw defaulted primitives instead, so
 /// callers guard with `contains` first.
-public final class NbtCompat {
-    private NbtCompat() {}
+public interface NbtCompat {
 
-    public static CompoundTag parseCompoundFully(String raw) throws CommandSyntaxException {
+    static CompoundTag parseCompoundFully(String raw) throws CommandSyntaxException {
         //? if >=1.21.5 {
         return TagParser.parseCompoundFully(raw);
         //?} else {
@@ -21,7 +20,7 @@ public final class NbtCompat {
         *///?}
     }
 
-    public static Optional<String> getString(CompoundTag tag, String key) {
+    static Optional<String> getString(CompoundTag tag, String key) {
         //? if >=1.21.5 {
         return tag.getString(key);
         //?} else {
@@ -29,7 +28,7 @@ public final class NbtCompat {
         *///?}
     }
 
-    public static Optional<Integer> getInt(CompoundTag tag, String key) {
+    static Optional<Integer> getInt(CompoundTag tag, String key) {
         //? if >=1.21.5 {
         return tag.getInt(key);
         //?} else {
@@ -37,7 +36,7 @@ public final class NbtCompat {
         *///?}
     }
 
-    public static Optional<Long> getLong(CompoundTag tag, String key) {
+    static Optional<Long> getLong(CompoundTag tag, String key) {
         //? if >=1.21.5 {
         return tag.getLong(key);
         //?} else {
@@ -45,7 +44,7 @@ public final class NbtCompat {
         *///?}
     }
 
-    public static Optional<Double> getDouble(CompoundTag tag, String key) {
+    static Optional<Double> getDouble(CompoundTag tag, String key) {
         //? if >=1.21.5 {
         return tag.getDouble(key);
         //?} else {
@@ -53,7 +52,7 @@ public final class NbtCompat {
         *///?}
     }
 
-    public static Optional<CompoundTag> getCompound(CompoundTag tag, String key) {
+    static Optional<CompoundTag> getCompound(CompoundTag tag, String key) {
         //? if >=1.21.5 {
         return tag.getCompound(key);
         //?} else {
@@ -61,7 +60,7 @@ public final class NbtCompat {
         *///?}
     }
 
-    public static ListTag getCompoundListOrEmpty(CompoundTag tag, String key) {
+    static ListTag getCompoundListOrEmpty(CompoundTag tag, String key) {
         //? if >=1.21.5 {
         return tag.getListOrEmpty(key);
         //?} else {
@@ -69,7 +68,7 @@ public final class NbtCompat {
         *///?}
     }
 
-    public static Optional<ListTag> getStringList(CompoundTag tag, String key) {
+    static Optional<ListTag> getStringList(CompoundTag tag, String key) {
         //? if >=1.21.5 {
         return tag.getList(key);
         //?} else {
@@ -77,7 +76,7 @@ public final class NbtCompat {
         *///?}
     }
 
-    public static Optional<CompoundTag> getCompound(ListTag list, int index) {
+    static Optional<CompoundTag> getCompound(ListTag list, int index) {
         //? if >=1.21.5 {
         return list.getCompound(index);
         //?} else {
@@ -85,7 +84,7 @@ public final class NbtCompat {
         *///?}
     }
 
-    public static Optional<String> getString(ListTag list, int index) {
+    static Optional<String> getString(ListTag list, int index) {
         //? if >=1.21.5 {
         return list.getString(index);
         //?} else {

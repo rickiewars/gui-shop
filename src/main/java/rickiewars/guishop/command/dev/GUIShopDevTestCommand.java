@@ -18,15 +18,15 @@ import rickiewars.guishop.errors.CommandErrors;
 /**
  * Opens the in-game sgui manual test menu. Only for development purposes (testing the SGUI itegration).
  */
-public class GUIShopDevTestCommand {
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandRegistryAccess, Commands.CommandSelection registrationEnvironment) {
+public interface GUIShopDevTestCommand {
+    static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandRegistryAccess, Commands.CommandSelection registrationEnvironment) {
         dispatcher.register(Commands.literal("guishop")
             .then(Commands.literal("devtest")
                 .requires(GuiShopPermission.TEST.require())
                 .executes(GUIShopDevTestCommand::run)));
     }
 
-    public static int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+    static int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         ServerPlayer player = context.getSource().getPlayer();
         if (player == null) throw CommandErrors.NEED_PLAYER.create();
 

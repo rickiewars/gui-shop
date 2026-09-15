@@ -13,10 +13,9 @@ import net.minecraft.world.item.ItemStack;
 import java.net.URI;
 import java.util.UUID;
 
-public final class MinecraftCompat {
-    private MinecraftCompat() {}
+public interface MinecraftCompat {
 
-    public static UUID id(GameProfile profile) {
+    static UUID id(GameProfile profile) {
         //? if >=1.21.9 {
         return profile.id();
         //?} else {
@@ -24,7 +23,7 @@ public final class MinecraftCompat {
         *///?}
     }
 
-    public static int currentDataVersion() {
+    static int currentDataVersion() {
         //? if >=1.21.6 {
         return SharedConstants.getCurrentVersion().dataVersion().version();
         //?} else {
@@ -32,7 +31,7 @@ public final class MinecraftCompat {
         *///?}
     }
 
-    public static ClickEvent clickEventOpenUrl(String url) {
+    static ClickEvent clickEventOpenUrl(String url) {
         //? if >=1.21.5 {
         try {
             return new ClickEvent.OpenUrl(new URI(url));
@@ -44,7 +43,7 @@ public final class MinecraftCompat {
         *///?}
     }
 
-    public static ClickEvent clickEventCopyToClipboard(String text) {
+    static ClickEvent clickEventCopyToClipboard(String text) {
         //? if >=1.21.5 {
         return new ClickEvent.CopyToClipboard(text);
         //?} else {
@@ -52,7 +51,7 @@ public final class MinecraftCompat {
         *///?}
     }
 
-    public static ItemStack createItemStack(ItemInput itemInput, int count) throws CommandSyntaxException {
+    static ItemStack createItemStack(ItemInput itemInput, int count) throws CommandSyntaxException {
         //? if >=26.1 {
         return itemInput.createItemStack(count);
         //?} else {
@@ -60,7 +59,7 @@ public final class MinecraftCompat {
         *///?}
     }
 
-    public static <T> Holder<T> getOrThrow(HolderLookup.Provider registries, ResourceKey<T> key) {
+    static <T> Holder<T> getOrThrow(HolderLookup.Provider registries, ResourceKey<T> key) {
         //? if >=1.21.5 {
         return registries.getOrThrow(key);
         //?} else {
@@ -68,7 +67,7 @@ public final class MinecraftCompat {
         *///?}
     }
 
-    public static HolderLookup.Provider vanillaRegistries() {
+    static HolderLookup.Provider vanillaRegistries() {
         //? if >=26.3 {
         return net.minecraft.data.registries.VanillaRegistries.createReloadableLookup(
             net.minecraft.data.registries.VanillaRegistries.createWorldLookup()

@@ -22,8 +22,8 @@ import rickiewars.guishop.shop.gui.SelectShopMenu;
 
 import java.util.function.UnaryOperator;
 
-public class GUIShopMainCommand {
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandRegistryAccess, Commands.CommandSelection registrationEnvironment){
+public interface GUIShopMainCommand {
+    static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandRegistryAccess, Commands.CommandSelection registrationEnvironment){
         var root = dispatcher.getRoot();
         boolean shopExists = root.getChildren().stream().anyMatch(
             node -> node.getName().equals("shop")
@@ -80,7 +80,7 @@ public class GUIShopMainCommand {
         return 0;
     }
 
-    public static int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+    static int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         var player = context.getSource().getPlayer();
         if (player == null) return runHelp(context);
 

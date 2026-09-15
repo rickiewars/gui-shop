@@ -13,10 +13,9 @@ import rickiewars.guishop.command.GuiShopPermission;
 import rickiewars.guishop.command.suggestions.ShopNameSuggestionProvider;
 import rickiewars.guishop.errors.CommandErrors;
 import rickiewars.guishop.shop.Shop;
-import rickiewars.guishop.util.CommonMethods;
 
-public class GUIShopRemoveItemCommand {
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandRegistryAccess, Commands.CommandSelection registrationEnvironment){
+public interface GUIShopRemoveItemCommand {
+    static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandRegistryAccess, Commands.CommandSelection registrationEnvironment){
         dispatcher.register(Commands.literal("guishop")
             .then(Commands.literal("removeitem")
                 .requires(GuiShopPermission.REMOVE_ITEM.require())
@@ -26,11 +25,11 @@ public class GUIShopRemoveItemCommand {
                         .executes(GUIShopRemoveItemCommand::run)))));
     }
 
-    public static int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+    static int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         String shopName = StringArgumentType.getString(context, "shopName");
         String itemName = StringArgumentType.getString(context, "itemName");
 
-        Shop foundShop = CommonMethods.getShopByName(shopName);
+        Shop foundShop = Shop.findByName(shopName);
         if (foundShop == null) throw CommandErrors.SHOP_NOT_FOUND.create(shopName);
 
         var item = foundShop.getItems().stream().filter(

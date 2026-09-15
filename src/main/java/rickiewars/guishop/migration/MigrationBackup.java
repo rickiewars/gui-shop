@@ -5,10 +5,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
-public final class MigrationBackup {
-    private MigrationBackup() {}
+public interface MigrationBackup {
 
-    public static void backup(Path legacyFile) throws IOException {
+    static void backup(Path legacyFile) throws IOException {
         if (!Files.exists(legacyFile)) return;
 
         Path backup = legacyFile.resolveSibling(legacyFile.getFileName() + ".pre-migration-backup");

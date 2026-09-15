@@ -18,8 +18,8 @@ import rickiewars.guishop.errors.CommandErrors;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
 
-public class SellCommand {
-	public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandRegistryAccess, Commands.CommandSelection registrationEnvironment) {
+public interface SellCommand {
+	static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandRegistryAccess, Commands.CommandSelection registrationEnvironment) {
 		dispatcher.register(Commands.literal("sell")
 				.requires(GuiShopPermission.SELL.require())
 				.then(Commands.literal("hand")

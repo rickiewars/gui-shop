@@ -12,16 +12,16 @@ import rickiewars.guishop.errors.CommandErrors;
 
 import java.util.Optional;
 
-public class GuiShopBalanceCommands {
+public interface GuiShopBalanceCommands {
 
-    protected static EconomyCurrency getCurrency(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+    static EconomyCurrency getCurrency(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         Identifier currencyId = getCurrencyId(context).orElseGet(GuiShopEconomyCurrency.DEFAULT_ID::toIdentifier);
         var result = CommonEconomy.getCurrency(context.getSource().getServer(), currencyId);
         if (result == null) throw CommandErrors.CURRENCY_NOT_FOUND.create(currencyId);
         return result;
     }
 
-    protected static Optional<Identifier> getCurrencyId(CommandContext<CommandSourceStack> context) {
+    static Optional<Identifier> getCurrencyId(CommandContext<CommandSourceStack> context) {
         try {
             return Optional.ofNullable(IdentifierArgument.getId(context, "currency"));
         } catch (IllegalArgumentException ignored) {

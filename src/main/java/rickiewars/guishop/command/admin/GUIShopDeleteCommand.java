@@ -14,8 +14,8 @@ import rickiewars.guishop.command.GuiShopPermission;
 import rickiewars.guishop.command.suggestions.ShopNameSuggestionProvider;
 import rickiewars.guishop.errors.CommandErrors;
 
-public class GUIShopDeleteCommand {
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandRegistryAccess, Commands.CommandSelection registrationEnvironment){
+public interface GUIShopDeleteCommand {
+    static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandRegistryAccess, Commands.CommandSelection registrationEnvironment){
         dispatcher.register(Commands.literal("guishop")
                 .then(Commands.literal("delete")
                         .requires(GuiShopPermission.DELETE_SHOP.require())
@@ -24,7 +24,7 @@ public class GUIShopDeleteCommand {
                             .executes(GUIShopDeleteCommand::run))));
     }
 
-    public static int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+    static int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         String shopName = StringArgumentType.getString(context, "shopName");
 
         var shop = GUIShop.shops.stream().filter(

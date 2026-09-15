@@ -26,9 +26,9 @@ import rickiewars.guishop.errors.CommandErrors;
 
 import java.util.Collection;
 
-public class GUIShopBalanceCommand extends GuiShopBalanceCommands {
+public interface GUIShopBalanceCommand {
 
-    public static LiteralArgumentBuilder<CommandSourceStack> getBalanceNode(String literal) {
+    static LiteralArgumentBuilder<CommandSourceStack> getBalanceNode(String literal) {
         return Commands.literal(literal)
             .requires(GuiShopPermission.BALANCE.require())
             .executes(GUIShopBalanceCommand::showAllBalances)
@@ -42,7 +42,7 @@ public class GUIShopBalanceCommand extends GuiShopBalanceCommands {
             );
     }
 
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandRegistryAccess, Commands.CommandSelection registrationEnvironment) {
+    static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandRegistryAccess, Commands.CommandSelection registrationEnvironment) {
         if (!GUIShop.config.economyCommandsEnabled()) return;
 
         dispatcher.register(

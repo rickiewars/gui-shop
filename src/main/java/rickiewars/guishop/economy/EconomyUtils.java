@@ -13,26 +13,26 @@ import rickiewars.guishop.api.minecraft.ResourceId;
 import java.util.Collection;
 import java.util.NoSuchElementException;
 
-public class EconomyUtils {
+public interface EconomyUtils {
 
-    public static Collection<EconomyCurrency> getCurrencies(MinecraftServer server) {
+    static Collection<EconomyCurrency> getCurrencies(MinecraftServer server) {
         return CommonEconomy.getCurrencies(server);
     }
 
     /** Registers (or refreshes) a player's account for every currency. */
-    public static void registerAccounts(DatabaseManager databaseManager, Collection<EconomyCurrency> currencies, String uuid, String name) {
+    static void registerAccounts(DatabaseManager databaseManager, Collection<EconomyCurrency> currencies, String uuid, String name) {
         if (GUIShop.config.economyDisabled) return;
         currencies.forEach(currency -> databaseManager.updateAccount(currency.id().toString(), uuid, name));
     }
 
-    public static ResourceId getFirstCurrencyId() {
+    static ResourceId getFirstCurrencyId() {
         if (GUIShop.config.economyProviders.isEmpty()) {
             return GuiShopEconomyCurrency.DEFAULT_ID;
         }
         return GUIShop.config.economyProviders.getFirstCurrency();
     }
 
-    public static EconomyAccount getDefaultAccount(ServerPlayer player, ResourceId currencyId) {
+    static EconomyAccount getDefaultAccount(ServerPlayer player, ResourceId currencyId) {
         EconomyCurrency currency = CommonEconomy.getCurrency(
             GUIShop.minecraftServer.getInstance(),
             currencyId.toIdentifier()

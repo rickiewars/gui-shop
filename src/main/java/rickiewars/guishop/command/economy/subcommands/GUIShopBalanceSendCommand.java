@@ -19,8 +19,8 @@ import rickiewars.guishop.errors.CommandErrors;
 
 import java.math.BigInteger;
 
-public class GUIShopBalanceSendCommand {
-    public static LiteralArgumentBuilder<CommandSourceStack> register() {
+public interface GUIShopBalanceSendCommand {
+    static LiteralArgumentBuilder<CommandSourceStack> register() {
         return Commands.literal("send")
             .requires(GuiShopPermission.BALANCE_SEND.require())
             .then(Commands.argument("player", EntityArgument.player())
@@ -29,7 +29,7 @@ public class GUIShopBalanceSendCommand {
                 ));
     }
 
-    public static int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+    static int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         ServerPlayer player = context.getSource().getPlayer();
         if (player == null) throw CommandErrors.NEED_PLAYER.create();
 

@@ -3,7 +3,6 @@ package rickiewars.guishop.api.database.impl;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.database.DatabaseManager;
 import rickiewars.guishop.config.GuiShopConfig;
-import rickiewars.guishop.util.CommonMethods;
 
 import java.io.File;
 import java.sql.*;
@@ -289,7 +288,7 @@ public class SQLiteDatabaseManager implements DatabaseManager {
     }
     private static void throwNotFoundError(String currency, String uuid) throws NoSuchElementException {
         throw new NoSuchElementException(
-                "Could not find account for " + CommonMethods.identifyPlayer(UUID.fromString(uuid))
+                "Could not find account for " + GUIShop.minecraftServer.identifyPlayer(UUID.fromString(uuid))
                 + " using the currency " + currency
         );
     }

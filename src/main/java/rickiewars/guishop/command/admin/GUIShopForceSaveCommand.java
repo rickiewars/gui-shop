@@ -13,15 +13,15 @@ import rickiewars.guishop.config.ConfigManager;
 
 import java.io.IOException;
 
-public class GUIShopForceSaveCommand {
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandRegistryAccess, Commands.CommandSelection registrationEnvironment){
+public interface GUIShopForceSaveCommand {
+    static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandRegistryAccess, Commands.CommandSelection registrationEnvironment){
         dispatcher.register(Commands.literal("guishop")
             .then(Commands.literal("forcesave")
                 .requires(GuiShopPermission.FORCE_SAVE.require())
                 .executes(GUIShopForceSaveCommand::run)));
     }
 
-    public static int run(CommandContext<CommandSourceStack> context) {
+    static int run(CommandContext<CommandSourceStack> context) {
         try {
             ConfigManager.saveConfig();
             if (GUIShop.shopStore != null) {

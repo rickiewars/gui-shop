@@ -16,10 +16,9 @@ import rickiewars.guishop.command.suggestions.ShopNameSuggestionProvider;
 import rickiewars.guishop.errors.CommandErrors;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
-import rickiewars.guishop.util.CommonMethods;
 
-public class GUIShopListCommand {
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandRegistryAccess, Commands.CommandSelection registrationEnvironment){
+public interface GUIShopListCommand {
+    static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandRegistryAccess, Commands.CommandSelection registrationEnvironment){
         dispatcher.register(Commands.literal("guishop")
             .then(Commands.literal("list")
                 .requires(GuiShopPermission.LIST.require())
@@ -31,7 +30,7 @@ public class GUIShopListCommand {
                 )));
     }
 
-    public static int runAllShops(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+    static int runAllShops(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         if(GUIShop.shops.isEmpty()) throw CommandErrors.NO_SHOPS_AVAILABLE.create();
 
         StringBuilder msgBldr = new StringBuilder();
@@ -50,9 +49,9 @@ public class GUIShopListCommand {
 
     }
 
-    public static int runSpecificShop(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+    static int runSpecificShop(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         String shopName = StringArgumentType.getString(context, "shopName");
-        Shop foundShop = CommonMethods.getShopByName(shopName);
+        Shop foundShop = Shop.findByName(shopName);
 
         if (foundShop == null) throw CommandErrors.SHOP_NOT_FOUND.create(shopName);
 

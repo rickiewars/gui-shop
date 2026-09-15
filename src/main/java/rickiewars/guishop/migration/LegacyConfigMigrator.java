@@ -17,10 +17,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class LegacyConfigMigrator {
-    private LegacyConfigMigrator() {}
+public interface LegacyConfigMigrator {
 
-    public static boolean migrateIfNeeded() {
+    static boolean migrateIfNeeded() {
         Path newConfigFile = ConfigManager.guiShopConfigFile();
         if (Files.exists(newConfigFile)) return true;
 

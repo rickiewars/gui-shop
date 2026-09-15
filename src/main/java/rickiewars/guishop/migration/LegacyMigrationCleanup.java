@@ -10,10 +10,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public final class LegacyMigrationCleanup {
-    private LegacyMigrationCleanup() {}
+public interface LegacyMigrationCleanup {
 
-    public static void cleanupIfComplete(boolean configMigrationOk, boolean shopConversionOk) {
+    static void cleanupIfComplete(boolean configMigrationOk, boolean shopConversionOk) {
         if (!configMigrationOk || !shopConversionOk) return;
         if (!Files.exists(ConfigManager.guiShopConfigFile())) return;
 

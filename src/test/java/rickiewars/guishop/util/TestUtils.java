@@ -10,6 +10,7 @@ import rickiewars.guishop.api.database.DatabaseManager;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyCurrency;
 import rickiewars.guishop.api.economy.impl.GuiShopEconomyProvider;
 import rickiewars.guishop.api.minecraft.ResourceId;
+import rickiewars.guishop.api.minecraft.impl.ItemRegistry;
 import rickiewars.guishop.api.minecraft.impl.MinecraftCompat;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.api.minecraft.impl.TestServer;
@@ -59,7 +60,7 @@ public class TestUtils {
 
         for (int i = 0; i < itemCount; i++) {
             String itemId = itemIdSequence.get(i % sequenceLength);
-            ItemStack stack = new ItemStack(CommonMethods.getItem(itemId));
+            ItemStack stack = new ItemStack(ItemRegistry.get(ResourceId.parse(itemId)));
             shopItems.add(new ShopItem(
                 "Item " + (i + 1),
                 new MinecraftItemStack(stack),
@@ -69,7 +70,7 @@ public class TestUtils {
                 List.of()
             ));
         }
-        return new Shop(CommonMethods.slugify(name, java.util.Set.of()), name, shopItems, currencyId);
+        return new Shop(StringUtils.slugify(name, java.util.Set.of()), name, shopItems, currencyId);
     }
 
     static public class EconomyDetails {
@@ -93,18 +94,18 @@ public class TestUtils {
             "Credits", "$", "", 2, GuiShopEconomyCurrency.DEFAULT_ICON_ID
         ));
         details.currencies.put(details.currencyCoinsId.path(), new GuiShopConfig.CurrencyDefinition(
-            "Coins", "", " Coins", 0, ResourceId.parse(CommonMethods.getItemId(Items.GOLD_NUGGET))
+            "Coins", "", " Coins", 0, ResourceId.parse(ItemRegistry.idOf(Items.GOLD_NUGGET).toString())
         ));
 
         details.accounts.put(details.accountCardId.path(), new GuiShopConfig.AccountDefinition(
             details.currencyCreditsId.path(),
             "Credit card",
-            ResourceId.parse(CommonMethods.getItemId(Items.PAPER))
+            ResourceId.parse(ItemRegistry.idOf(Items.PAPER).toString())
         ));
         details.accounts.put(details.accountPouchId.path(), new GuiShopConfig.AccountDefinition(
             details.currencyCoinsId.path(),
             "Pouch",
-            ResourceId.parse(CommonMethods.getItemId(Items.BUNDLE))
+            ResourceId.parse(ItemRegistry.idOf(Items.BUNDLE).toString())
         ));
 
         GUIShop.config = new GuiShopConfig();

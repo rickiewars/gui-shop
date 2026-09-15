@@ -16,12 +16,11 @@ import rickiewars.guishop.command.suggestions.ShopNameSuggestionProvider;
 import rickiewars.guishop.errors.CommandErrors;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.gui.ShopMenu;
-import rickiewars.guishop.util.CommonMethods;
 
 import java.util.Optional;
 
-public class GUIShopOpenCommand {
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandRegistryAccess, Commands.CommandSelection registrationEnvironment){
+public interface GUIShopOpenCommand {
+    static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandRegistryAccess, Commands.CommandSelection registrationEnvironment){
         dispatcher.register(Commands.literal("guishop")
                 .then(Commands.literal("open")
                     .requires(GuiShopPermission.OPEN.require())
@@ -33,9 +32,9 @@ public class GUIShopOpenCommand {
                             .executes(GUIShopOpenCommand::run)))));
     }
 
-    public static int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+    static int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         String shopName = StringArgumentType.getString(context, "shopName");
-        Shop selectedShop = CommonMethods.getShopByName(shopName);
+        Shop selectedShop = Shop.findByName(shopName);
         ServerPlayer player = getPlayer(context)
             .orElse(context.getSource().getPlayer());
 

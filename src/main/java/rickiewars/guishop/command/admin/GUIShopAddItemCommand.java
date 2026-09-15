@@ -23,12 +23,11 @@ import rickiewars.guishop.command.suggestions.ShopNameSuggestionProvider;
 import rickiewars.guishop.errors.CommandErrors;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
-import rickiewars.guishop.util.CommonMethods;
 
 import java.util.List;
 
-public class GUIShopAddItemCommand {
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandRegistryAccess, Commands.CommandSelection registrationEnvironment){
+public interface GUIShopAddItemCommand {
+    static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandRegistryAccess, Commands.CommandSelection registrationEnvironment){
         dispatcher.register(Commands.literal("guishop")
             .then(Commands.literal("additem")
                 .requires(GuiShopPermission.ADD_ITEM.require())
@@ -47,7 +46,7 @@ public class GUIShopAddItemCommand {
                                         )))))))));
     }
 
-    public static int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+    static int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         var itemStackArgument = ItemArgument.getItem(context, "item");
         var itemStack = MinecraftCompat.createItemStack(itemStackArgument, 1);
 
@@ -67,7 +66,7 @@ public class GUIShopAddItemCommand {
             descriptionLine = StringArgumentType.getString(context, "description");
         } catch (IllegalArgumentException ignored) {}
 
-        Shop foundShop = CommonMethods.getShopByName(shopName);
+        Shop foundShop = Shop.findByName(shopName);
         if (foundShop == null) throw CommandErrors.SHOP_NOT_FOUND.create(shopName);
 
         if (buyItemPrice == -1 && sellItemPrice == -1) throw CommandErrors.BUY_AND_SELL_BOTH_DISABLED.create();

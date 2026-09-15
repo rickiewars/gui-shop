@@ -4,6 +4,7 @@ plugins {
 	id 'fabric-loom' version "${loom_version}"
 	id 'maven-publish'
 	id 'jacoco'
+	id 'idea'
 }
 jacoco {
 	toolVersion = "0.8.13"
@@ -14,6 +15,13 @@ group = project.maven_group
 minecraft_version = project.minecraft_version
 loader_version = project.loader_version
 def javaVersion = project.java_version as int
+
+idea {
+	module {
+		excludeDirs += file("build")
+		excludeDirs += file("run")
+	}
+}
 
 base {
 	archivesName = project.archives_base_name
@@ -122,11 +130,9 @@ tasks.register("verifyFabricLoaderBackwardCompatibility", JavaCompile) {
 }
 
 def resourceVersion = project.version.toString()
-// TODO: Revert to minecraft_version once 26.3 releases.
-def minecraftVersionDependency = project.findProperty('minecraft_version_dependency') ?: minecraft_version
 processResources {
 	inputs.property "version", resourceVersion
-    inputs.property "minecraft_version", minecraftVersionDependency
+    inputs.property "minecraft_version", minecraft_version
     inputs.property "loader_version_floor", project.loader_version_floor
 
 	filesMatching("fabric.mod.json") {
@@ -165,12 +171,58 @@ test {
 
 }
 
+// Excluded from code coverage:
+// - Mixins aren't testable and should be thin wrappers calling into testable code.
+// - DevTest holds development-only code for quickly testing things in-game.
+def jacocoExclusions = [
+	'rickiewars/guishop/devtest/**',
+	'rickiewars/guishop/mixin/**'
+]
+
+def excludeJacocoPackages = { JacocoReport task ->
+	task.classDirectories.setFrom(task.classDirectories.files.collect {
+		task.project.fileTree(dir: it, exclude: jacocoExclusions)
+	})
+}
+
 jacocoTestReport {
 	dependsOn test
 	reports {
 		html.required = true
 		xml.required = true
 	}
+}
+
+afterEvaluate {
+	excludeJacocoPackages(jacocoTestReport)
+
+	jacoco.applyTo(tasks.named("runGameTest").get())
+
+	tasks.register("jacocoGametestReport", JacocoReport) {
+		group = "verification"
+		description = "Generates code coverage report for the runGameTest task."
+		dependsOn "runGameTest"
+		executionData tasks.named("runGameTest").get()
+		sourceSets sourceSets.main
+		reports {
+			html.required = true
+			xml.required = true
+		}
+	}
+	excludeJacocoPackages(tasks.named("jacocoGametestReport").get())
+
+	tasks.register("jacocoFullReport", JacocoReport) {
+		group = "verification"
+		description = "Generates a combined code coverage report from unit tests and gametests."
+		dependsOn test, "runGameTest"
+		executionData tasks.named("test").get(), tasks.named("runGameTest").get()
+		sourceSets sourceSets.main
+		reports {
+			html.required = true
+			xml.required = true
+		}
+	}
+	excludeJacocoPackages(tasks.named("jacocoFullReport").get())
 }
 
 fabricApi {

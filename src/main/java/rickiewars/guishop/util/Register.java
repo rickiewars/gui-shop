@@ -10,8 +10,8 @@ import rickiewars.guishop.command.player.GUIShopMainCommand;
 import rickiewars.guishop.command.player.GUIShopOpenCommand;
 import rickiewars.guishop.command.player.SellCommand;
 
-public class Register {
-    public static void registerCommands(){
+public interface Register {
+    static void registerCommands(){
         CommandRegistrationCallback.EVENT.register(GUIShopMainCommand::register);
         if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
             CommandRegistrationCallback.EVENT.register(GUIShopDevTestCommand::register);

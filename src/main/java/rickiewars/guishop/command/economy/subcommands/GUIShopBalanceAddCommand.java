@@ -19,8 +19,8 @@ import rickiewars.guishop.errors.CommandErrors;
 
 import java.math.BigInteger;
 
-public class GUIShopBalanceAddCommand {
-    public static LiteralArgumentBuilder<CommandSourceStack> register() {
+public interface GUIShopBalanceAddCommand {
+    static LiteralArgumentBuilder<CommandSourceStack> register() {
         return Commands.literal("add")
             .requires(GuiShopPermission.BALANCE_ADD.require())
             .then(Commands.argument("player", EntityArgument.player())
@@ -29,7 +29,7 @@ public class GUIShopBalanceAddCommand {
                 ));
     }
 
-    public static int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+    static int run(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         ServerPlayer player = EntityArgument.getPlayer(context, "player");
         EconomyCurrency currency = GuiShopBalanceCommands.getCurrency(context);
 

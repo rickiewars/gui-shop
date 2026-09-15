@@ -2,13 +2,21 @@ package rickiewars.guishop.shop;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.core.appender.AbstractAppender;
+import org.apache.logging.log4j.core.config.Property;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.MinecraftTest;
 import rickiewars.guishop.api.minecraft.ResourceId;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
 import rickiewars.guishop.economy.EconomyUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -20,6 +28,28 @@ class ShopTest extends MinecraftTest {
     ResourceId defaultCurrency;
 
     Shop shop;
+
+    private CapturingAppender logAppender;
+    private Logger guiShopLogger;
+
+    @AfterEach
+    void resetGlobalState() {
+        GUIShop.shops = new java.util.LinkedList<>();
+    }
+
+    @BeforeEach
+    void attachLogCapture() {
+        guiShopLogger = (Logger) LogManager.getLogger("gui-shop");
+        logAppender = new CapturingAppender();
+        logAppender.start();
+        guiShopLogger.addAppender(logAppender);
+    }
+
+    @AfterEach
+    void detachLogCapture() {
+        guiShopLogger.removeAppender(logAppender);
+        logAppender.stop();
+    }
 
     @BeforeEach
     void setup() {
@@ -177,5 +207,98 @@ class ShopTest extends MinecraftTest {
         );
 
         assertEquals(Items.CHEST, shopWithoutIcon.getIcon().getItem());
+    }
+
+    @Test
+    void findByNameReturnsMatchingShopByDisplayName() {
+        GUIShop.shops = List.of(shop);
+        assertSame(shop, Shop.findByName("TestShop"));
+    }
+
+    @Test
+    void findByNameReturnsNullWhenNoMatch() {
+        GUIShop.shops = List.of(shop);
+        assertNull(Shop.findByName("Other Shop"));
+    }
+
+    @Test
+    void findByNameIsCaseSensitive() {
+        GUIShop.shops = List.of(shop);
+        assertNull(Shop.findByName("testshop"));
+    }
+
+    @Test
+    void validateLogsNothingForValidItems() {
+        shop.validate();
+
+        assertTrue(logAppender.messages.isEmpty());
+    }
+
+    @Test
+    void validateWarnsOnInvalidBuyPrice() {
+        ShopItem invalidBuyPrice = new ShopItem("Broken", new MinecraftItemStack(new ItemStack(Items.STONE)), -2, 5, null, List.of());
+        Shop s = new Shop("s", "S", List.of(invalidBuyPrice), null, null, SellPricing.DEFAULT);
+
+        s.validate();
+
+        assertEquals(1, logAppender.messages.size());
+        assertTrue(logAppender.messages.get(0).contains("invalid buyPrice"));
+    }
+
+    @Test
+    void validateWarnsOnInvalidSellPrice() {
+        ShopItem invalidSellPrice = new ShopItem("Broken", new MinecraftItemStack(new ItemStack(Items.STONE)), 5, -2, null, List.of());
+        Shop s = new Shop("s", "S", List.of(invalidSellPrice), null, null, SellPricing.DEFAULT);
+
+        s.validate();
+
+        assertEquals(1, logAppender.messages.size());
+        assertTrue(logAppender.messages.get(0).contains("invalid sellPrice"));
+    }
+
+    @Test
+    void validateWarnsWhenSellPriceExceedsBuyPrice() {
+        ShopItem moneyLoop = new ShopItem("Loop", new MinecraftItemStack(new ItemStack(Items.STONE)), 10, 20, null, List.of());
+        Shop s = new Shop("s", "S", List.of(moneyLoop), null, null, SellPricing.DEFAULT);
+
+        s.validate();
+
+        assertEquals(1, logAppender.messages.size());
+        assertTrue(logAppender.messages.get(0).contains("money loop"));
+    }
+
+    @Test
+    void validateDoesNotWarnWhenBuyOrSellIsDisabled() {
+        ShopItem sellOnly = new ShopItem("SellOnly", new MinecraftItemStack(new ItemStack(Items.STONE)), -1, 5, null, List.of());
+        ShopItem buyOnly = new ShopItem("BuyOnly", new MinecraftItemStack(new ItemStack(Items.STONE)), 5, -1, null, List.of());
+        Shop s = new Shop("s", "S", List.of(sellOnly, buyOnly), null, null, SellPricing.DEFAULT);
+
+        s.validate();
+
+        assertTrue(logAppender.messages.isEmpty());
+    }
+
+    @Test
+    void validateWarnsSeparatelyForEachInvalidItem() {
+        ShopItem invalidBuyPrice = new ShopItem("Broken1", new MinecraftItemStack(new ItemStack(Items.STONE)), -2, 5, null, List.of());
+        ShopItem moneyLoop = new ShopItem("Broken2", new MinecraftItemStack(new ItemStack(Items.DIRT)), 10, 20, null, List.of());
+        Shop s = new Shop("s", "S", List.of(invalidBuyPrice, moneyLoop), null, null, SellPricing.DEFAULT);
+
+        s.validate();
+
+        assertEquals(2, logAppender.messages.size());
+    }
+
+    private static class CapturingAppender extends AbstractAppender {
+        final List<String> messages = new ArrayList<>();
+
+        CapturingAppender() {
+            super("capturing-test-appender", null, null, false, Property.EMPTY_ARRAY);
+        }
+
+        @Override
+        public void append(LogEvent event) {
+            messages.add(event.getMessage().getFormattedMessage());
+        }
     }
 }

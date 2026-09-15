@@ -6,8 +6,8 @@ import org.jetbrains.annotations.Nullable;
 import rickiewars.guishop.GUIShop;
 import rickiewars.guishop.api.minecraft.IItemStack;
 import rickiewars.guishop.api.minecraft.ResourceId;
+import rickiewars.guishop.api.minecraft.impl.ItemRegistry;
 import rickiewars.guishop.economy.EconomyUtils;
-import rickiewars.guishop.util.CommonMethods;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -23,6 +23,20 @@ public class Shop {
     private final ResourceId defaultCurrencyId;
     private final ResourceId icon;
     private final SellPricing sellPricing;
+
+    /**
+     * Finds shop data by display name.
+     * @param name The case-sensitive display name of the shop to look for
+     * @return The matching {@link Shop} from {@link GUIShop#shops}, or null if none is found.
+     */
+    public static Shop findByName(String name) {
+        for (Shop shop : GUIShop.shops) {
+            if (shop.getDisplayName().equals(name)) {
+                return shop;
+            }
+        }
+        return null;
+    }
 
     public String getId() {
         return id;
@@ -116,10 +130,7 @@ public class Shop {
     }
 
     public ItemStack getIcon() {
-        return new ItemStack(CommonMethods.getItem(
-            icon.toString(),
-            Items.CHEST
-        ));
+        return new ItemStack(ItemRegistry.get(icon, Items.CHEST));
     }
 
     /// Load-time sanity checks and logs warnings

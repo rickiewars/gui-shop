@@ -12,6 +12,7 @@ import rickiewars.guishop.api.minecraft.ResourceId;
 import rickiewars.guishop.api.minecraft.impl.MinecraftCompat;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemCodec;
 import rickiewars.guishop.api.minecraft.impl.MinecraftItemStack;
+import rickiewars.guishop.shop.SellPricing;
 import rickiewars.guishop.shop.Shop;
 import rickiewars.guishop.shop.ShopItem;
 import rickiewars.guishop.util.TestUtils;
@@ -116,6 +117,27 @@ public class SnbtShopStoreTest extends MinecraftTest {
         List<Shop> loaded = store.readAll();
         assertEquals(1, loaded.size());
         assertEquals(1, loaded.get(0).getItems().size());
+    }
+
+    @Test
+    void readSellPricingFallsBackToDefaultsForMissingFields() throws IOException {
+        String content = "{DataVersion:" + itemCodec.currentDataVersion() + ",displayName:\"Test\","
+            + "sellPricing:{firstUsePenalty:0.5d,damageCurveExponent:2.0d},entries:[]}";
+        Path file = tempDir.resolve("partial_pricing.snbt");
+        Files.writeString(file, content, StandardCharsets.UTF_8);
+
+        Optional<Shop> result = store.readShop(file);
+
+        assertTrue(result.isPresent());
+        SellPricing pricing = result.get().getSellPricing();
+
+        assertEquals(0.5, pricing.firstUsePenalty());
+        assertEquals(2.0, pricing.damageCurveExponent());
+
+        assertEquals(SellPricing.DEFAULT.minValueFraction(), pricing.minValueFraction());
+        assertEquals(SellPricing.DEFAULT.repairCostPenaltyPerPoint(), pricing.repairCostPenaltyPerPoint());
+        assertEquals(SellPricing.DEFAULT.customNamePenalty(), pricing.customNamePenalty());
+        assertEquals(SellPricing.DEFAULT.lorePenalty(), pricing.lorePenalty());
     }
 
     @Test

@@ -9,7 +9,7 @@ import net.minecraft.world.item.Items;
 import rickiewars.guishop.api.minecraft.ResourceId;
 import rickiewars.guishop.api.minecraft.impl.ItemRegistry;
 import rickiewars.guishop.config.GuiShopConfig;
-import rickiewars.guishop.util.CommonMethods;
+import rickiewars.guishop.util.StringUtils;
 
 import java.math.BigInteger;
 
@@ -46,10 +46,10 @@ public class GuiShopEconomyCurrency extends EconomyCurrencyCompat {
 
         String valueString = value.toString();
         if (valueString.length() <= decimalPlaces + 1) {
-            valueString = CommonMethods.padLeft(valueString, decimalPlaces + 1, '0');
+            valueString = StringUtils.padLeft(valueString, decimalPlaces + 1, '0');
         }
         return prefix
-            + CommonMethods.insert(valueString, -decimalPlaces, '.')
+            + StringUtils.insert(valueString, -decimalPlaces, '.')
             + suffix;
     }
 
